@@ -1,0 +1,33 @@
+{
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+    "e58345e8-c12f-4b11-b155-ba26903eb9fd++3031" : {
+      "DVTSourceControlWorkingCopyRepositoryBranchesLocationKey" : "branches",
+      "DVTSourceControlWorkingCopyRepositoryTagsLocationKey" : "tags",
+      "DVTSourceControlWorkingCopyRepositoryPrimaryBranchLocationKey" : "trunk"
+    }
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "F73223046C8E5C3811CC17CF11D424D8F73BA066" : 0,
+    "e58345e8-c12f-4b11-b155-ba26903eb9fd++3031" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "E4248088-D2F7-48DC-B5F5-6241A8BBBEC7",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "F73223046C8E5C3811CC17CF11D424D8F73BA066" : "..\/iOS\/libraries\/MHWDirectoryWatcher",
+    "e58345e8-c12f-4b11-b155-ba26903eb9fd++3031" : "..\/iOS\/libraries"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "EDDiscovery",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "EDDiscovery.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/hwaxxer\/MHWDirectoryWatcher.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "F73223046C8E5C3811CC17CF11D424D8F73BA066"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "http:\/\/192.168.1.200\/svn\/Zirak_sharedLibraries",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Subversion",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "e58345e8-c12f-4b11-b155-ba26903eb9fd++3031"
+    }
+  ]
+}

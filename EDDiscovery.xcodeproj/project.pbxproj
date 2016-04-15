@@ -12,6 +12,11 @@
 		D9BAB5E31CC0F7D80087BC07 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB5E21CC0F7D80087BC07 /* ViewController.m */; };
 		D9BAB5E51CC0F7D80087BC07 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D9BAB5E41CC0F7D80087BC07 /* Assets.xcassets */; };
 		D9BAB5E81CC0F7D80087BC07 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D9BAB5E61CC0F7D80087BC07 /* Main.storyboard */; };
+		D9BAB6351CC126470087BC07 /* UKFileWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB62D1CC126470087BC07 /* UKFileWatcher.m */; };
+		D9BAB6361CC126470087BC07 /* UKFNSubscribeFileWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB62F1CC126470087BC07 /* UKFNSubscribeFileWatcher.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		D9BAB6371CC126470087BC07 /* UKKQueue Readme.txt in Resources */ = {isa = PBXBuildFile; fileRef = D9BAB6301CC126470087BC07 /* UKKQueue Readme.txt */; };
+		D9BAB6381CC126470087BC07 /* UKKQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB6321CC126470087BC07 /* UKKQueue.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		D9BAB6391CC126470087BC07 /* UKMainThreadProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB6341CC126470087BC07 /* UKMainThreadProxy.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +29,15 @@
 		D9BAB5E41CC0F7D80087BC07 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D9BAB5E71CC0F7D80087BC07 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D9BAB5E91CC0F7D80087BC07 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D9BAB62C1CC126470087BC07 /* UKFileWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UKFileWatcher.h; sourceTree = "<group>"; };
+		D9BAB62D1CC126470087BC07 /* UKFileWatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UKFileWatcher.m; sourceTree = "<group>"; };
+		D9BAB62E1CC126470087BC07 /* UKFNSubscribeFileWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UKFNSubscribeFileWatcher.h; sourceTree = "<group>"; };
+		D9BAB62F1CC126470087BC07 /* UKFNSubscribeFileWatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UKFNSubscribeFileWatcher.m; sourceTree = "<group>"; };
+		D9BAB6301CC126470087BC07 /* UKKQueue Readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "UKKQueue Readme.txt"; sourceTree = "<group>"; };
+		D9BAB6311CC126470087BC07 /* UKKQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UKKQueue.h; sourceTree = "<group>"; };
+		D9BAB6321CC126470087BC07 /* UKKQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UKKQueue.m; sourceTree = "<group>"; };
+		D9BAB6331CC126470087BC07 /* UKMainThreadProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UKMainThreadProxy.h; sourceTree = "<group>"; };
+		D9BAB6341CC126470087BC07 /* UKMainThreadProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UKMainThreadProxy.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,6 +51,50 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D95E14EA1CC1AA030087BC07 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				D95E14EB1CC1AA090087BC07 /* File monitoring */,
+			);
+			name = Core;
+			sourceTree = "<group>";
+		};
+		D95E14EB1CC1AA090087BC07 /* File monitoring */ = {
+			isa = PBXGroup;
+			children = (
+				D9BAB62C1CC126470087BC07 /* UKFileWatcher.h */,
+				D9BAB62D1CC126470087BC07 /* UKFileWatcher.m */,
+				D9BAB62E1CC126470087BC07 /* UKFNSubscribeFileWatcher.h */,
+				D9BAB62F1CC126470087BC07 /* UKFNSubscribeFileWatcher.m */,
+				D9BAB6301CC126470087BC07 /* UKKQueue Readme.txt */,
+				D9BAB6311CC126470087BC07 /* UKKQueue.h */,
+				D9BAB6321CC126470087BC07 /* UKKQueue.m */,
+				D9BAB6331CC126470087BC07 /* UKMainThreadProxy.h */,
+				D9BAB6341CC126470087BC07 /* UKMainThreadProxy.m */,
+			);
+			name = "File monitoring";
+			sourceTree = "<group>";
+		};
+		D95E14EC1CC1AA180087BC07 /* GUI */ = {
+			isa = PBXGroup;
+			children = (
+				D9BAB5DB1CC0F7D80087BC07 /* AppDelegate.h */,
+				D9BAB5DC1CC0F7D80087BC07 /* AppDelegate.m */,
+				D9BAB5E11CC0F7D80087BC07 /* ViewController.h */,
+				D9BAB5E21CC0F7D80087BC07 /* ViewController.m */,
+				D9BAB5E61CC0F7D80087BC07 /* Main.storyboard */,
+			);
+			name = GUI;
+			sourceTree = "<group>";
+		};
+		D95E14ED1CC1AA2B0087BC07 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				D9BAB5E41CC0F7D80087BC07 /* Assets.xcassets */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
 		D9BAB5CF1CC0F7D80087BC07 = {
 			isa = PBXGroup;
 			children = (
@@ -56,12 +114,9 @@
 		D9BAB5DA1CC0F7D80087BC07 /* EDDiscovery */ = {
 			isa = PBXGroup;
 			children = (
-				D9BAB5DB1CC0F7D80087BC07 /* AppDelegate.h */,
-				D9BAB5DC1CC0F7D80087BC07 /* AppDelegate.m */,
-				D9BAB5E11CC0F7D80087BC07 /* ViewController.h */,
-				D9BAB5E21CC0F7D80087BC07 /* ViewController.m */,
-				D9BAB5E41CC0F7D80087BC07 /* Assets.xcassets */,
-				D9BAB5E61CC0F7D80087BC07 /* Main.storyboard */,
+				D95E14EA1CC1AA030087BC07 /* Core */,
+				D95E14EC1CC1AA180087BC07 /* GUI */,
+				D95E14ED1CC1AA2B0087BC07 /* Resources */,
 				D9BAB5E91CC0F7D80087BC07 /* Info.plist */,
 				D9BAB5DE1CC0F7D80087BC07 /* Supporting Files */,
 			);
@@ -133,6 +188,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D9BAB6371CC126470087BC07 /* UKKQueue Readme.txt in Resources */,
 				D9BAB5E51CC0F7D80087BC07 /* Assets.xcassets in Resources */,
 				D9BAB5E81CC0F7D80087BC07 /* Main.storyboard in Resources */,
 			);
@@ -145,8 +201,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D9BAB6381CC126470087BC07 /* UKKQueue.m in Sources */,
 				D9BAB5E31CC0F7D80087BC07 /* ViewController.m in Sources */,
 				D9BAB5E01CC0F7D80087BC07 /* main.m in Sources */,
+				D9BAB6351CC126470087BC07 /* UKFileWatcher.m in Sources */,
+				D9BAB6361CC126470087BC07 /* UKFNSubscribeFileWatcher.m in Sources */,
+				D9BAB6391CC126470087BC07 /* UKMainThreadProxy.m in Sources */,
 				D9BAB5DD1CC0F7D80087BC07 /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -249,24 +309,28 @@
 		D9BAB5ED1CC0F7D80087BC07 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = EDDiscovery/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = it.moonrays.EDDiscovery;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = /Users/thorin/Devel/iOS/libraries/MHWDirectoryWatcher;
 			};
 			name = Debug;
 		};
 		D9BAB5EE1CC0F7D80087BC07 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = EDDiscovery/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = it.moonrays.EDDiscovery;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = /Users/thorin/Devel/iOS/libraries/MHWDirectoryWatcher;
 			};
 			name = Release;
 		};
@@ -289,6 +353,7 @@
 				D9BAB5EE1CC0F7D80087BC07 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
