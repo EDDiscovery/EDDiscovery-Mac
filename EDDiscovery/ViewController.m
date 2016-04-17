@@ -9,6 +9,7 @@
 #import "ViewController.h"
 
 #import "UKKQueue.h"
+#import "EDSMConnection.h"
 
 #define LOG_DIR_PATH @"/Users/thorin/Library/Application Support/Frontier Developments/Elite Dangerous/Logs"
 
@@ -25,6 +26,8 @@
   [super viewDidLoad];
 
   [self addLog:@"HELLO!!!"];
+  
+  //[EDSMConnection getSystemInfo:@"Sol" response:nil];
   
   [[UKKQueue sharedFileWatcher] setDelegate:self];
   [[UKKQueue sharedFileWatcher] addPathToQueue:LOG_DIR_PATH];
@@ -116,7 +119,7 @@
       //extract date from file name
       //netLog.160415232458.01.log
       
-      fileDate = [[currPath lastPathComponent] substringWithRange:NSMakeRange(7, 6)];
+      fileDate = [[currPath lastPathComponent] substringWithRange:NSMakeRange(7, 12)];
     }
     
     NSData   *data  = [fileHandle readDataToEndOfFile];
@@ -135,40 +138,110 @@
   }
 }
 
-//NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-//NSDate          *date       = nil;
-//
-//formatter.dateFormat = @"ddMMyy";
-//
-//fileDate = [[currPath lastPathComponent] substringWithRange:NSMakeRange(7, 6)];
-//date     = [formatter dateFromString:fileDate];
-//
-//formatter.dateFormat = @"yyyyMMdd";
-//
-//fileDate = [formatter stringFromDate:date];
+- (void)parseNetLogRecord:(NSString *)record referenceDate:(NSString *)referenceDateTime {
+#define SYSTEM_KEY @"system"
+#define TIMESTAMP_KEY @"timrstamp"
+#define FLIGHT_TYPE_KEY @"space"
 
-- (void)parseNetLogRecord:(NSString *)record referenceDate:(NSString *)referenceDate {
-  static NSString       *refDate    = nil;
-  static NSTimeInterval  dateOffset = 0;
+  NSDate   *date      = [self parseDateOfRecord:record referenceDateTime:referenceDateTime];
+  NSString *system     = [self parseSystemNameOfRecord:record];
+  NSString *flightType = [self parseFlightTypeOfRecord:record];
+
+  NSDateFormatter *dateTimeFormatter = [[NSDateFormatter alloc] init];
+
+  dateTimeFormatter.dateFormat = @"yyyyMMdd HH:mm:ss";
+
+  NSString *dateTime = [dateTimeFormatter stringFromDate:date];
+
+  NSDictionary *parsed = @{SYSTEM_KEY:system,
+                           TIMESTAMP_KEY:date,
+                           FLIGHT_TYPE_KEY:flightType};
+
+  NSLog(@"%@ ==> %@ ==> %@", [record substringWithRange:NSMakeRange(1, 8)], dateTime, parsed);
   
-  if ([refDate isEqualToString:referenceDate] == NO) {
-    refDate    = referenceDate;
-    dateOffset = 0;
-  }
+  [EDSMConnection getSystemInfo:system response:^(NSDictionary *response, NSError *error) {
+    
+  }];
   
   [self addLog:record timestamp:NO newline:YES];
+}
+
+- (NSDate *)parseDateOfRecord:(NSString *)record referenceDateTime:(NSString *)referenceDateTime {
+  //netLog records have this format
+  //{00:19:00} System:11(Frecku US-U d2-11) Body:1 Pos:(1.67497e+10,-2.85834e+07,1.1919e+09) Supercruise
+  //{00:23:21} System:11(Frecku US-U d2-11) Body:17 Pos:(1.96291e+07,-2.16646e+07,5.13991e+07) NormalFlight
+  
+  static NSString        *strRefDateTime    = nil;
+  static NSDate          *refDateTime       = nil;
+  static NSString        *refStrDate        = nil;
+  static NSDateFormatter *dateTimeFormatter = nil;
+  static NSDateFormatter *dateFormatter     = nil;
+  static dispatch_once_t  onceToken;
+  
+  dispatch_once(&onceToken, ^{
+    dateTimeFormatter = [[NSDateFormatter alloc] init];
+    dateFormatter     = [[NSDateFormatter alloc] init];
+    
+    //reference date format
+    //160415232458
+    dateTimeFormatter.dateFormat = @"yyMMddHHmmss";
+    dateFormatter.dateFormat     = @"yyMMdd";
+  });
+  
+  if ([strRefDateTime isEqualToString:referenceDateTime] == NO) {
+    strRefDateTime = referenceDateTime;
+    refDateTime    = [dateTimeFormatter dateFromString:strRefDateTime];
+    refStrDate     = [dateFormatter stringFromDate:refDateTime];
+  }
+  
+  NSString *strTime     = [[record substringWithRange:NSMakeRange(1, 8)] stringByReplacingOccurrencesOfString:@":" withString:@""];
+  NSString *strDateTime = [NSString stringWithFormat:@"%@%@", refStrDate, strTime];
+  NSDate   *dateTime    = [dateTimeFormatter dateFromString:strDateTime];
+  
+  // add 1 day to reference date if dates in netlog file wrapped
+  
+  if ([refDateTime earlierDate:dateTime] == dateTime) {
+    NSDateComponents *dayComponent = [[NSDateComponents alloc] init];
+    NSCalendar       *calendar     = [NSCalendar currentCalendar];
+    
+    dayComponent.day = 1;
+    
+    refDateTime = [calendar dateByAddingComponents:dayComponent toDate:refDateTime options:0];
+    refStrDate  = [dateFormatter stringFromDate:refDateTime];
+    refDateTime = [dateFormatter dateFromString:refStrDate]; //otherwise refDateTime will be incorrect for subsequent calculations
+    strDateTime = [NSString stringWithFormat:@"%@%@", refStrDate, strTime];
+    dateTime    = [dateTimeFormatter dateFromString:strDateTime];
+  }
+  
+  return dateTime;
+}
+
+- (NSString *)parseSystemNameOfRecord:(NSString *)record {
+  NSRange range = [record rangeOfString:@"System:"];
+  
+  record = [record substringFromIndex:range.location + range.length];
+  
+  NSRange range1 = [record rangeOfString:@"("];
+  NSRange range2 = [record rangeOfString:@")"];
+  
+  range  = NSMakeRange(range1.location + 1, range2.location - range1.location - 1);
+  record = [record substringWithRange:range];
+  
+  return record;
+}
+
+- (NSString *)parseFlightTypeOfRecord:(NSString *)record {
+  NSArray *words = [record componentsSeparatedByString:@" "];
+  
+  record = [words.lastObject stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+  
+  return record;
 }
 
 #pragma mark -
 #pragma mark user-visible debug logging
 
 - (void)addLog:(NSString *)msg {
-#define SYSTEM_KEY @"system"
-#define TIMESTAMP_KEY @"timrstamp"
-#define FLIGHT_TYPE_KEY @"space"
-  
-  
-  
   [self addLog:msg timestamp:YES newline:YES];
 }
 
@@ -180,7 +253,11 @@
   }
   
   if (timestamp) {
-    [value appendFormat:@"%@", NSDate.date];
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    
+    formatter.dateFormat = @"HH:mm:ss - ";
+    
+    [value appendString:[formatter stringFromDate:NSDate.date]];
   }
   
   [value appendString:msg];

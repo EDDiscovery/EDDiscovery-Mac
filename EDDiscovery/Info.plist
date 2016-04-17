@@ -30,5 +30,20 @@
 	<string>Main</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+	  <key>NSExceptionDomains</key>
+	  <dict>
+		<key>www.edsm.net</key>
+		<dict>
+		  <!--Include to allow subdomains-->
+		  <key>NSIncludesSubdomains</key>
+		  <true/>
+		  <!--Include to allow HTTP requests-->
+		  <key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
+		  <true/>
+		</dict>
+	  </dict>
+	</dict>
 </dict>
 </plist>

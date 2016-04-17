@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D95E150D1CC42DE40087BC07 /* HttpApiManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D95E150C1CC42DE40087BC07 /* HttpApiManager.m */; };
+		D95E15131CC42E620087BC07 /* EDSMConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = D95E15121CC42E620087BC07 /* EDSMConnection.m */; };
+		D95E151A1CC42F7A0087BC07 /* KeychainItemWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = D95E15191CC42F7A0087BC07 /* KeychainItemWrapper.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		D9BAB5DD1CC0F7D80087BC07 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB5DC1CC0F7D80087BC07 /* AppDelegate.m */; };
 		D9BAB5E01CC0F7D80087BC07 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB5DF1CC0F7D80087BC07 /* main.m */; };
 		D9BAB5E31CC0F7D80087BC07 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB5E21CC0F7D80087BC07 /* ViewController.m */; };
@@ -20,6 +23,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D95E150B1CC42DE40087BC07 /* HttpApiManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HttpApiManager.h; sourceTree = "<group>"; };
+		D95E150C1CC42DE40087BC07 /* HttpApiManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HttpApiManager.m; sourceTree = "<group>"; };
+		D95E15111CC42E620087BC07 /* EDSMConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EDSMConnection.h; sourceTree = "<group>"; };
+		D95E15121CC42E620087BC07 /* EDSMConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EDSMConnection.m; sourceTree = "<group>"; };
+		D95E15181CC42F7A0087BC07 /* KeychainItemWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeychainItemWrapper.h; sourceTree = "<group>"; };
+		D95E15191CC42F7A0087BC07 /* KeychainItemWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeychainItemWrapper.m; sourceTree = "<group>"; };
 		D9BAB5D81CC0F7D80087BC07 /* EDDiscovery.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EDDiscovery.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9BAB5DB1CC0F7D80087BC07 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D9BAB5DC1CC0F7D80087BC07 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -55,6 +64,8 @@
 			isa = PBXGroup;
 			children = (
 				D95E14EB1CC1AA090087BC07 /* File monitoring */,
+				D95E15171CC42F6B0087BC07 /* Keychain access */,
+				D95E15061CC42C380087BC07 /* Networking */,
 			);
 			name = Core;
 			sourceTree = "<group>";
@@ -93,6 +104,34 @@
 				D9BAB5E41CC0F7D80087BC07 /* Assets.xcassets */,
 			);
 			name = Resources;
+			sourceTree = "<group>";
+		};
+		D95E15061CC42C380087BC07 /* Networking */ = {
+			isa = PBXGroup;
+			children = (
+				D95E15071CC42C440087BC07 /* EDSM */,
+				D95E150B1CC42DE40087BC07 /* HttpApiManager.h */,
+				D95E150C1CC42DE40087BC07 /* HttpApiManager.m */,
+			);
+			name = Networking;
+			sourceTree = "<group>";
+		};
+		D95E15071CC42C440087BC07 /* EDSM */ = {
+			isa = PBXGroup;
+			children = (
+				D95E15111CC42E620087BC07 /* EDSMConnection.h */,
+				D95E15121CC42E620087BC07 /* EDSMConnection.m */,
+			);
+			name = EDSM;
+			sourceTree = "<group>";
+		};
+		D95E15171CC42F6B0087BC07 /* Keychain access */ = {
+			isa = PBXGroup;
+			children = (
+				D95E15181CC42F7A0087BC07 /* KeychainItemWrapper.h */,
+				D95E15191CC42F7A0087BC07 /* KeychainItemWrapper.m */,
+			);
+			name = "Keychain access";
 			sourceTree = "<group>";
 		};
 		D9BAB5CF1CC0F7D80087BC07 = {
@@ -201,12 +240,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D95E150D1CC42DE40087BC07 /* HttpApiManager.m in Sources */,
 				D9BAB6381CC126470087BC07 /* UKKQueue.m in Sources */,
 				D9BAB5E31CC0F7D80087BC07 /* ViewController.m in Sources */,
 				D9BAB5E01CC0F7D80087BC07 /* main.m in Sources */,
 				D9BAB6351CC126470087BC07 /* UKFileWatcher.m in Sources */,
+				D95E15131CC42E620087BC07 /* EDSMConnection.m in Sources */,
 				D9BAB6361CC126470087BC07 /* UKFNSubscribeFileWatcher.m in Sources */,
 				D9BAB6391CC126470087BC07 /* UKMainThreadProxy.m in Sources */,
+				D95E151A1CC42F7A0087BC07 /* KeychainItemWrapper.m in Sources */,
 				D9BAB5DD1CC0F7D80087BC07 /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
