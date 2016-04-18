@@ -103,6 +103,10 @@
 //                                        exit(-1);
 //                                      })]];
     
+#ifdef DEBUG
+    @throw e;
+#endif
+    
     return;
   }
 	
@@ -136,15 +140,19 @@
 
 // Returns a new instance of the managed object context for the application.
 - (NSManagedObjectContext *) managedObjectContext {
-	NSManagedObjectContext       *managedObjectContext = nil;
-	NSPersistentStoreCoordinator *coordinator          = self.persistentStoreCoordinator;
-		
-	if (coordinator != nil) {
-		managedObjectContext = [[NSManagedObjectContext alloc] init];
-		[managedObjectContext setPersistentStoreCoordinator:coordinator];
-	}
+	static NSManagedObjectContext *managedObjectContext = nil;
+  
+  if (managedObjectContext == nil) {
+    NSPersistentStoreCoordinator *coordinator = self.persistentStoreCoordinator;
+      
+    if (coordinator != nil) {
+      managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+      
+      [managedObjectContext setPersistentStoreCoordinator:coordinator];
+    }
+  }
 	
-	return [managedObjectContext autorelease];
+	return managedObjectContext;
 }
 
 // Returns the managed object model for the application.
@@ -186,6 +194,11 @@
 +(NSString *)dbPathName {
   NSArray  *paths   = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
   NSString *dataDir = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
+#ifdef DEBUG
+#warning VERIFICARE PATH DB!!!!!
+#else
+#error VERIFICARE PATH DB!!!!!
+#endif
   NSString *path    = [dataDir stringByAppendingPathComponent:@"EDDiscoveryData.sqlite"];
   
   return path;

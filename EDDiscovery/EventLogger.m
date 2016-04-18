@@ -8,7 +8,9 @@
 
 #import "EventLogger.h"
 
-@implementation EventLogger
+@implementation EventLogger {
+  NSMutableString *text;
+}
 
 #pragma mark -
 #pragma mark instance management
@@ -32,21 +34,47 @@
 - (id)initInstance {
   self = [super init];
   
+  if (self != nil) {
+    text = [[NSMutableString alloc] init];
+  }
+  
   return self;
 }
 
 #pragma mark -
 #pragma mark user-visible debug logging
 
-- (void)addLog:(NSString *)msg {
++ (void)addLog:(NSString *)msg {
   [self addLog:msg timestamp:YES newline:YES];
 }
 
++ (void)addLog:(NSString *)msg timestamp:(BOOL)timestamp newline:(BOOL)newline {
+  [self.instance addLog:msg timestamp:timestamp newline:newline];
+}
+
++ (void)addProcessingStep {
+  [self.instance addProcessingStep];
+}
+
+- (void)addProcessingStep {
+  if (text.length == 0) {
+    [text appendString:@"\n"];
+  }
+  else if ([text hasSuffix:@"."] == NO) {
+    [text appendString:@"\n"];
+  }
+  
+  [text appendString:@"."];
+  
+  [self.textView setString:text];
+  [self.textView scrollRangeToVisible:NSMakeRange(text.length, 0)];
+}
+
 - (void)addLog:(NSString *)msg timestamp:(BOOL)timestamp newline:(BOOL)newline {
-  NSMutableString *value = [NSMutableString stringWithString:self.textView.string];
+  NSLog(@"%@", msg);
   
   if (newline) {
-    [value appendString:@"\n"];
+    [text appendString:@"\n"];
   }
   
   if (timestamp) {
@@ -54,13 +82,13 @@
     
     formatter.dateFormat = @"HH:mm:ss - ";
     
-    [value appendString:[formatter stringFromDate:NSDate.date]];
+    [text appendString:[formatter stringFromDate:NSDate.date]];
   }
   
-  [value appendString:msg];
+  [text appendString:msg];
   
-  [self.textView setString:value];
-  [self.textView scrollRangeToVisible:NSMakeRange([value length], 0)];
+  [self.textView setString:text];
+  [self.textView scrollRangeToVisible:NSMakeRange(text.length, 0)];
 }
 
 @end

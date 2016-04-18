@@ -13,8 +13,15 @@
     </entity>
     <entity name="Jump" representedClassName="Jump" syncable="YES">
         <attribute name="timestamp" attributeType="Date" indexed="YES" syncable="YES"/>
+        <relationship name="netLogFile" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="NetLogFile" inverseName="jumps" inverseEntity="NetLogFile" syncable="YES"/>
         <relationship name="system" maxCount="1" deletionRule="Nullify" destinationEntity="System" inverseName="jumps" inverseEntity="System" syncable="YES"/>
         <relationship name="trip" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Trip" inverseName="jumps" inverseEntity="Trip" syncable="YES"/>
+    </entity>
+    <entity name="NetLogFile" representedClassName="NetLogFile" syncable="YES">
+        <attribute name="complete" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
+        <attribute name="fileOffset" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="path" attributeType="String" syncable="YES"/>
+        <relationship name="jumps" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Jump" inverseName="netLogFile" inverseEntity="Jump" syncable="YES"/>
     </entity>
     <entity name="System" representedClassName="System" syncable="YES">
         <attribute name="name" attributeType="String" syncable="YES"/>
@@ -33,11 +40,12 @@
         <relationship name="jumps" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Jump" inverseName="trip" inverseEntity="Jump" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Jump" positionX="-7785" positionY="-765" width="128" height="88"/>
+        <element name="Jump" positionX="-7785" positionY="-765" width="128" height="103"/>
         <element name="System" positionX="-7562" positionY="-738" width="128" height="178"/>
-        <element name="Trip" positionX="-8003" positionY="-801" width="128" height="88"/>
-        <element name="Distance" positionX="-7337" positionY="-702" width="128" height="73"/>
-        <element name="Image" positionX="-7335" positionY="-586" width="128" height="73"/>
-        <element name="DBVersion" positionX="-8003" positionY="-576" width="128" height="58"/>
+        <element name="Trip" positionX="-8003" positionY="-693" width="128" height="88"/>
+        <element name="Distance" positionX="-7337" positionY="-684" width="128" height="73"/>
+        <element name="Image" positionX="-7335" positionY="-568" width="128" height="73"/>
+        <element name="DBVersion" positionX="-8003" positionY="-558" width="128" height="58"/>
+        <element name="NetLogFile" positionX="-8001" positionY="-810" width="128" height="103"/>
     </elements>
 </model>

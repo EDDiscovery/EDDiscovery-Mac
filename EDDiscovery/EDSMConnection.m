@@ -40,4 +40,67 @@ responseCallback:^(id response, NSError *error) {
    ];
 }
 
++ (void)getNightlyDumpWithResponse:(void(^)(NSDictionary *response, NSError *error))response {
+  NSURL        *url     = [NSURL URLWithString:@"http://www.edsm.net/dump/systemsWithCoordinates.json"];
+  NSURLRequest *request = [NSURLRequest requestWithURL:url];
+  
+  [NSURLConnection sendAsynchronousRequest:request
+                                     queue:NSOperationQueue.mainQueue
+                         completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+                           
+                           NSArray *systems = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                           
+                           NSLog(@"Got %ld systems FROM EDSM", systems.count);
+                           
+                           [[NSFileManager defaultManager] createFileAtPath:@"/Users/thorin/Desktop/pippo.json" contents:data attributes:nil];
+                           
+                         }];
+}
+
++ (void)getSystemsInfo:(NSDate *)fromDate response:(void(^)(NSDictionary *response, NSError *error))response {
+  if (fromDate == nil) {
+    [self getNightlyDumpWithResponse:^(NSDictionary *response, NSError *error) {
+      
+    }];
+  }
+  else {
+    [self setup];
+    
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    
+    formatter.dateFormat = @"yyyy-MM-dd HH-mm-ss";
+    
+    NSString       *from    = @"2015-05-10 00:00:00";//@"2015-04-29 00:00:00";
+    NSDate         *minDate = [formatter dateFromString:from];
+    NSTimeInterval  minTi   = [minDate timeIntervalSinceReferenceDate];
+    NSTimeInterval  ti      = [fromDate timeIntervalSinceReferenceDate];
+    
+    if (ti > minTi) {
+      from = [formatter stringFromDate:fromDate];
+    }
+    
+    [self callApi:@"systems"
+       withMethod:@"GET"
+   sendCredential:NO
+  responseCallback:^(id response, NSError *error) {
+    
+    //  NSLog(@"ERR: %@", error);
+    //  NSLog(@"RES: %@", response);
+    
+    if (error == nil) {
+      NSArray *systems = [NSJSONSerialization JSONObjectWithData:response options:0 error:nil];
+      
+      NSLog(@"Got %ld systems FROM EDSM", systems.count);
+    }
+  }
+     parameters:3,
+   //@"startdatetime", from,
+   @"coords", @"1",
+   @"distances", @"1",
+   //@"submitted", @"1",
+   @"known", @"1"
+   ];
+  }
+}
+
 @end

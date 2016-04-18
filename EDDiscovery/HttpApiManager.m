@@ -141,7 +141,7 @@ NSString* locale=nil;
   value2=(NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(NULL,
                                                                                (CFStringRef)value2,
                                                                                NULL,
-                                                                               (CFStringRef)@"!*'();:@&=+$,/?%#[]",
+                                                                               (CFStringRef)@"!*'();:@&=+$/?%#[]",//(CFStringRef)@"!*'();:@&=+$,/?%#[]",
                                                                                kCFStringEncodingUTF8 ));
   [parameter appendFormat:@"&%@=%@", value1, value2!=nil?value2:@""];
  }
@@ -190,7 +190,7 @@ NSString* locale=nil;
    return;
   }
   dispatch_async(dispatch_get_main_queue(), ^{
-   callback(string,nil);
+   callback(data,nil);
   });
  });
 }
@@ -315,7 +315,7 @@ NSString* locale=nil;
    return;
   }
   dispatch_async(dispatch_get_main_queue(), ^{
-   callback(string,nil);
+   callback(data,nil);
   });
  });
 }

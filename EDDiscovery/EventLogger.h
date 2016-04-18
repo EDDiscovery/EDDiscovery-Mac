@@ -13,8 +13,9 @@
 
 + (EventLogger *)instance;
 
-- (void)addLog:(NSString *)msg;
-- (void)addLog:(NSString *)msg timestamp:(BOOL)timestamp newline:(BOOL)newline;
++ (void)addProcessingStep;
++ (void)addLog:(NSString *)msg;
++ (void)addLog:(NSString *)msg timestamp:(BOOL)timestamp newline:(BOOL)newline;
 
 @property(nonatomic, strong) NSTextView *textView;
 

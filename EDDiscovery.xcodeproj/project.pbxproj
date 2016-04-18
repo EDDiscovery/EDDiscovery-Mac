@@ -23,6 +23,8 @@
 		D94DE3021CC5028B0087BC07 /* Trip.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2F81CC5028B0087BC07 /* Trip.m */; };
 		D94DE3061CC506990087BC07 /* NetLogParser.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE3051CC506990087BC07 /* NetLogParser.m */; };
 		D94DE30A1CC509720087BC07 /* EventLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE3091CC509720087BC07 /* EventLogger.m */; };
+		D94DE30F1CC510D00087BC07 /* NetLogFile+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE30C1CC510D00087BC07 /* NetLogFile+CoreDataProperties.m */; };
+		D94DE3101CC510D00087BC07 /* NetLogFile.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE30E1CC510D00087BC07 /* NetLogFile.m */; };
 		D95E150D1CC42DE40087BC07 /* HttpApiManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D95E150C1CC42DE40087BC07 /* HttpApiManager.m */; };
 		D95E15131CC42E620087BC07 /* EDSMConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = D95E15121CC42E620087BC07 /* EDSMConnection.m */; };
 		D95E151A1CC42F7A0087BC07 /* KeychainItemWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = D95E15191CC42F7A0087BC07 /* KeychainItemWrapper.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
@@ -70,6 +72,10 @@
 		D94DE3051CC506990087BC07 /* NetLogParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetLogParser.m; sourceTree = "<group>"; };
 		D94DE3081CC509720087BC07 /* EventLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventLogger.h; sourceTree = "<group>"; };
 		D94DE3091CC509720087BC07 /* EventLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EventLogger.m; sourceTree = "<group>"; };
+		D94DE30B1CC510D00087BC07 /* NetLogFile+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NetLogFile+CoreDataProperties.h"; sourceTree = "<group>"; };
+		D94DE30C1CC510D00087BC07 /* NetLogFile+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NetLogFile+CoreDataProperties.m"; sourceTree = "<group>"; };
+		D94DE30D1CC510D00087BC07 /* NetLogFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetLogFile.h; sourceTree = "<group>"; };
+		D94DE30E1CC510D00087BC07 /* NetLogFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetLogFile.m; sourceTree = "<group>"; };
 		D95E150B1CC42DE40087BC07 /* HttpApiManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HttpApiManager.h; sourceTree = "<group>"; };
 		D95E150C1CC42DE40087BC07 /* HttpApiManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HttpApiManager.m; sourceTree = "<group>"; };
 		D95E15111CC42E620087BC07 /* EDSMConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EDSMConnection.h; sourceTree = "<group>"; };
@@ -127,6 +133,10 @@
 				D94DE2EE1CC5028B0087BC07 /* Jump+CoreDataProperties.m */,
 				D94DE2EF1CC5028B0087BC07 /* Jump.h */,
 				D94DE2F01CC5028B0087BC07 /* Jump.m */,
+				D94DE30B1CC510D00087BC07 /* NetLogFile+CoreDataProperties.h */,
+				D94DE30C1CC510D00087BC07 /* NetLogFile+CoreDataProperties.m */,
+				D94DE30D1CC510D00087BC07 /* NetLogFile.h */,
+				D94DE30E1CC510D00087BC07 /* NetLogFile.m */,
 				D94DE2F11CC5028B0087BC07 /* System+CoreDataProperties.h */,
 				D94DE2F21CC5028B0087BC07 /* System+CoreDataProperties.m */,
 				D94DE2F31CC5028B0087BC07 /* System.h */,
@@ -354,8 +364,10 @@
 				D94DE2E01CC5024D0087BC07 /* DBVersion.m in Sources */,
 				D94DE3021CC5028B0087BC07 /* Trip.m in Sources */,
 				D94DE2FB1CC5028B0087BC07 /* Image+CoreDataProperties.m in Sources */,
+				D94DE3101CC510D00087BC07 /* NetLogFile.m in Sources */,
 				D9BAB6351CC126470087BC07 /* UKFileWatcher.m in Sources */,
 				D94DE2F91CC5028B0087BC07 /* Distance+CoreDataProperties.m in Sources */,
+				D94DE30F1CC510D00087BC07 /* NetLogFile+CoreDataProperties.m in Sources */,
 				D94DE2931CC4EA0E0087BC07 /* EDDiscovery.xcdatamodeld in Sources */,
 				D94DE3011CC5028B0087BC07 /* Trip+CoreDataProperties.m in Sources */,
 				D95E15131CC42E620087BC07 /* EDSMConnection.m in Sources */,

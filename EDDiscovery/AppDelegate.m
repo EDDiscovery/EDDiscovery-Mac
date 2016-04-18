@@ -9,6 +9,7 @@
 #import "AppDelegate.h"
 #import "CoreDataManager.h"
 #import "NetLogParser.h"
+#import "EventLogger.h"
 
 @implementation AppDelegate
 
@@ -48,8 +49,11 @@
                           @"%@ (build %@)",
                           [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"],
                           [[NSBundle mainBundle] objectForInfoDictionaryKey:(NSString*)kCFBundleVersionKey]];
+  NSString *msg        = [NSString stringWithFormat:@"Welcome to %@ %@", appName, appVersion];
   
-  NSLog(@"Welcome to %@ %@", appName, appVersion);
+  NSLog(@"%@", msg);
+  
+  [EventLogger addLog:msg];
   
   [NetLogParser instance];
 }

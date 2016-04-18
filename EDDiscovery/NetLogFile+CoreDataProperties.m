@@ -1,5 +1,5 @@
 //
-//  Jump+CoreDataProperties.m
+//  NetLogFile+CoreDataProperties.m
 //  EDDiscovery
 //
 //  Created by thorin on 18/04/16.
@@ -9,13 +9,13 @@
 //  to delete and recreate this implementation file for your updated model.
 //
 
-#import "Jump+CoreDataProperties.h"
+#import "NetLogFile+CoreDataProperties.h"
 
-@implementation Jump (CoreDataProperties)
+@implementation NetLogFile (CoreDataProperties)
 
-@dynamic timestamp;
-@dynamic trip;
-@dynamic system;
-@dynamic netLogFile;
+@dynamic path;
+@dynamic fileOffset;
+@dynamic complete;
+@dynamic jumps;
 
 @end

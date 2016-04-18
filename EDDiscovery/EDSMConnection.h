@@ -7,9 +7,11 @@
 //
 
 #import "HttpApiManager.h"
+#import "System.h"
 
 @interface EDSMConnection : HttpApiManager
 
++ (void)getSystemsInfo:(NSDate *)from response:(void(^)(NSDictionary *response, NSError *error))response;
 + (void)getSystemInfo:(NSString *)systemName response:(void(^)(NSDictionary *response, NSError *error))response;
 
 @end

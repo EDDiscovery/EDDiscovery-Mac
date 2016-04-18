@@ -21,8 +21,6 @@
   [super viewDidLoad];
 
   EventLogger.instance.textView = textView;
-  
-  [EventLogger.instance addLog:@"HELLO!!!"];
 }
 
 @end

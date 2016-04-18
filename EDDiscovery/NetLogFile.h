@@ -1,5 +1,5 @@
 //
-//  System.h
+//  NetLogFile.h
 //  EDDiscovery
 //
 //  Created by thorin on 18/04/16.
@@ -9,16 +9,16 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
-@class Distance, Image, Jump;
+@class Jump;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface System : NSManagedObject
+@interface NetLogFile : NSManagedObject
 
-+ (System *)systemWithName:(NSString *)name inContext:(NSManagedObjectContext *)context;
++ (NetLogFile *)netLogFileWithPath:(NSString *)path inContext:(NSManagedObjectContext *)context;
 
 @end
 
 NS_ASSUME_NONNULL_END
 
-#import "System+CoreDataProperties.h"
+#import "NetLogFile+CoreDataProperties.h"
