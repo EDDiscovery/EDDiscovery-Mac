@@ -7,19 +7,51 @@
 //
 
 #import "AppDelegate.h"
-
-@interface AppDelegate ()
-
-@end
+#import "CoreDataManager.h"
+#import "NetLogParser.h"
 
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-  // Insert code here to initialize your application
+  [self initializeApplication];
 }
 
-- (void)applicationWillTerminate:(NSNotification *)aNotification {
-  // Insert code here to tear down your application
+#pragma mark -
+#pragma mark application initialization
+
+- (void)initializeApplication {
+  BOOL needDataMigration = [[CoreDataManager instance] needDataMigration];
+  
+  if (needDataMigration == YES) {
+    NSLog(@"Need migration from old CORE DATA!");
+    
+    [self performDataMigration];
+  }
+  else {
+    [self finishInitialization];
+  }
+}
+
+- (void)performDataMigration {
+  @autoreleasepool {
+    NSLog(@"%s", __FUNCTION__);
+    
+    [CoreDataManager.instance initializeDatabaseContents];
+    
+    [self finishInitialization];
+  }
+}
+
+- (void)finishInitialization {
+  NSString *appName    = [[NSBundle mainBundle] objectForInfoDictionaryKey:(NSString *)kCFBundleNameKey];
+  NSString *appVersion = [NSString stringWithFormat:
+                          @"%@ (build %@)",
+                          [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"],
+                          [[NSBundle mainBundle] objectForInfoDictionaryKey:(NSString*)kCFBundleVersionKey]];
+  
+  NSLog(@"Welcome to %@ %@", appName, appVersion);
+  
+  [NetLogParser instance];
 }
 
 @end

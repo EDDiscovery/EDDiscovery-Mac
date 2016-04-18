@@ -7,6 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D94DE2931CC4EA0E0087BC07 /* EDDiscovery.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2911CC4EA0E0087BC07 /* EDDiscovery.xcdatamodeld */; };
+		D94DE2B41CC4FF320087BC07 /* CoreDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2B31CC4FF320087BC07 /* CoreDataManager.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		D94DE2DF1CC5024D0087BC07 /* DBVersion+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2CE1CC5024D0087BC07 /* DBVersion+CoreDataProperties.m */; };
+		D94DE2E01CC5024D0087BC07 /* DBVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2D01CC5024D0087BC07 /* DBVersion.m */; };
+		D94DE2F91CC5028B0087BC07 /* Distance+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2E61CC5028B0087BC07 /* Distance+CoreDataProperties.m */; };
+		D94DE2FA1CC5028B0087BC07 /* Distance.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2E81CC5028B0087BC07 /* Distance.m */; };
+		D94DE2FB1CC5028B0087BC07 /* Image+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2EA1CC5028B0087BC07 /* Image+CoreDataProperties.m */; };
+		D94DE2FC1CC5028B0087BC07 /* Image.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2EC1CC5028B0087BC07 /* Image.m */; };
+		D94DE2FD1CC5028B0087BC07 /* Jump+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2EE1CC5028B0087BC07 /* Jump+CoreDataProperties.m */; };
+		D94DE2FE1CC5028B0087BC07 /* Jump.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2F01CC5028B0087BC07 /* Jump.m */; };
+		D94DE2FF1CC5028B0087BC07 /* System+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2F21CC5028B0087BC07 /* System+CoreDataProperties.m */; };
+		D94DE3001CC5028B0087BC07 /* System.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2F41CC5028B0087BC07 /* System.m */; };
+		D94DE3011CC5028B0087BC07 /* Trip+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2F61CC5028B0087BC07 /* Trip+CoreDataProperties.m */; };
+		D94DE3021CC5028B0087BC07 /* Trip.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2F81CC5028B0087BC07 /* Trip.m */; };
+		D94DE3061CC506990087BC07 /* NetLogParser.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE3051CC506990087BC07 /* NetLogParser.m */; };
+		D94DE30A1CC509720087BC07 /* EventLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE3091CC509720087BC07 /* EventLogger.m */; };
 		D95E150D1CC42DE40087BC07 /* HttpApiManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D95E150C1CC42DE40087BC07 /* HttpApiManager.m */; };
 		D95E15131CC42E620087BC07 /* EDSMConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = D95E15121CC42E620087BC07 /* EDSMConnection.m */; };
 		D95E151A1CC42F7A0087BC07 /* KeychainItemWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = D95E15191CC42F7A0087BC07 /* KeychainItemWrapper.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
@@ -23,6 +39,37 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D94DE2921CC4EA0E0087BC07 /* EDDiscovery.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = EDDiscovery.xcdatamodel; sourceTree = "<group>"; };
+		D94DE2B21CC4FF320087BC07 /* CoreDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreDataManager.h; sourceTree = "<group>"; };
+		D94DE2B31CC4FF320087BC07 /* CoreDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreDataManager.m; sourceTree = "<group>"; };
+		D94DE2CD1CC5024D0087BC07 /* DBVersion+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DBVersion+CoreDataProperties.h"; sourceTree = "<group>"; };
+		D94DE2CE1CC5024D0087BC07 /* DBVersion+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DBVersion+CoreDataProperties.m"; sourceTree = "<group>"; };
+		D94DE2CF1CC5024D0087BC07 /* DBVersion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DBVersion.h; sourceTree = "<group>"; };
+		D94DE2D01CC5024D0087BC07 /* DBVersion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DBVersion.m; sourceTree = "<group>"; };
+		D94DE2E51CC5028B0087BC07 /* Distance+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Distance+CoreDataProperties.h"; sourceTree = "<group>"; };
+		D94DE2E61CC5028B0087BC07 /* Distance+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Distance+CoreDataProperties.m"; sourceTree = "<group>"; };
+		D94DE2E71CC5028B0087BC07 /* Distance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Distance.h; sourceTree = "<group>"; };
+		D94DE2E81CC5028B0087BC07 /* Distance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Distance.m; sourceTree = "<group>"; };
+		D94DE2E91CC5028B0087BC07 /* Image+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Image+CoreDataProperties.h"; sourceTree = "<group>"; };
+		D94DE2EA1CC5028B0087BC07 /* Image+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Image+CoreDataProperties.m"; sourceTree = "<group>"; };
+		D94DE2EB1CC5028B0087BC07 /* Image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Image.h; sourceTree = "<group>"; };
+		D94DE2EC1CC5028B0087BC07 /* Image.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Image.m; sourceTree = "<group>"; };
+		D94DE2ED1CC5028B0087BC07 /* Jump+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Jump+CoreDataProperties.h"; sourceTree = "<group>"; };
+		D94DE2EE1CC5028B0087BC07 /* Jump+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Jump+CoreDataProperties.m"; sourceTree = "<group>"; };
+		D94DE2EF1CC5028B0087BC07 /* Jump.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Jump.h; sourceTree = "<group>"; };
+		D94DE2F01CC5028B0087BC07 /* Jump.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Jump.m; sourceTree = "<group>"; };
+		D94DE2F11CC5028B0087BC07 /* System+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "System+CoreDataProperties.h"; sourceTree = "<group>"; };
+		D94DE2F21CC5028B0087BC07 /* System+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "System+CoreDataProperties.m"; sourceTree = "<group>"; };
+		D94DE2F31CC5028B0087BC07 /* System.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = System.h; sourceTree = "<group>"; };
+		D94DE2F41CC5028B0087BC07 /* System.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = System.m; sourceTree = "<group>"; };
+		D94DE2F51CC5028B0087BC07 /* Trip+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Trip+CoreDataProperties.h"; sourceTree = "<group>"; };
+		D94DE2F61CC5028B0087BC07 /* Trip+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Trip+CoreDataProperties.m"; sourceTree = "<group>"; };
+		D94DE2F71CC5028B0087BC07 /* Trip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Trip.h; sourceTree = "<group>"; };
+		D94DE2F81CC5028B0087BC07 /* Trip.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Trip.m; sourceTree = "<group>"; };
+		D94DE3041CC506990087BC07 /* NetLogParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetLogParser.h; sourceTree = "<group>"; };
+		D94DE3051CC506990087BC07 /* NetLogParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetLogParser.m; sourceTree = "<group>"; };
+		D94DE3081CC509720087BC07 /* EventLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventLogger.h; sourceTree = "<group>"; };
+		D94DE3091CC509720087BC07 /* EventLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EventLogger.m; sourceTree = "<group>"; };
 		D95E150B1CC42DE40087BC07 /* HttpApiManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HttpApiManager.h; sourceTree = "<group>"; };
 		D95E150C1CC42DE40087BC07 /* HttpApiManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HttpApiManager.m; sourceTree = "<group>"; };
 		D95E15111CC42E620087BC07 /* EDSMConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EDSMConnection.h; sourceTree = "<group>"; };
@@ -60,11 +107,66 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D94DE2901CC4E9E50087BC07 /* Data management */ = {
+			isa = PBXGroup;
+			children = (
+				D94DE2911CC4EA0E0087BC07 /* EDDiscovery.xcdatamodeld */,
+				D94DE2CD1CC5024D0087BC07 /* DBVersion+CoreDataProperties.h */,
+				D94DE2CE1CC5024D0087BC07 /* DBVersion+CoreDataProperties.m */,
+				D94DE2CF1CC5024D0087BC07 /* DBVersion.h */,
+				D94DE2D01CC5024D0087BC07 /* DBVersion.m */,
+				D94DE2E51CC5028B0087BC07 /* Distance+CoreDataProperties.h */,
+				D94DE2E61CC5028B0087BC07 /* Distance+CoreDataProperties.m */,
+				D94DE2E71CC5028B0087BC07 /* Distance.h */,
+				D94DE2E81CC5028B0087BC07 /* Distance.m */,
+				D94DE2E91CC5028B0087BC07 /* Image+CoreDataProperties.h */,
+				D94DE2EA1CC5028B0087BC07 /* Image+CoreDataProperties.m */,
+				D94DE2EB1CC5028B0087BC07 /* Image.h */,
+				D94DE2EC1CC5028B0087BC07 /* Image.m */,
+				D94DE2ED1CC5028B0087BC07 /* Jump+CoreDataProperties.h */,
+				D94DE2EE1CC5028B0087BC07 /* Jump+CoreDataProperties.m */,
+				D94DE2EF1CC5028B0087BC07 /* Jump.h */,
+				D94DE2F01CC5028B0087BC07 /* Jump.m */,
+				D94DE2F11CC5028B0087BC07 /* System+CoreDataProperties.h */,
+				D94DE2F21CC5028B0087BC07 /* System+CoreDataProperties.m */,
+				D94DE2F31CC5028B0087BC07 /* System.h */,
+				D94DE2F41CC5028B0087BC07 /* System.m */,
+				D94DE2F51CC5028B0087BC07 /* Trip+CoreDataProperties.h */,
+				D94DE2F61CC5028B0087BC07 /* Trip+CoreDataProperties.m */,
+				D94DE2F71CC5028B0087BC07 /* Trip.h */,
+				D94DE2F81CC5028B0087BC07 /* Trip.m */,
+				D94DE2B21CC4FF320087BC07 /* CoreDataManager.h */,
+				D94DE2B31CC4FF320087BC07 /* CoreDataManager.m */,
+			);
+			name = "Data management";
+			sourceTree = "<group>";
+		};
+		D94DE3031CC5067B0087BC07 /* Netlog parsing */ = {
+			isa = PBXGroup;
+			children = (
+				D94DE3041CC506990087BC07 /* NetLogParser.h */,
+				D94DE3051CC506990087BC07 /* NetLogParser.m */,
+			);
+			name = "Netlog parsing";
+			sourceTree = "<group>";
+		};
+		D94DE3071CC5095C0087BC07 /* Event logging */ = {
+			isa = PBXGroup;
+			children = (
+				D94DE3081CC509720087BC07 /* EventLogger.h */,
+				D94DE3091CC509720087BC07 /* EventLogger.m */,
+			);
+			name = "Event logging";
+			sourceTree = "<group>";
+		};
 		D95E14EA1CC1AA030087BC07 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				D94DE2901CC4E9E50087BC07 /* Data management */,
+				D94DE3071CC5095C0087BC07 /* Event logging */,
 				D95E14EB1CC1AA090087BC07 /* File monitoring */,
 				D95E15171CC42F6B0087BC07 /* Keychain access */,
+				D94DE3031CC5067B0087BC07 /* Netlog parsing */,
 				D95E15061CC42C380087BC07 /* Networking */,
 			);
 			name = Core;
@@ -240,14 +342,30 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D94DE2FA1CC5028B0087BC07 /* Distance.m in Sources */,
 				D95E150D1CC42DE40087BC07 /* HttpApiManager.m in Sources */,
 				D9BAB6381CC126470087BC07 /* UKKQueue.m in Sources */,
+				D94DE2FD1CC5028B0087BC07 /* Jump+CoreDataProperties.m in Sources */,
+				D94DE30A1CC509720087BC07 /* EventLogger.m in Sources */,
 				D9BAB5E31CC0F7D80087BC07 /* ViewController.m in Sources */,
+				D94DE3061CC506990087BC07 /* NetLogParser.m in Sources */,
+				D94DE2FE1CC5028B0087BC07 /* Jump.m in Sources */,
 				D9BAB5E01CC0F7D80087BC07 /* main.m in Sources */,
+				D94DE2E01CC5024D0087BC07 /* DBVersion.m in Sources */,
+				D94DE3021CC5028B0087BC07 /* Trip.m in Sources */,
+				D94DE2FB1CC5028B0087BC07 /* Image+CoreDataProperties.m in Sources */,
 				D9BAB6351CC126470087BC07 /* UKFileWatcher.m in Sources */,
+				D94DE2F91CC5028B0087BC07 /* Distance+CoreDataProperties.m in Sources */,
+				D94DE2931CC4EA0E0087BC07 /* EDDiscovery.xcdatamodeld in Sources */,
+				D94DE3011CC5028B0087BC07 /* Trip+CoreDataProperties.m in Sources */,
 				D95E15131CC42E620087BC07 /* EDSMConnection.m in Sources */,
+				D94DE2DF1CC5024D0087BC07 /* DBVersion+CoreDataProperties.m in Sources */,
+				D94DE2B41CC4FF320087BC07 /* CoreDataManager.m in Sources */,
+				D94DE2FF1CC5028B0087BC07 /* System+CoreDataProperties.m in Sources */,
 				D9BAB6361CC126470087BC07 /* UKFNSubscribeFileWatcher.m in Sources */,
 				D9BAB6391CC126470087BC07 /* UKMainThreadProxy.m in Sources */,
+				D94DE3001CC5028B0087BC07 /* System.m in Sources */,
+				D94DE2FC1CC5028B0087BC07 /* Image.m in Sources */,
 				D95E151A1CC42F7A0087BC07 /* KeychainItemWrapper.m in Sources */,
 				D9BAB5DD1CC0F7D80087BC07 /* AppDelegate.m in Sources */,
 			);
@@ -356,6 +474,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = EDDiscovery/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = it.moonrays.EDDiscovery;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = /Users/thorin/Devel/iOS/libraries/MHWDirectoryWatcher;
@@ -370,6 +489,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = EDDiscovery/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = it.moonrays.EDDiscovery;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = /Users/thorin/Devel/iOS/libraries/MHWDirectoryWatcher;
@@ -398,6 +518,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		D94DE2911CC4EA0E0087BC07 /* EDDiscovery.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				D94DE2921CC4EA0E0087BC07 /* EDDiscovery.xcdatamodel */,
+			);
+			currentVersion = D94DE2921CC4EA0E0087BC07 /* EDDiscovery.xcdatamodel */;
+			path = EDDiscovery.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = D9BAB5D01CC0F7D80087BC07 /* Project object */;
 }

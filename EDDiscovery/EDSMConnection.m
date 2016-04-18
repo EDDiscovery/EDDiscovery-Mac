@@ -29,8 +29,8 @@
  sendCredential:NO
 responseCallback:^(id response, NSError *error) {
   
-  NSLog(@"ERR: %@", error);
-  NSLog(@"RES: %@", response);
+//  NSLog(@"ERR: %@", error);
+//  NSLog(@"RES: %@", response);
   
 }
      parameters:3,

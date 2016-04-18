@@ -146,12 +146,12 @@ NSString* locale=nil;
   [parameter appendFormat:@"&%@=%@", value1, value2!=nil?value2:@""];
  }
  
-#ifdef HTTP_API_MANAGER_DEBUG
- NSLog(@"---------- Request ----------");
- NSLog(@"%@",urlString);
- NSLog(@"---------- Parameters ----------");
- NSLog(@"%@",parameter);
-#endif
+//#ifdef HTTP_API_MANAGER_DEBUG
+// NSLog(@"---------- Request ----------");
+// NSLog(@"%@",urlString);
+// NSLog(@"---------- Parameters ----------");
+// NSLog(@"%@",parameter);
+//#endif
  
  NSMutableURLRequest *request;
  if ([aMethod isEqualToString:@"POST"])
@@ -166,12 +166,20 @@ NSString* locale=nil;
  }
  dispatch_async(queue, ^{
   NSError* error=nil;
+
   NSData *data=[NSURLConnection sendSynchronousRequest:request returningResponse:nil error:&error];
   NSString *string=[[NSString alloc] initWithBytes: [data bytes] length:[data length] encoding: NSUTF8StringEncoding];
   
  #ifdef HTTP_API_MANAGER_DEBUG
-  NSLog(@"---------- Response ----------");
-  NSLog(@"%@",string);
+   NSString *msg = [NSString stringWithFormat:@"\n%@\n%@\n%@\n%@\n%@\n%@\n\n",
+                    @"---------- Request ----------",
+                    [NSString stringWithFormat:@"%@ %@", aMethod, urlString],
+                    @"---------- Parameters ----------",
+                    parameter,
+                    @"---------- Response ----------",
+                    string];
+   
+   NSLog(@"%@", msg);
  #endif
   
   if (error!=nil)
