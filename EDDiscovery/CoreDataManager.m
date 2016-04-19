@@ -8,6 +8,7 @@
 
 #import "CoreDataManager.h"
 #import "DBVersion.h"
+#import "EDSMConnection.h"
 
 #define kDefaultDBVersion 0
 #define kCurrentDBVersion 1
@@ -125,6 +126,8 @@
 		
     switch (dbVersion) {
       case kDefaultDBVersion: {
+        [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
+        
         //fall through
       }
     }

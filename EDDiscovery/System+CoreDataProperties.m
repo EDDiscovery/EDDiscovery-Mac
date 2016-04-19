@@ -18,7 +18,6 @@
 @dynamic x;
 @dynamic y;
 @dynamic z;
-@dynamic distances;
 @dynamic images;
 @dynamic jumps;
 

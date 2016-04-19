@@ -2,7 +2,7 @@
 //  NetLogFile+CoreDataProperties.h
 //  EDDiscovery
 //
-//  Created by thorin on 18/04/16.
+//  Created by thorin on 19/04/16.
 //  Copyright © 2016 Moonrays. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
@@ -15,9 +15,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NetLogFile (CoreDataProperties)
 
-@property (nullable, nonatomic, retain) NSString *path;
-@property (nonatomic) int64_t fileOffset;
 @property (nonatomic) BOOL complete;
+@property (nonatomic) int64_t fileOffset;
+@property (nullable, nonatomic, retain) NSString *path;
 @property (nullable, nonatomic, retain) NSOrderedSet<Jump *> *jumps;
 
 @end

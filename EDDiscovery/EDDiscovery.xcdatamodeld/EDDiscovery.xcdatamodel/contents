@@ -3,17 +3,13 @@
     <entity name="DBVersion" representedClassName="DBVersion" syncable="YES">
         <attribute name="dbVersion" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
     </entity>
-    <entity name="Distance" representedClassName="Distance" syncable="YES">
-        <attribute name="distance" attributeType="Double" syncable="YES"/>
-        <relationship name="systems" toMany="YES" minCount="2" maxCount="2" deletionRule="Nullify" destinationEntity="System" inverseName="distances" inverseEntity="System" syncable="YES"/>
-    </entity>
     <entity name="Image" representedClassName="Image" syncable="YES">
         <attribute name="path" attributeType="String" syncable="YES"/>
         <relationship name="system" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="System" inverseName="images" inverseEntity="System" syncable="YES"/>
     </entity>
     <entity name="Jump" representedClassName="Jump" syncable="YES">
         <attribute name="timestamp" attributeType="Date" indexed="YES" syncable="YES"/>
-        <relationship name="netLogFile" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="NetLogFile" inverseName="jumps" inverseEntity="NetLogFile" syncable="YES"/>
+        <relationship name="netLogFile" optional="YES" maxCount="1" deletionRule="Nullify" ordered="YES" destinationEntity="NetLogFile" inverseName="jumps" inverseEntity="NetLogFile" syncable="YES"/>
         <relationship name="system" maxCount="1" deletionRule="Nullify" destinationEntity="System" inverseName="jumps" inverseEntity="System" syncable="YES"/>
         <relationship name="trip" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Trip" inverseName="jumps" inverseEntity="Trip" syncable="YES"/>
     </entity>
@@ -29,7 +25,6 @@
         <attribute name="x" optional="YES" attributeType="Double" syncable="YES"/>
         <attribute name="y" optional="YES" attributeType="Double" syncable="YES"/>
         <attribute name="z" optional="YES" attributeType="Double" syncable="YES"/>
-        <relationship name="distances" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Distance" inverseName="systems" inverseEntity="Distance" syncable="YES"/>
         <relationship name="images" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Image" inverseName="system" inverseEntity="Image" syncable="YES"/>
         <relationship name="jumps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Jump" inverseName="system" inverseEntity="Jump" syncable="YES"/>
     </entity>
@@ -40,11 +35,10 @@
     </entity>
     <elements>
         <element name="DBVersion" positionX="-8003" positionY="-558" width="128" height="58"/>
-        <element name="Distance" positionX="-7337" positionY="-684" width="128" height="73"/>
-        <element name="Image" positionX="-7335" positionY="-568" width="128" height="73"/>
+        <element name="Image" positionX="-7335" positionY="-613" width="128" height="73"/>
         <element name="Jump" positionX="-7785" positionY="-765" width="128" height="103"/>
-        <element name="NetLogFile" positionX="-8001" positionY="-810" width="128" height="103"/>
-        <element name="System" positionX="-7562" positionY="-720" width="128" height="163"/>
+        <element name="NetLogFile" positionX="-8001" positionY="-837" width="128" height="103"/>
+        <element name="System" positionX="-7562" positionY="-720" width="128" height="148"/>
         <element name="Trip" positionX="-8003" positionY="-693" width="128" height="88"/>
     </elements>
 </model>

@@ -9,9 +9,11 @@
 #import "HttpApiManager.h"
 #import "System.h"
 
+#define EDSM_SYSTEM_UPDATE_TIMESTAMP @"edsmSystemUpdateTimestamp"
+
 @interface EDSMConnection : HttpApiManager
 
-+ (void)getSystemsInfo:(NSDate *)from response:(void(^)(NSArray *response, NSError *error))response;
++ (void)getSystemsInfoWithResponse:(void(^)(NSArray *response, NSError *error))response;
 + (void)getSystemInfo:(NSString *)systemName response:(void(^)(NSDictionary *response, NSError *error))response;
 
 @end

@@ -55,13 +55,13 @@ responseCallback:^(id data, NSError *error) {
   NSURL        *url     = [NSURL URLWithString:@"http://www.edsm.net/dump/systemsWithCoordinates.json"];
   NSURLRequest *request = [NSURLRequest requestWithURL:url];
   
-  NSURLResponse *urlResponse = nil;
-  NSError       *error       = nil;
-  NSData        *output      = [NSURLConnection sendSynchronousRequest:request returningResponse:&urlResponse error:&error];
+//  NSURLResponse *urlResponse = nil;
+//  NSError       *error       = nil;
+//  NSData        *output      = [NSURLConnection sendSynchronousRequest:request returningResponse:&urlResponse error:&error];
   
-//  [NSURLConnection sendAsynchronousRequest:request
-//                                     queue:NSOperationQueue.mainQueue
-//                         completionHandler:^(NSURLResponse *urlResponse, NSData *output, NSError *error) {
+  [NSURLConnection sendAsynchronousRequest:request
+                                     queue:NSOperationQueue.mainQueue
+                         completionHandler:^(NSURLResponse *urlResponse, NSData *output, NSError *error) {
   
                            if (error == nil) {
                              NSError *error   = nil;
@@ -77,13 +77,44 @@ responseCallback:^(id data, NSError *error) {
                              response(nil, error);
                            }
                            
-//                         }];
+                         }];
 }
 
-+ (void)getSystemsInfo:(NSDate *)fromDate response:(void(^)(NSArray *response, NSError *error))response {
-  if (fromDate == nil) {
++ (void)getSystemsInfoWithResponse:(void(^)(NSArray *response, NSError *error))response {
+  NSDate           *lastSyncDate = [NSUserDefaults.standardUserDefaults objectForKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
+  NSDateComponents *dayComponent = [[NSDateComponents alloc] init];
+  
+  dayComponent.day = -6;
+  
+  NSCalendar       *calendar     = [NSCalendar currentCalendar];
+  NSDate           *minDate      = [calendar dateByAddingComponents:dayComponent toDate:NSDate.date options:0];
+  
+  [NSUserDefaults.standardUserDefaults setObject:lastSyncDate forKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
+
+  if ([lastSyncDate earlierDate:minDate] == lastSyncDate) {
     [self getNightlyDumpWithResponse:^(NSArray *output, NSError *error) {
-      response(output, error);
+      //save sync date 1 day in the past as the nighly dumps are generated once per day
+      
+      if (output != nil) {
+        NSDateComponents *dayComponent = [[NSDateComponents alloc] init];
+        
+        dayComponent.day = -1;
+        
+        NSCalendar *calendar     = [NSCalendar currentCalendar];
+        NSDate     *lastSyncDate = [calendar dateByAddingComponents:dayComponent toDate:NSDate.date options:0];
+        
+        [NSUserDefaults.standardUserDefaults setObject:lastSyncDate forKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
+        
+        [self getSystemsInfoWithResponse:^(NSArray *output2, NSError *error2) {
+          NSMutableArray *array = [NSMutableArray arrayWithArray:output];
+
+          if ([output2 isKindOfClass:NSArray.class]) {
+            [array addObjectsFromArray:output2];
+          }
+          
+          response(array, error);
+        }];
+      }
     }];
   }
   else {
@@ -91,16 +122,12 @@ responseCallback:^(id data, NSError *error) {
     
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     
+    formatter.timeZone   = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
     formatter.dateFormat = @"yyyy-MM-dd HH-mm-ss";
     
-    NSString       *from    = @"2015-05-10 00:00:00";//@"2015-04-29 00:00:00";
-    NSDate         *minDate = [formatter dateFromString:from];
-    NSTimeInterval  minTi   = [minDate timeIntervalSinceReferenceDate];
-    NSTimeInterval  ti      = [fromDate timeIntervalSinceReferenceDate];
+    NSString *from = [formatter stringFromDate:lastSyncDate];
     
-    if (ti > minTi) {
-      from = [formatter stringFromDate:fromDate];
-    }
+    lastSyncDate = NSDate.date;
     
     [self callApi:@"systems"
        withMethod:@"GET"
@@ -119,17 +146,21 @@ responseCallback:^(id data, NSError *error) {
       }
       
       response(systems, error);
+      
+      if ([systems isKindOfClass:NSArray.class]) {
+        [NSUserDefaults.standardUserDefaults setObject:lastSyncDate forKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
+      }
     }
     else {
       response(nil, error);
     }
   }
      parameters:3,
-   //@"startdatetime", from,
-   @"coords", @"1",
-   @"distances", @"1",
-   //@"submitted", @"1",
-   @"known", @"1"
+   @"startdatetime", from, // <-- return only systems updated after this date
+   @"known", @"1",         // <-- return only systems with known coordinates
+   @"coords", @"1"         // <-- include system coordinates
+   //@"distances", @"1"    // <-- include distances from other susyems
+   //@"submitted", @"1",   // <-- who submitted the distances
    ];
   }
 }

@@ -2,7 +2,7 @@
 //  Trip+CoreDataProperties.h
 //  EDDiscovery
 //
-//  Created by thorin on 18/04/16.
+//  Created by thorin on 19/04/16.
 //  Copyright © 2016 Moonrays. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
@@ -15,8 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface Trip (CoreDataProperties)
 
-@property (nullable, nonatomic, retain) NSString *name;
 @property (nullable, nonatomic, retain) NSString *commander;
+@property (nullable, nonatomic, retain) NSString *name;
 @property (nullable, nonatomic, retain) NSOrderedSet<Jump *> *jumps;
 
 @end

@@ -55,8 +55,9 @@
   
   [EventLogger addLog:[NSString stringWithFormat:@"Welcome to %@ %@", appName, appVersion]];
   
-  [System updateSystemsFromEDSM];
-  [NetLogParser instance];
+  [System updateSystemsFromEDSM:^{
+    [NetLogParser instance];
+  }];
 }
 
 @end

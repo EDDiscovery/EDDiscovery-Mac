@@ -2,7 +2,7 @@
 //  Trip+CoreDataProperties.m
 //  EDDiscovery
 //
-//  Created by thorin on 18/04/16.
+//  Created by thorin on 19/04/16.
 //  Copyright © 2016 Moonrays. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
@@ -13,8 +13,8 @@
 
 @implementation Trip (CoreDataProperties)
 
-@dynamic name;
 @dynamic commander;
+@dynamic name;
 @dynamic jumps;
 
 @end

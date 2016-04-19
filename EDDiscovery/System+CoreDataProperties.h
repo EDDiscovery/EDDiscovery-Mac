@@ -20,18 +20,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) double x;
 @property (nonatomic) double y;
 @property (nonatomic) double z;
-@property (nullable, nonatomic, retain) NSSet<Distance *> *distances;
 @property (nullable, nonatomic, retain) NSSet<Image *> *images;
 @property (nullable, nonatomic, retain) NSSet<Jump *> *jumps;
 
 @end
 
 @interface System (CoreDataGeneratedAccessors)
-
-- (void)addDistancesObject:(Distance *)value;
-- (void)removeDistancesObject:(Distance *)value;
-- (void)addDistances:(NSSet<Distance *> *)values;
-- (void)removeDistances:(NSSet<Distance *> *)values;
 
 - (void)addImagesObject:(Image *)value;
 - (void)removeImagesObject:(Image *)value;

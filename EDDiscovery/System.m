@@ -7,11 +7,11 @@
 //
 
 #import "System.h"
-#import "Distance.h"
 #import "Image.h"
 #import "Jump.h"
 #import "EDSMConnection.h"
 #import "CoreDataManager.h"
+#import "EventLogger.h"
 
 @implementation System
 
@@ -25,6 +25,7 @@
   request.entity                 = entity;
   request.returnsObjectsAsFaults = NO;
   request.sortDescriptors        = @[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]];
+  request.includesPendingChanges = YES;
   
   array = [context executeFetchRequest:request error:&error];
   
@@ -42,6 +43,7 @@
   request.entity                 = entity;
   request.predicate              = predicate;
   request.returnsObjectsAsFaults = NO;
+  request.includesPendingChanges = YES;
   
   array = [context executeFetchRequest:request error:&error];
   
@@ -51,14 +53,12 @@
   return array.lastObject;
 }
 
-+ (void)updateSystemsFromEDSM {
++ (void)updateSystemsFromEDSM:(void(^)(void))resultBlock {
   NSLog(@"%s", __FUNCTION__);
   
-#warning gestire data ultimo aggiornamento
-  
-  [EDSMConnection getSystemsInfo:nil response:^(NSArray *response, NSError *error) {
+  [EDSMConnection getSystemsInfoWithResponse:^(NSArray *response, NSError *error) {
     if (response != nil) {
-      NSLog(@"%s: SUCCESS: got %ld new systems from EDSM", __FUNCTION__, (long)response.count);
+      [EventLogger addLog:[NSString stringWithFormat:@"Got %ld new systems from EDSM", (long)response.count]];
       
       NSManagedObjectContext *context    = CoreDataManager.instance.managedObjectContext;
       NSMutableArray         *systems    = [[self allSystemsInContext:context] mutableCopy];
@@ -126,6 +126,8 @@
     else if (error != nil) {
       NSLog(@"%s: ERROR: %@", __FUNCTION__, error.localizedDescription);
     }
+    
+    resultBlock();
   }];
 }
 
@@ -141,7 +143,7 @@
 //  NSLog(@"%s: %@", __FUNCTION__, data);
   
   NSDictionary *coords    = data[@"coords"];
-  NSArray      *distances = data[@"distances"];
+//  NSArray      *distances = data[@"distances"];
   
   if ([coords isKindOfClass:NSDictionary.class]) {
     self.x = [coords[@"x"] doubleValue];
@@ -153,53 +155,53 @@
     }
   }
   
-  if ([distances isKindOfClass:NSArray.class]) {
-    for (NSDictionary *distanceData in distances) {
-      NSString *name = distanceData[@"name"];
-      double    dist = [distanceData[@"distance"] doubleValue];
-      
-      if (name.length > 0 && dist > 0) {
-        Distance *distance = nil;
-        
-        for (Distance *aDistance in self.distances) {
-          NSArray *systems = aDistance.systems.allObjects;
-          System  *system1 = systems.firstObject;
-          System  *system2 = systems.lastObject;
-          
-          if ([system1.name compare:name options:NSCaseInsensitiveSearch] == NSOrderedSame ||
-              [system2.name compare:name options:NSCaseInsensitiveSearch] == NSOrderedSame) {
-            distance = aDistance;
-            
-            break;
-          }
-        }
-        
-        if (distance == nil) {
-          NSString *className = NSStringFromClass(Distance.class);
-          System   *system    = [System systemWithName:name inContext:self.managedObjectContext];
-          
-          if (system == nil) {
-            NSString *className = NSStringFromClass(System.class);
-            
-            system = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:self.managedObjectContext];
-            
-            system.name = name;
-          }
-          
-          distance = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:self.managedObjectContext];
-
-          [distance addSystemsObject:self];
-          [distance addSystemsObject:system];
-        }
-        
-        distance.distance = dist;
-
-        if (saveContext) {
-          NSLog(@"%@ <== %f ==> %@", self.name, dist, name);
-        }
-      }
-    }
-  }
+//  if ([distances isKindOfClass:NSArray.class]) {
+//    for (NSDictionary *distanceData in distances) {
+//      NSString *name = distanceData[@"name"];
+//      double    dist = [distanceData[@"distance"] doubleValue];
+//      
+//      if (name.length > 0 && dist > 0) {
+//        Distance *distance = nil;
+//        
+//        for (Distance *aDistance in self.distances) {
+//          NSArray *systems = aDistance.systems.allObjects;
+//          System  *system1 = systems.firstObject;
+//          System  *system2 = systems.lastObject;
+//          
+//          if ([system1.name compare:name options:NSCaseInsensitiveSearch] == NSOrderedSame ||
+//              [system2.name compare:name options:NSCaseInsensitiveSearch] == NSOrderedSame) {
+//            distance = aDistance;
+//            
+//            break;
+//          }
+//        }
+//        
+//        if (distance == nil) {
+//          NSString *className = NSStringFromClass(Distance.class);
+//          System   *system    = [System systemWithName:name inContext:self.managedObjectContext];
+//          
+//          if (system == nil) {
+//            NSString *className = NSStringFromClass(System.class);
+//            
+//            system = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:self.managedObjectContext];
+//            
+//            system.name = name;
+//          }
+//          
+//          distance = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:self.managedObjectContext];
+//
+//          [distance addSystemsObject:self];
+//          [distance addSystemsObject:system];
+//        }
+//        
+//        distance.distance = dist;
+//
+//        if (saveContext) {
+//          NSLog(@"%@ <== %f ==> %@", self.name, dist, name);
+//        }
+//      }
+//    }
+//  }
   
   if (saveContext) {
     NSError *error = nil;
