@@ -1,8 +1,8 @@
 //
-//  Trip.h
+//  EDSM.h
 //  EDDiscovery
 //
-//  Created by thorin on 18/04/16.
+//  Created by thorin on 19/04/16.
 //  Copyright © 2016 Moonrays. All rights reserved.
 //
 
@@ -13,12 +13,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface Trip : NSManagedObject
+@interface EDSM : NSManagedObject
 
-// Insert code here to declare functionality of your managed object subclass
++ (void)syncJumpsInContext:(NSManagedObjectContext *)context;
++ (void)addJump:(Jump *)jump;
 
 @end
 
 NS_ASSUME_NONNULL_END
 
-#import "Trip+CoreDataProperties.h"
+#import "EDSM+CoreDataProperties.h"

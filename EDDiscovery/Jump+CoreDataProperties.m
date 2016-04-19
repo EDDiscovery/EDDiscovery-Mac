@@ -16,6 +16,6 @@
 @dynamic timestamp;
 @dynamic netLogFile;
 @dynamic system;
-@dynamic trip;
+@dynamic edsm;
 
 @end

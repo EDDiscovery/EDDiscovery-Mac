@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSTimeInterval timestamp;
 @property (nullable, nonatomic, retain) NetLogFile *netLogFile;
 @property (nullable, nonatomic, retain) System *system;
-@property (nullable, nonatomic, retain) Trip *trip;
+@property (nullable, nonatomic, retain) NSManagedObject *edsm;
 
 @end
 

@@ -10,6 +10,7 @@
 
 #import "UKKQueue.h"
 #import "EDSMConnection.h"
+#import "EDSM.h"
 #import "EventLogger.h"
 #import "NetLogFile.h"
 #import "CoreDataManager.h"
@@ -188,6 +189,8 @@
     
       [EventLogger addLog:[NSString stringWithFormat:@"Parsed %ld netLog files in %.1f seconds", (long)numParsed, ti]];
     }
+    
+    [EDSM syncJumpsInContext:context];
   }
   
   [context save:&error];
@@ -269,6 +272,8 @@
           else {
             msg = [msg stringByAppendingFormat:@" - x=%f, y=%f, z=%f", jump.system.x, jump.system.y, jump.system.z];
           }
+          
+          [EDSM addJump:jump];
           
           [EventLogger addLog:msg];
         }

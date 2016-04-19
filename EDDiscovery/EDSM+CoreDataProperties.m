@@ -1,5 +1,5 @@
 //
-//  Trip+CoreDataProperties.m
+//  EDSM+CoreDataProperties.m
 //  EDDiscovery
 //
 //  Created by thorin on 19/04/16.
@@ -9,12 +9,11 @@
 //  to delete and recreate this implementation file for your updated model.
 //
 
-#import "Trip+CoreDataProperties.h"
+#import "EDSM+CoreDataProperties.h"
 
-@implementation Trip (CoreDataProperties)
+@implementation EDSM (CoreDataProperties)
 
 @dynamic commander;
-@dynamic name;
 @dynamic jumps;
 
 @end

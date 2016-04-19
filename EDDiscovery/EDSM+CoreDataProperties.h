@@ -1,5 +1,5 @@
 //
-//  Trip+CoreDataProperties.h
+//  EDSM+CoreDataProperties.h
 //  EDDiscovery
 //
 //  Created by thorin on 19/04/16.
@@ -9,19 +9,18 @@
 //  to delete and recreate this implementation file for your updated model.
 //
 
-#import "Trip.h"
+#import "EDSM.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface Trip (CoreDataProperties)
+@interface EDSM (CoreDataProperties)
 
 @property (nullable, nonatomic, retain) NSString *commander;
-@property (nullable, nonatomic, retain) NSString *name;
 @property (nullable, nonatomic, retain) NSOrderedSet<Jump *> *jumps;
 
 @end
 
-@interface Trip (CoreDataGeneratedAccessors)
+@interface EDSM (CoreDataGeneratedAccessors)
 
 - (void)insertObject:(Jump *)value inJumpsAtIndex:(NSUInteger)idx;
 - (void)removeObjectFromJumpsAtIndex:(NSUInteger)idx;

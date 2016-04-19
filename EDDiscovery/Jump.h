@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
-@class System, Trip, NetLogFile;
+@class System, EDSM, NetLogFile;
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -8,7 +8,7 @@
 
 #import "Jump.h"
 #import "System.h"
-#import "Trip.h"
+#import "EDSM.h"
 
 @implementation Jump
 

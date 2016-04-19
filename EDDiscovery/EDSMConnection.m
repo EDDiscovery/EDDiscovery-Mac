@@ -8,7 +8,7 @@
 
 #import "EDSMConnection.h"
 
-#define BASE_URL @"http://www.edsm.net/api-v1"
+#define BASE_URL @"http://www.edsm.net"
 #define KEYCHAIN_PREFIX nil
 
 @implementation EDSMConnection
@@ -24,7 +24,7 @@
 + (void)getSystemInfo:(NSString *)systemName response:(void(^)(NSDictionary *response, NSError *error))response {
   [self setup];
   
-  [self callApi:@"system"
+  [self callApi:@"api-v1/system"
      withMethod:@"POST"
  sendCredential:NO
 responseCallback:^(id data, NSError *error) {
@@ -52,32 +52,29 @@ responseCallback:^(id data, NSError *error) {
 }
 
 + (void)getNightlyDumpWithResponse:(void(^)(NSArray *response, NSError *error))response {
-  NSURL        *url     = [NSURL URLWithString:@"http://www.edsm.net/dump/systemsWithCoordinates.json"];
-  NSURLRequest *request = [NSURLRequest requestWithURL:url];
+  [self setup];
   
-//  NSURLResponse *urlResponse = nil;
-//  NSError       *error       = nil;
-//  NSData        *output      = [NSURLConnection sendSynchronousRequest:request returningResponse:&urlResponse error:&error];
+  [self callApi:@"dump/systemsWithCoordinates.json"
+     withMethod:@"GET"
+ sendCredential:NO
+responseCallback:^(id output, NSError *error) {
+
+  if (error == nil) {
+    NSError *error   = nil;
+    NSArray *systems = [NSJSONSerialization JSONObjectWithData:output options:0 error:&error];
+    
+    if (![systems isKindOfClass:NSArray.class]) {
+      systems = nil;
+    }
+    
+    response(systems, error);
+  }
+  else {
+    response(nil, error);
+  }
   
-  [NSURLConnection sendAsynchronousRequest:request
-                                     queue:NSOperationQueue.mainQueue
-                         completionHandler:^(NSURLResponse *urlResponse, NSData *output, NSError *error) {
-  
-                           if (error == nil) {
-                             NSError *error   = nil;
-                             NSArray *systems = [NSJSONSerialization JSONObjectWithData:output options:0 error:&error];
-                             
-                             if (![systems isKindOfClass:NSArray.class]) {
-                               systems = nil;
-                             }
-                             
-                             response(systems, error);
-                           }
-                           else {
-                             response(nil, error);
-                           }
-                           
-                         }];
+}
+     parameters:0];
 }
 
 + (void)getSystemsInfoWithResponse:(void(^)(NSArray *response, NSError *error))response {
@@ -129,7 +126,7 @@ responseCallback:^(id data, NSError *error) {
     
     lastSyncDate = NSDate.date;
     
-    [self callApi:@"systems"
+    [self callApi:@"api-v1/systems"
        withMethod:@"GET"
    sendCredential:NO
   responseCallback:^(id output, NSError *error) {
@@ -163,6 +160,38 @@ responseCallback:^(id data, NSError *error) {
    //@"submitted", @"1",   // <-- who submitted the distances
    ];
   }
+}
+
++ (void)getTravelLogsWithResponse:(void(^)(NSDictionary *response, NSError *error))response {
+  [self callApi:@"api-logs-v1/get-logs"
+     withMethod:@"POST"
+ sendCredential:NO
+responseCallback:^(id output, NSError *error) {
+  
+  if (error == nil) {
+    NSError      *error     = nil;
+    NSDictionary *travelLog = [NSJSONSerialization JSONObjectWithData:output options:0 error:&error];
+    
+    if (![travelLog isKindOfClass:NSDictionary.class]) {
+      travelLog = nil;
+    }
+    
+    response(travelLog, error);
+
+#warning data sincronizzazione sync travel log EDSM
+  }
+  else {
+    response(nil, error);
+  }
+  
+}
+     parameters:2,
+   @"commanderName", @"<your-cmdr-name>",
+   @"apiKey", @"<your-api-key>"
+   ];
+  
+#error insert authentication data!
+  
 }
 
 @end

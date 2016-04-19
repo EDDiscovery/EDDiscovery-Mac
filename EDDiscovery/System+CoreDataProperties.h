@@ -16,7 +16,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface System (CoreDataProperties)
 
 @property (nullable, nonatomic, retain) NSString *name;
-@property (nonatomic) BOOL permit;
 @property (nonatomic) double x;
 @property (nonatomic) double y;
 @property (nonatomic) double z;

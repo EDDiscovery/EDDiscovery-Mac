@@ -14,7 +14,6 @@
 @implementation System (CoreDataProperties)
 
 @dynamic name;
-@dynamic permit;
 @dynamic x;
 @dynamic y;
 @dynamic z;
