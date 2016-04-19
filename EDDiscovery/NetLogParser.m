@@ -186,8 +186,6 @@
   
   [EventLogger addLog:msg];
 #endif
-  
-  [EDSMConnection getSystemsInfo:nil response:nil];
 }
 
 #pragma mark -
@@ -236,7 +234,18 @@
         count++;
         
         if (netLogFile.complete == NO) {
-          NSString *msg = [NSString stringWithFormat:@"New system: %@ (num visits: %ld)", jump.system.name, (long)jump.system.jumps.count];
+          NSString *msg = [NSString stringWithFormat:@"Jump to %@ (num visits: %ld)", jump.system.name, (long)jump.system.jumps.count];
+          
+          if (jump.system.haveCoordinates == NO) {
+            [EDSMConnection getSystemInfo:jump.system.name response:^(NSDictionary *response, NSError *error) {
+              if (response != nil) {
+                [jump.system parseEDSMData:response];
+              }
+            }];
+          }
+          else {
+            msg = [msg stringByAppendingFormat:@" - x=%f, y=%f, z=%f", jump.system.x, jump.system.y, jump.system.z];
+          }
           
           [EventLogger addLog:msg];
         }
@@ -261,10 +270,10 @@
 
 - (void)parseNetLogRecord:(NSString *)record inFile:(NetLogFile *)netLogFile referenceDate:(NSString *)referenceDateTime {
   NSManagedObjectContext *context = netLogFile.managedObjectContext;
-  NSDate                 *date     = [self parseDateOfRecord:record referenceDateTime:referenceDateTime];
-  NSString               *name     = [self parseSystemNameOfRecord:record];
-  System                 *system   = [System systemWithName:name inContext:context];
-  Jump                   *jump     = netLogFile.jumps.lastObject;
+  NSDate                 *date    = [self parseDateOfRecord:record referenceDateTime:referenceDateTime];
+  NSString               *name    = [self parseSystemNameOfRecord:record];
+  System                 *system  = [System systemWithName:name inContext:context];
+  Jump                   *jump    = netLogFile.jumps.lastObject;
   
   if (system == nil) {
     NSString *className = NSStringFromClass(System.class);
@@ -272,10 +281,6 @@
     system = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
     
     system.name = name;
-    
-    //  [EDSMConnection getSystemInfo:system response:^(NSDictionary *response, NSError *error) {
-    //
-    //  }];
   }
   
   //cannot have two subsequent jumps to the same system

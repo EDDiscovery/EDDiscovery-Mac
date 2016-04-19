@@ -27,40 +27,63 @@
   [self callApi:@"system"
      withMethod:@"POST"
  sendCredential:NO
-responseCallback:^(id response, NSError *error) {
+responseCallback:^(id data, NSError *error) {
   
-//  NSLog(@"ERR: %@", error);
-//  NSLog(@"RES: %@", response);
+  if (error == nil) {
+    NSError      *error  = nil;
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+    
+    if (![result isKindOfClass:NSDictionary.class]) {
+      result = nil;
+    }
+    
+    response(result, error);
+  }
+  else {
+    response(nil, error);
+  }
   
 }
      parameters:3,
-   @"sysname", systemName,
-   @"coords", @"1",
-   @"distances", @"1"
+        @"sysname", systemName,
+        @"coords", @"1",
+        @"distances", @"1"
    ];
 }
 
-+ (void)getNightlyDumpWithResponse:(void(^)(NSDictionary *response, NSError *error))response {
++ (void)getNightlyDumpWithResponse:(void(^)(NSArray *response, NSError *error))response {
   NSURL        *url     = [NSURL URLWithString:@"http://www.edsm.net/dump/systemsWithCoordinates.json"];
   NSURLRequest *request = [NSURLRequest requestWithURL:url];
   
-  [NSURLConnection sendAsynchronousRequest:request
-                                     queue:NSOperationQueue.mainQueue
-                         completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+  NSURLResponse *urlResponse = nil;
+  NSError       *error       = nil;
+  NSData        *output      = [NSURLConnection sendSynchronousRequest:request returningResponse:&urlResponse error:&error];
+  
+//  [NSURLConnection sendAsynchronousRequest:request
+//                                     queue:NSOperationQueue.mainQueue
+//                         completionHandler:^(NSURLResponse *urlResponse, NSData *output, NSError *error) {
+  
+                           if (error == nil) {
+                             NSError *error   = nil;
+                             NSArray *systems = [NSJSONSerialization JSONObjectWithData:output options:0 error:&error];
+                             
+                             if (![systems isKindOfClass:NSArray.class]) {
+                               systems = nil;
+                             }
+                             
+                             response(systems, error);
+                           }
+                           else {
+                             response(nil, error);
+                           }
                            
-                           NSArray *systems = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-                           
-                           NSLog(@"Got %ld systems FROM EDSM", systems.count);
-                           
-                           [[NSFileManager defaultManager] createFileAtPath:@"/Users/thorin/Desktop/pippo.json" contents:data attributes:nil];
-                           
-                         }];
+//                         }];
 }
 
-+ (void)getSystemsInfo:(NSDate *)fromDate response:(void(^)(NSDictionary *response, NSError *error))response {
++ (void)getSystemsInfo:(NSDate *)fromDate response:(void(^)(NSArray *response, NSError *error))response {
   if (fromDate == nil) {
-    [self getNightlyDumpWithResponse:^(NSDictionary *response, NSError *error) {
-      
+    [self getNightlyDumpWithResponse:^(NSArray *output, NSError *error) {
+      response(output, error);
     }];
   }
   else {
@@ -82,15 +105,23 @@ responseCallback:^(id response, NSError *error) {
     [self callApi:@"systems"
        withMethod:@"GET"
    sendCredential:NO
-  responseCallback:^(id response, NSError *error) {
+  responseCallback:^(id output, NSError *error) {
     
     //  NSLog(@"ERR: %@", error);
     //  NSLog(@"RES: %@", response);
     
     if (error == nil) {
-      NSArray *systems = [NSJSONSerialization JSONObjectWithData:response options:0 error:nil];
+      NSError *error   = nil;
+      NSArray *systems = [NSJSONSerialization JSONObjectWithData:output options:0 error:&error];
       
-      NSLog(@"Got %ld systems FROM EDSM", systems.count);
+      if (![systems isKindOfClass:NSArray.class]) {
+        systems = nil;
+      }
+      
+      response(systems, error);
+    }
+    else {
+      response(nil, error);
     }
   }
      parameters:3,

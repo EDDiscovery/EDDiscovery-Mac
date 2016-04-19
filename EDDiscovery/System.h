@@ -16,6 +16,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface System : NSManagedObject
 
 + (System *)systemWithName:(NSString *)name inContext:(NSManagedObjectContext *)context;
++ (void)updateSystemsFromEDSM;
+
+- (BOOL)haveCoordinates;
+- (void)parseEDSMData:(NSDictionary *)data;
 
 @end
 

@@ -10,6 +10,7 @@
 #import "CoreDataManager.h"
 #import "NetLogParser.h"
 #import "EventLogger.h"
+#import "System.h"
 
 @implementation AppDelegate
 
@@ -29,6 +30,8 @@
     [self performDataMigration];
   }
   else {
+    [CoreDataManager.instance initializeDatabaseContents];
+    
     [self finishInitialization];
   }
 }
@@ -49,12 +52,10 @@
                           @"%@ (build %@)",
                           [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"],
                           [[NSBundle mainBundle] objectForInfoDictionaryKey:(NSString*)kCFBundleVersionKey]];
-  NSString *msg        = [NSString stringWithFormat:@"Welcome to %@ %@", appName, appVersion];
   
-  NSLog(@"%@", msg);
+  [EventLogger addLog:[NSString stringWithFormat:@"Welcome to %@ %@", appName, appVersion]];
   
-  [EventLogger addLog:msg];
-  
+  [System updateSystemsFromEDSM];
   [NetLogParser instance];
 }
 
