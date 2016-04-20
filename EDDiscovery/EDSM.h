@@ -15,8 +15,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface EDSM : NSManagedObject
 
-+ (void)syncJumpsInContext:(NSManagedObjectContext *)context;
-+ (void)addJump:(Jump *)jump;
++ (EDSM *)instance;
+
+@property(nonatomic, strong) NSString *apiKey;
+
+- (void)syncJumps;
+- (void)addJump:(Jump *)jump;
 
 @end
 

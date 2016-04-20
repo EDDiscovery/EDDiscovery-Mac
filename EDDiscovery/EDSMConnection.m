@@ -162,7 +162,7 @@ responseCallback:^(id output, NSError *error) {
   }
 }
 
-+ (void)getTravelLogsWithResponse:(void(^)(NSDictionary *response, NSError *error))response {
++ (void)getTravelLogsForCommander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(NSDictionary *response, NSError *error))response {
   [self callApi:@"api-logs-v1/get-logs"
      withMethod:@"POST"
  sendCredential:NO
@@ -186,12 +186,9 @@ responseCallback:^(id output, NSError *error) {
   
 }
      parameters:2,
-   @"commanderName", @"<your-cmdr-name>",
-   @"apiKey", @"<your-api-key>"
+   @"commanderName", commanderName,
+   @"apiKey", apiKey
    ];
-  
-#error insert authentication data!
-  
 }
 
 @end

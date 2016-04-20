@@ -81,6 +81,8 @@
 #define FILE_KEY @"file"
 #define ATTR_KEY @"attr"
   
+  static BOOL firstRun = YES;
+  
   if (currNetLogFile != nil) {
     [queue removePathFromQueue:currNetLogFile.path];
   }
@@ -190,7 +192,7 @@
       [EventLogger addLog:[NSString stringWithFormat:@"Parsed %ld netLog files in %.1f seconds", (long)numParsed, ti]];
     }
     
-    [EDSM syncJumpsInContext:context];
+    [EDSM.instance syncJumps];
   }
   
   [context save:&error];
@@ -201,17 +203,19 @@
     exit(-1);
   }
   
-#ifdef DEBUG
-  NSDateFormatter *dateTimeFormatter = [[NSDateFormatter alloc] init];
-  
-  dateTimeFormatter.dateFormat = @"yyyy-MM-dd";
-  
-  NSString *from = [dateTimeFormatter stringFromDate:[NSDate dateWithTimeIntervalSinceReferenceDate:start]];
-  NSString *to   = [dateTimeFormatter stringFromDate:[NSDate dateWithTimeIntervalSinceReferenceDate:end]];
-  NSString *msg  = [NSString stringWithFormat:@"Recorded %ld jumps from %@ to %@", (long)count, from, to];
-  
-  [EventLogger addLog:msg];
-#endif
+  if (firstRun == YES) {
+    NSDateFormatter *dateTimeFormatter = [[NSDateFormatter alloc] init];
+    
+    dateTimeFormatter.dateFormat = @"yyyy-MM-dd";
+    
+    NSString *from = [dateTimeFormatter stringFromDate:[NSDate dateWithTimeIntervalSinceReferenceDate:start]];
+    NSString *to   = [dateTimeFormatter stringFromDate:[NSDate dateWithTimeIntervalSinceReferenceDate:end]];
+    NSString *msg  = [NSString stringWithFormat:@"Recorded %ld jumps from %@ to %@", (long)count, from, to];
+    
+    [EventLogger addLog:msg];
+    
+    firstRun = NO;
+  }
 }
 
 #pragma mark -
@@ -237,18 +241,14 @@
       fileDate = [[currPath lastPathComponent] substringWithRange:NSMakeRange(7, 12)];
     }
     
-    NSData   *data  = [fileHandle readDataToEndOfFile];
-    NSString *text  = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    NSArray  *lines = [text componentsSeparatedByString:@"\n"];
+    NSData   *data    = [fileHandle readDataToEndOfFile];
+    NSString *text    = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSArray  *records = [text componentsSeparatedByString:@"{"];
     
-    for (NSString *line in lines) {
-      NSRange range = [line rangeOfString:@"System:"];
+    for (NSString *record in records) {
+      NSString *entry = [[NSString stringWithFormat:@"{%@", record] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
       
-      if (range.location != NSNotFound && range.location >= 11) {
-        NSString *record = [line substringFromIndex:(range.location-11)];
-        
-        [self parseNetLogRecord:record inFile:netLogFile referenceDate:fileDate systems:systems names:names];
-      }
+      [self parseNetLogRecord:entry inFile:netLogFile referenceDate:fileDate systems:systems names:names];
     }
     
     netLogFile.fileOffset = fileHandle.offsetInFile;
@@ -273,7 +273,7 @@
             msg = [msg stringByAppendingFormat:@" - x=%f, y=%f, z=%f", jump.system.x, jump.system.y, jump.system.z];
           }
           
-          [EDSM addJump:jump];
+          [EDSM.instance addJump:jump];
           
           [EventLogger addLog:msg];
         }
@@ -297,49 +297,132 @@
 }
 
 - (void)parseNetLogRecord:(NSString *)record inFile:(NetLogFile *)netLogFile referenceDate:(NSString *)referenceDateTime systems:(NSMutableArray *)systems names:(NSMutableArray *)names {
-  NSManagedObjectContext *context = netLogFile.managedObjectContext;
-  NSDate                 *date    = [self parseDateOfRecord:record referenceDateTime:referenceDateTime];
-  NSString               *name    = [self parseSystemNameOfRecord:record];
-  System                 *system  = nil;
+  BOOL      logRecord   = NO;
+  BOOL      parseRecord = NO;
+  NSString *systemName  = nil;
   
-  if (systems == nil || names == nil) {
-    system = [System systemWithName:name inContext:context];
+  //determine whether we are inside a CQC session
+  
+  if ([record containsString:@"[PG] [Notification] Left a playlist lobby"]) {
+    netLogFile.cqc = NO;
+    logRecord      = YES;
   }
-  else {
-    NSUInteger idx = [names indexOfObject:name];
+  
+  if ([record containsString:@"[PG] Destroying playlist lobby."]) {
+    netLogFile.cqc = NO;
+    logRecord      = YES;
+  }
+  
+  if ([record containsString:@"[PG] [Notification] Joined a playlist lobby"]) {
+    netLogFile.cqc = YES;
+    logRecord      = YES;
+  }
+  
+  if ([record containsString:@"[PG] Created playlist lobby"]) {
+    netLogFile.cqc = YES;
+    logRecord      = YES;
+  }
+  
+  if ([record containsString:@"[PG] Found matchmaking lobby object"]) {
+    netLogFile.cqc = YES;
+    logRecord      = YES;
+  }
+
+  //make sure record is a jump record, and that we are not inside a CQC session
+  
+  if ([record containsString:@" System:"]) {
+    logRecord      = YES;
+    parseRecord    = ((netLogFile.cqc == NO) && ([record containsString:@"ProvingGround"] == NO));
+  }
+  
+  if (logRecord) {
+    NSLog(@"%@", record);
+  }
+  
+  //make sure we have a valid system name
+  
+  if (parseRecord) {
+    systemName = [[self parseSystemNameOfRecord:record] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     
-    if (idx != NSNotFound) {
-      system = systems[idx];
+    if (systemName.length == 0) {
+      parseRecord = NO;
     }
   }
   
-  if (lastJump == nil) {
-    lastJump = [Jump getLastJumpInContext:context];
-  }
+  //make sure we are not visiting training systems
   
-  if (system == nil) {
-    NSString *className = NSStringFromClass(System.class);
+  if (parseRecord) {
+    if ([systemName isEqualToString:@"Training"]) {
+      parseRecord = NO;
+    }
     
-    system = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
+    if ([systemName isEqualToString:@"Destination"]) {
+      parseRecord = NO;
+    }
     
-    system.name = name;
-    
-    if (systems != nil && names != nil) {
-      NSUInteger idx = [names indexOfObject:name
-                              inSortedRange:(NSRange){0, names.count}
-                                    options:NSBinarySearchingInsertionIndex
-                            usingComparator:^NSComparisonResult(NSString *str1, NSString *str2) {
-                              return [str1 compare:str2];
-                            }];
-      
-      [names   insertObject:name   atIndex:idx];
-      [systems insertObject:system atIndex:idx];
+    if ([systemName isEqualToString:@"Altiris"]) {
+      parseRecord = NO;
     }
   }
   
   //cannot have two subsequent jumps to the same system
   
-  if ([lastJump.system.name isEqualToString:name] == NO) {
+  if (parseRecord) {
+    if (lastJump == nil) {
+      lastJump = [Jump getLastJumpInContext:netLogFile.managedObjectContext];
+    }
+    
+    NSLog(@"last jump: %@", lastJump.system.name);
+    
+    if ([lastJump.system.name isEqualToString:systemName] == YES) {
+      parseRecord = NO;
+    }
+  }
+  
+  if (parseRecord) {
+    [self parseNetLogSystemRecord:record inFile:netLogFile referenceDate:referenceDateTime systems:systems names:names];
+  }
+}
+
+- (void)parseNetLogSystemRecord:(NSString *)record inFile:(NetLogFile *)netLogFile referenceDate:(NSString *)referenceDateTime systems:(NSMutableArray *)systems names:(NSMutableArray *)names {
+  NSDate   *date = [self parseDateOfRecord:record referenceDateTime:referenceDateTime];
+  NSString *name = [self parseSystemNameOfRecord:record];
+  
+  if (name != nil && date != nil) {
+    NSManagedObjectContext *context = netLogFile.managedObjectContext;
+    System                 *system  = nil;
+    
+    if (systems == nil || names == nil) {
+      system = [System systemWithName:name inContext:context];
+    }
+    else {
+      NSUInteger idx = [names indexOfObject:name];
+      
+      if (idx != NSNotFound) {
+        system = systems[idx];
+      }
+    }
+    
+    if (system == nil) {
+      NSString *className = NSStringFromClass(System.class);
+      
+      system = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
+      
+      system.name = name;
+      
+      if (systems != nil && names != nil) {
+        NSUInteger idx = [names indexOfObject:name
+                                inSortedRange:(NSRange){0, names.count}
+                                      options:NSBinarySearchingInsertionIndex
+                              usingComparator:^NSComparisonResult(NSString *str1, NSString *str2) {
+                                return [str1 compare:str2];
+                              }];
+        
+        [names   insertObject:name   atIndex:idx];
+        [systems insertObject:system atIndex:idx];
+      }
+    }
+    
     NSString *className = NSStringFromClass(Jump.class);
     Jump     *jump      = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
     
@@ -361,9 +444,12 @@
   static NSString        *refStrDate        = nil;
   static NSDateFormatter *dateTimeFormatter = nil;
   static NSDateFormatter *dateFormatter     = nil;
+  static NSDate          *gammaLaunchDate   = nil;
   static dispatch_once_t  onceToken;
   
   dispatch_once(&onceToken, ^{
+    NSString *gammaLaunch = @"141122130000";
+    
     dateTimeFormatter = [[NSDateFormatter alloc] init];
     dateFormatter     = [[NSDateFormatter alloc] init];
     
@@ -371,6 +457,8 @@
     //160415232458
     dateTimeFormatter.dateFormat = @"yyMMddHHmmss";
     dateFormatter.dateFormat     = @"yyMMdd";
+    
+    gammaLaunchDate = [dateTimeFormatter dateFromString:gammaLaunch];
   });
   
   //OLD log files do not have seconds in file name... insert them if necessary
@@ -403,21 +491,33 @@
     dateTime    = [dateTimeFormatter dateFromString:strDateTime];
   }
   
+  //make sure jump date is *after* gamma launch date
+  
+  if ([gammaLaunchDate earlierDate:dateTime] == dateTime) {
+    dateTime = nil;
+  }
+  
   return dateTime;
 }
 
 - (NSString *)parseSystemNameOfRecord:(NSString *)record {
-  NSRange range = [record rangeOfString:@"System:"];
+  NSString *name  = nil;
+  NSRange   range = [record rangeOfString:@"System:"];
   
-  record = [record substringFromIndex:range.location + range.length];
+  if (range.location != NSNotFound) {
+    record = [record substringFromIndex:range.location + range.length];
   
-  NSRange range1 = [record rangeOfString:@"("];
-  NSRange range2 = [record rangeOfString:@")"];
+    NSRange range1 = [record rangeOfString:@"("];
+    NSRange range2 = [record rangeOfString:@")"];
   
-  range  = NSMakeRange(range1.location + 1, range2.location - range1.location - 1);
-  record = [record substringWithRange:range];
+    if (range1.location != NSNotFound && range2.location != NSNotFound && range2.location > (range1.location + 1)) {
+      range  = NSMakeRange(range1.location + 1, range2.location - range1.location - 1);
+      
+      name = [record substringWithRange:range];
+    }
+  }
   
-  return record;
+  return name;
 }
 
 @end

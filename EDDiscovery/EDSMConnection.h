@@ -13,8 +13,11 @@
 
 @interface EDSMConnection : HttpApiManager
 
+//system info
 + (void)getSystemsInfoWithResponse:(void(^)(NSArray *response, NSError *error))response;
 + (void)getSystemInfo:(NSString *)systemName response:(void(^)(NSDictionary *response, NSError *error))response;
-+ (void)getTravelLogsWithResponse:(void(^)(NSDictionary *response, NSError *error))response;
+
+//commander travel logs
++ (void)getTravelLogsForCommander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(NSDictionary *response, NSError *error))response;
 
 @end

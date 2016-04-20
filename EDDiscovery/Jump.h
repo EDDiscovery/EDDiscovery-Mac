@@ -15,6 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface Jump : NSManagedObject
 
++ (NSArray *)getAllJumpsInContext:(NSManagedObjectContext *)context;
 + (Jump *)getLastJumpInContext:(NSManagedObjectContext *)context;
 
 @end

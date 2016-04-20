@@ -12,6 +12,25 @@
 
 @implementation Jump
 
++ (NSArray *)getAllJumpsInContext:(NSManagedObjectContext *)context {
+  NSString            *className = NSStringFromClass([Jump class]);
+  NSFetchRequest      *request   = [[NSFetchRequest alloc] init];
+  NSEntityDescription *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
+  NSError             *error     = nil;
+  NSArray             *array     = nil;
+  
+  request.entity                 = entity;
+  request.returnsObjectsAsFaults = NO;
+  request.includesPendingChanges = YES;
+  request.sortDescriptors        = @[[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:YES]];
+  
+  array = [context executeFetchRequest:request error:&error];
+  
+  NSAssert1(error == nil, @"could not execute fetch request: %@", error);
+  
+  return array;
+}
+
 + (Jump *)getLastJumpInContext:(NSManagedObjectContext *)context {
   NSString            *className = NSStringFromClass([Jump class]);
   NSFetchRequest      *request   = [[NSFetchRequest alloc] init];
@@ -21,6 +40,7 @@
   
   request.entity                 = entity;
   request.returnsObjectsAsFaults = NO;
+  request.includesPendingChanges = YES;
   request.sortDescriptors        = @[[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:NO]];
   request.fetchLimit             = 1;
   

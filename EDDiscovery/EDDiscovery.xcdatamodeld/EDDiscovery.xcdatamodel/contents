@@ -19,6 +19,7 @@
     </entity>
     <entity name="NetLogFile" representedClassName="NetLogFile" syncable="YES">
         <attribute name="complete" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
+        <attribute name="cqc" attributeType="Boolean" defaultValueString="0" syncable="YES"/>
         <attribute name="fileOffset" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="path" attributeType="String" syncable="YES"/>
         <relationship name="jumps" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Jump" inverseName="netLogFile" inverseEntity="Jump" syncable="YES"/>
@@ -33,10 +34,10 @@
     </entity>
     <elements>
         <element name="DBVersion" positionX="-7328" positionY="-823" width="128" height="58"/>
+        <element name="EDSM" positionX="-8021" positionY="-837" width="128" height="73"/>
         <element name="Image" positionX="-7335" positionY="-613" width="128" height="73"/>
         <element name="Jump" positionX="-7785" positionY="-765" width="128" height="103"/>
-        <element name="NetLogFile" positionX="-8021" positionY="-688" width="128" height="103"/>
+        <element name="NetLogFile" positionX="-8021" positionY="-688" width="128" height="118"/>
         <element name="System" positionX="-7562" positionY="-720" width="128" height="133"/>
-        <element name="EDSM" positionX="-8021" positionY="-837" width="128" height="73"/>
     </elements>
 </model>
