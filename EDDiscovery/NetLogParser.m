@@ -17,8 +17,13 @@
 #import "System.h"
 #import "Jump.h"
 
-#define LOG_DIR_PATH @"/Users/thorin/Library/Application Support/Frontier Developments/Elite Dangerous/Logs"
-
+#ifdef DEBUG
+#warning TODO: replace with non-hardcoded data!
+#else
+#error TODO: replace with non-hardcoded data!
+#endif
+#define LOG_DIR_PATH @"<your-log-dir-path>"
+#error insert your log dir path
 
 @implementation NetLogParser {
   NetLogFile *currNetLogFile;
