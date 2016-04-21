@@ -19,8 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, strong) NSString *apiKey;
 
-- (void)syncJumps;
-- (void)addJump:(Jump *)jump;
+- (void)syncJumpsWithEDSM;
+- (void)sendJumpToEDSM:(Jump *)jump;
 
 @end
 

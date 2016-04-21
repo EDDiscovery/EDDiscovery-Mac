@@ -58,7 +58,7 @@
   
   [EDSMConnection getSystemsInfoWithResponse:^(NSArray *response, NSError *error) {
     if (response != nil) {
-      [EventLogger addLog:[NSString stringWithFormat:@"Got %ld new systems from EDSM", (long)response.count]];
+      [EventLogger addLog:[NSString stringWithFormat:@"Received %ld new systems from EDSM", (long)response.count]];
       
       NSManagedObjectContext *context    = CoreDataManager.instance.managedObjectContext;
       NSMutableArray         *systems    = [[self allSystemsInContext:context] mutableCopy];

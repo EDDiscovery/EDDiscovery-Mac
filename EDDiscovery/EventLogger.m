@@ -73,7 +73,7 @@
 - (void)addLog:(NSString *)msg timestamp:(BOOL)timestamp newline:(BOOL)newline {
   NSLog(@"%@", msg);
   
-  if (newline) {
+  if (text.length > 0 && newline) {
     [text appendString:@"\n"];
   }
   

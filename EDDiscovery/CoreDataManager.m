@@ -93,20 +93,20 @@
     dbVersion = self.dbVersion;
   }
   @catch (NSException *e) {
-    NSString *msg = [NSString stringWithFormat:@"%@\n\n%@", NSLocalizedString(@"Could not access application data base. This is a critical failure, please contact customer care. EasyTrails will now quit to prevent data loss.", @""), e.reason];
+    NSString *msg = NSLocalizedString(@"Could not access application data base. This is a critical failure, please contact customer care. Quitting to prevent data loss.", @"");
 
-    NSLog(@"ERROR: %@", msg);
+    NSLog(@"ERROR: %@ - %@", msg, e.reason);
     
-//    [self showAlertControllerWithTitle:NSLocalizedString(@"Error", @"")
-//                               message:msg
-//                                 style:UIAlertControllerStyleAlert
-//                               actions:@[MakeAction(NSLocalizedString(@"OK", @""), UIAlertActionStyleDestructive, nil, ^{
-//                                        exit(-1);
-//                                      })]];
+    NSAlert *alert = [[NSAlert alloc] init];
     
-#ifdef DEBUG
-    @throw e;
-#endif
+    [alert addButtonWithTitle:@"OK"];
+    [alert setMessageText:msg];
+    [alert setInformativeText:e.reason];
+    [alert setAlertStyle:NSCriticalAlertStyle];
+    
+    [alert runModal];
+    
+    exit(-1);
     
     return;
   }
@@ -127,6 +127,7 @@
     switch (dbVersion) {
       case kDefaultDBVersion: {
         [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
+        [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_JUMPS_UPDATE_TIMESTAMP];
         
         //fall through
       }
@@ -194,15 +195,16 @@
 	return persistentStoreCoordinator;
 }
 
-+(NSString *)dbPathName {
-  NSArray  *paths   = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-  NSString *dataDir = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
-#ifdef DEBUG
-#warning VERIFICARE PATH DB!!!!!
-#else
-#error VERIFICARE PATH DB!!!!!
-#endif
-  NSString *path    = [dataDir stringByAppendingPathComponent:@"EDDiscoveryData.sqlite"];
++ (NSString *)dbPathName {
+  NSString *appName  = [NSBundle.mainBundle objectForInfoDictionaryKey:(NSString *)kCFBundleNameKey];
+  NSArray  *paths    = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+  NSString *dataDir  = ([paths count] > 0) ? [[paths objectAtIndex:0] stringByAppendingPathComponent:appName] : nil;
+  NSString *fileName = [appName stringByAppendingString:@"Data.sqlite"];
+  NSString *path     = [dataDir stringByAppendingPathComponent:fileName];
+  
+  [[NSFileManager defaultManager] createDirectoryAtPath:dataDir withIntermediateDirectories:YES attributes:nil error:nil];
+  
+  NSLog(@"%s: %@", __FUNCTION__, path);
   
   return path;
 }

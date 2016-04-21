@@ -10,6 +10,7 @@
 #import "System.h"
 
 #define EDSM_SYSTEM_UPDATE_TIMESTAMP @"edsmSystemUpdateTimestamp"
+#define EDSM_JUMPS_UPDATE_TIMESTAMP  @"edsmJumpsUpdateTimestamp"
 
 @interface EDSMConnection : HttpApiManager
 
@@ -18,6 +19,7 @@
 + (void)getSystemInfo:(NSString *)systemName response:(void(^)(NSDictionary *response, NSError *error))response;
 
 //commander travel logs
-+ (void)getTravelLogsForCommander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(NSDictionary *response, NSError *error))response;
++ (void)getJumpsForCommander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(NSArray *jumps, NSError *error))response;
++ (void)addJump:(Jump *)jump forCommander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(BOOL success, NSError *error))response;
 
 @end

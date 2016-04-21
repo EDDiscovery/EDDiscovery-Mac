@@ -89,7 +89,7 @@
   
   NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:LOG_DIR_PATH error:nil];
   
-  [EventLogger addLog:[NSString stringWithFormat:@"Got %ld files in log directory", files.count]];
+  [EventLogger addLog:[NSString stringWithFormat:@"Have %ld files in log directory", files.count]];
   
   NSMutableArray *netLogFiles = [NSMutableArray array];
   
@@ -99,7 +99,7 @@
     }
   }
   
-  [EventLogger addLog:[NSString stringWithFormat:@"Got %ld netLog files in log directory", netLogFiles.count]];
+  [EventLogger addLog:[NSString stringWithFormat:@"Have %ld netLog files in log directory", netLogFiles.count]];
   
   NSMutableArray *netLogs = [NSMutableArray arrayWithCapacity:netLogFiles.count];
   
@@ -118,18 +118,13 @@
   NSManagedObjectContext *context = [CoreDataManager.instance managedObjectContext];
   NSError                *error   = nil;
   
-#ifdef DEBUG
-  NSUInteger     count = 0;
-  NSTimeInterval start = 0;
-  NSTimeInterval end   = 0;
-#endif
-  
   //parse all netlog files
   if (netLogs.count > 0) {
     NSMutableArray *systems   = nil;
     NSMutableArray *names     = nil;
     NSTimeInterval  ti        = [NSDate timeIntervalSinceReferenceDate];
     NSUInteger      numParsed = 0;
+    NSUInteger      numJumps  = 0;
     
     if (netLogs.count > 1) {
       systems = [[System allSystemsInContext:context] mutableCopy];
@@ -154,45 +149,37 @@
       }
       
       if (netLogFile.complete == NO) {
-        [EventLogger addLog:[NSString stringWithFormat:@"Parsing netLog file: %@", netLog]];
-        
-        if ([netLog isEqualToString:netLogs.lastObject[FILE_KEY]] == NO) {
-          netLogFile.complete = YES;
+        if (!firstRun) {
+          [EventLogger addLog:[NSString stringWithFormat:@"Parsing netLog file: %@", netLog]];
         }
         
-        [self parseNetLogFile:netLogFile systems:systems names:names];
+        netLogFile.complete = YES;
+        
+        numJumps += [self parseNetLogFile:netLogFile systems:systems names:names];
         
         numParsed++;
       }
       
       if ([netLog isEqualToString:netLogs.lastObject[FILE_KEY]] == YES) {
+        netLogFile.complete = NO;
+        
         currNetLogFile = netLogFile;
         
         [queue addPathToQueue:currNetLogFile.path];
       }
-      
-#ifdef DEBUG
-      NSOrderedSet<Jump *> *jumps = netLogFile.jumps;
-      
-      if (jumps > 0) {
-        count += jumps.count;
-        
-        if (start == 0) {
-          start = jumps.firstObject.timestamp;
-        }
-        
-        end = jumps.lastObject.timestamp;
-      }
-#endif
     }
     
     if (numParsed > 1) {
       ti = [NSDate timeIntervalSinceReferenceDate] - ti;
     
-      [EventLogger addLog:[NSString stringWithFormat:@"Parsed %ld netLog files in %.1f seconds", (long)numParsed, ti]];
+      [EventLogger addLog:[NSString stringWithFormat:@"Parsed %ld jumps from %ld netLog files in %.1f seconds", (long)numJumps, (long)numParsed, ti]];
     }
     
-    [EDSM.instance syncJumps];
+    if (firstRun) {
+      [EDSM.instance syncJumpsWithEDSM];
+      
+      firstRun = NO;
+    }
   }
   
   [context save:&error];
@@ -202,29 +189,17 @@
     
     exit(-1);
   }
-  
-  if (firstRun == YES) {
-    NSDateFormatter *dateTimeFormatter = [[NSDateFormatter alloc] init];
-    
-    dateTimeFormatter.dateFormat = @"yyyy-MM-dd";
-    
-    NSString *from = [dateTimeFormatter stringFromDate:[NSDate dateWithTimeIntervalSinceReferenceDate:start]];
-    NSString *to   = [dateTimeFormatter stringFromDate:[NSDate dateWithTimeIntervalSinceReferenceDate:end]];
-    NSString *msg  = [NSString stringWithFormat:@"Recorded %ld jumps from %@ to %@", (long)count, from, to];
-    
-    [EventLogger addLog:msg];
-    
-    firstRun = NO;
-  }
 }
 
 #pragma mark -
 #pragma mark log file scanning
 
-- (void)parseNetLogFile:(NetLogFile *)netLogFile systems:(NSMutableArray *)systems names:(NSMutableArray *)names {
+- (NSUInteger)parseNetLogFile:(NetLogFile *)netLogFile systems:(NSMutableArray *)systems names:(NSMutableArray *)names {
   static NSString     *currPath   = nil;
   static NSFileHandle *fileHandle = nil;
   static NSString     *fileDate   = nil;
+  
+  NSUInteger           count      = 0;
   
   if (netLogFile != nil) {
     if ([currPath isEqualToString:netLogFile.path] == NO) {
@@ -253,8 +228,6 @@
     
     netLogFile.fileOffset = fileHandle.offsetInFile;
 
-    NSUInteger count=0;
-    
     for (Jump *jump in netLogFile.jumps) {
       if (jump.objectID.isTemporaryID == YES) {
         count++;
@@ -273,17 +246,13 @@
             msg = [msg stringByAppendingFormat:@" - x=%f, y=%f, z=%f", jump.system.x, jump.system.y, jump.system.z];
           }
           
-          [EDSM.instance addJump:jump];
+          [EDSM.instance sendJumpToEDSM:jump];
           
           [EventLogger addLog:msg];
         }
       }
     }
 
-    if (netLogFile.complete == YES && count > 0) {
-      [EventLogger addLog:[NSString stringWithFormat:@"Parsed %ld new jumps.", (long)count]];
-    }
-    
     NSError *error = nil;
     
     [netLogFile.managedObjectContext save:&error];
@@ -293,7 +262,13 @@
       
       exit(-1);
     }
+    
+    if (netLogFile.complete == YES && count > 0) {
+      NSLog(@"Parsed %ld jumps.", (long)count);
+    }
   }
+  
+  return count;
 }
 
 - (void)parseNetLogRecord:(NSString *)record inFile:(NetLogFile *)netLogFile referenceDate:(NSString *)referenceDateTime systems:(NSMutableArray *)systems names:(NSMutableArray *)names {
@@ -371,8 +346,6 @@
     if (lastJump == nil) {
       lastJump = [Jump getLastJumpInContext:netLogFile.managedObjectContext];
     }
-    
-    NSLog(@"last jump: %@", lastJump.system.name);
     
     if ([lastJump.system.name isEqualToString:systemName] == YES) {
       parseRecord = NO;

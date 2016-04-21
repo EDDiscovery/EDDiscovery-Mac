@@ -7,6 +7,7 @@
 //
 
 #import "EDSMConnection.h"
+#import "Jump.h"
 
 #define BASE_URL @"http://www.edsm.net"
 #define KEYCHAIN_PREFIX nil
@@ -83,11 +84,9 @@ responseCallback:^(id output, NSError *error) {
   
   dayComponent.day = -6;
   
-  NSCalendar       *calendar     = [NSCalendar currentCalendar];
-  NSDate           *minDate      = [calendar dateByAddingComponents:dayComponent toDate:NSDate.date options:0];
+  NSCalendar *calendar = [NSCalendar currentCalendar];
+  NSDate     *minDate  = [calendar dateByAddingComponents:dayComponent toDate:NSDate.date options:0];
   
-  [NSUserDefaults.standardUserDefaults setObject:lastSyncDate forKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
-
   if ([lastSyncDate earlierDate:minDate] == lastSyncDate) {
     [self getNightlyDumpWithResponse:^(NSArray *output, NSError *error) {
       //save sync date 1 day in the past as the nighly dumps are generated once per day
@@ -120,7 +119,7 @@ responseCallback:^(id output, NSError *error) {
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     
     formatter.timeZone   = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
-    formatter.dateFormat = @"yyyy-MM-dd HH-mm-ss";
+    formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
     
     NSString *from = [formatter stringFromDate:lastSyncDate];
     
@@ -162,30 +161,116 @@ responseCallback:^(id output, NSError *error) {
   }
 }
 
-+ (void)getTravelLogsForCommander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(NSDictionary *response, NSError *error))response {
++ (void)getJumpsForCommander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(NSArray *jumps, NSError *error))response {
+  NSAssert(commanderName.length > 0, @"missing commanderName");
+  NSAssert(apiKey.length > 0, @"missing apiKey");
+  
+  NSDate *lastSyncDate = [NSUserDefaults.standardUserDefaults objectForKey:EDSM_JUMPS_UPDATE_TIMESTAMP];
+
+  NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+  
+  formatter.timeZone   = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
+  formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
+  
+  NSString *from = [formatter stringFromDate:lastSyncDate];
+  
   [self callApi:@"api-logs-v1/get-logs"
      withMethod:@"POST"
  sendCredential:NO
 responseCallback:^(id output, NSError *error) {
   
   if (error == nil) {
-    NSError      *error     = nil;
-    NSDictionary *travelLog = [NSJSONSerialization JSONObjectWithData:output options:0 error:&error];
+    NSArray      *jumps = nil;
+    NSError      *error = nil;
+    NSDictionary *data  = [NSJSONSerialization JSONObjectWithData:output options:0 error:&error];
     
-    if (![travelLog isKindOfClass:NSDictionary.class]) {
-      travelLog = nil;
+    if ([data isKindOfClass:NSDictionary.class]) {
+      NSInteger result = [data[@"msgnum"] integerValue];
+      
+      //100 --> success
+      
+      if (result == 100) {
+        jumps = data[@"logs"];
+        
+        if (jumps.count > 0) {
+          NSDictionary *latestJump   = jumps.firstObject;
+          NSDate       *lastSyncDate = [formatter dateFromString:latestJump[@"date"]];
+          
+          //add 1 second to date of last recorded jump (otherwise EDSM will return this jump to me next time I sync)
+          lastSyncDate = [lastSyncDate dateByAddingTimeInterval:1];
+          
+          [NSUserDefaults.standardUserDefaults setObject:lastSyncDate forKey:EDSM_JUMPS_UPDATE_TIMESTAMP];
+        }
+      }
+      else {
+        error = [NSError errorWithDomain:@"EDDiscovery"
+                                        code:result
+                                userInfo:@{NSLocalizedDescriptionKey:data[@"msg"]}];
+      }
     }
     
-    response(travelLog, error);
-
-#warning data sincronizzazione sync travel log EDSM
+    response(jumps, error);
   }
   else {
     response(nil, error);
   }
   
 }
-     parameters:2,
+     parameters:3,
+   @"commanderName", commanderName,
+   @"apiKey", apiKey,
+   @"startdatetime", from
+   ];
+}
+
++ (void)addJump:(Jump *)jump forCommander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(BOOL success, NSError *error))response {
+  NSAssert(jump != nil, @"missing jump");
+  NSAssert(jump.edsm == nil, @"jump already sent to EDSM");
+  NSAssert(commanderName.length > 0, @"missing commanderName");
+  NSAssert(apiKey.length > 0, @"missing apiKey");
+
+  NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+  
+  formatter.timeZone   = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
+  formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
+  
+  NSString *name      = jump.system.name;
+  NSString *timestamp = [formatter stringFromDate:[NSDate dateWithTimeIntervalSinceReferenceDate:jump.timestamp]];
+  
+  [self callApi:@"api-logs-v1/set-log"
+     withMethod:@"POST"
+ sendCredential:NO
+responseCallback:^(id output, NSError *error) {
+  
+  if (error == nil) {
+    NSError      *error = nil;
+    NSDictionary *data  = [NSJSONSerialization JSONObjectWithData:output options:0 error:&error];
+    
+    if ([data isKindOfClass:NSDictionary.class]) {
+      NSInteger result = [data[@"msgnum"] integerValue];
+      
+      //100 --> success
+      
+      if (result == 100) {
+        response(YES, nil);
+      }
+      else {
+        error = [NSError errorWithDomain:@"EDDiscovery"
+                                    code:result
+                                userInfo:@{NSLocalizedDescriptionKey:data[@"msg"]}];
+        
+        response(NO, error);
+      }
+    }
+  }
+  else {
+    response(NO, error);
+  }
+  
+}
+     parameters:4,
+   @"systemName", name,
+   @"dateVisited", timestamp,
    @"commanderName", commanderName,
    @"apiKey", apiKey
    ];
