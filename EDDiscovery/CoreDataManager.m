@@ -2,7 +2,7 @@
 //  CoreDataManager.m
 //  MLearning
 //
-//  Created by thorin on 06/10/09.
+//  Created by Michele Noberasco on 06/10/09.
 //  Copyright 2009 __MyCompanyName__. All rights reserved.
 //
 

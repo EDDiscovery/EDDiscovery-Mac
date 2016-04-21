@@ -299,7 +299,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0730;
-				ORGANIZATIONNAME = Moonrays;
+				ORGANIZATIONNAME = "Michele Noberasco";
 				TargetAttributes = {
 					D9BAB5D71CC0F7D80087BC07 = {
 						CreatedOnToolsVersion = 7.3;
@@ -477,7 +477,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = it.moonrays.EDDiscovery;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = /Users/thorin/Devel/iOS/libraries/MHWDirectoryWatcher;
 			};
 			name = Debug;
 		};
@@ -492,7 +491,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = it.moonrays.EDDiscovery;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = /Users/thorin/Devel/iOS/libraries/MHWDirectoryWatcher;
 			};
 			name = Release;
 		};

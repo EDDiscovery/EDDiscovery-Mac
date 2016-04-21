@@ -2,8 +2,8 @@
 //  NetLogFile.m
 //  EDDiscovery
 //
-//  Created by thorin on 18/04/16.
-//  Copyright © 2016 Moonrays. All rights reserved.
+//  Created by Michele Noberasco on 18/04/16.
+//  Copyright © 2016 Michele Noberasco. All rights reserved.
 //
 
 #import "NetLogFile.h"
