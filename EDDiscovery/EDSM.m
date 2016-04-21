@@ -19,7 +19,7 @@
 #endif
 #define CMDR_NAME    @"<your-cmdr-name>"
 #define CMDR_API_KEY @"<your-api-key>"
-#error insert youe commander data
+#error insert your commander data
 
 @implementation EDSM
 
