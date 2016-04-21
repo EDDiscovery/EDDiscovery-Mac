@@ -3,10 +3,12 @@ Mac version of EDDiscovery
 
 This is a work in progress.
 
-Before you compile it, you will need to edit  the source code and set:
+Before you compile it, you will need to edit the source code and set:
 - your ED log path
 - your ESDM cmdr name
 - your EDSM api key
+
+Needless to say, you need to enable verbose logging on your ED installation.
 
 At first launch, the application will:
 - fetch all systems with known coordinates from EDSM
