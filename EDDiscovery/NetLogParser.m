@@ -65,11 +65,11 @@
 
 - (void)watcher:(id<UKFileWatcher>)kq receivedNotification:(NSString *)nm forPath:(NSString *)path {
   if ([path isEqualToString:LOG_DIR_PATH]) {
-    [EventLogger addLog:@"Log directory contents changed"];
+    NSLog(@"Log directory contents changed");
+    
     [self scanLogFilesDir];
   }
   else {
-    [EventLogger addProcessingStep];
     [self parseNetLogFile:currNetLogFile systems:nil names:nil];
   }
 }
@@ -89,7 +89,9 @@
   
   NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:LOG_DIR_PATH error:nil];
   
-  [EventLogger addLog:[NSString stringWithFormat:@"Have %ld files in log directory", files.count]];
+  if (firstRun) {
+    [EventLogger addLog:[NSString stringWithFormat:@"Have %ld files in log directory", files.count]];
+  }
   
   NSMutableArray *netLogFiles = [NSMutableArray array];
   
@@ -99,7 +101,9 @@
     }
   }
   
-  [EventLogger addLog:[NSString stringWithFormat:@"Have %ld netLog files in log directory", netLogFiles.count]];
+  if (firstRun) {
+    [EventLogger addLog:[NSString stringWithFormat:@"Have %ld netLog files in log directory", netLogFiles.count]];
+  }
   
   NSMutableArray *netLogs = [NSMutableArray arrayWithCapacity:netLogFiles.count];
   
@@ -149,9 +153,7 @@
       }
       
       if (netLogFile.complete == NO) {
-        if (!firstRun) {
-          [EventLogger addLog:[NSString stringWithFormat:@"Parsing netLog file: %@", netLog]];
-        }
+        NSLog(@"Parsing netLog file: %@", netLog);
         
         netLogFile.complete = YES;
         
@@ -169,13 +171,13 @@
       }
     }
     
-    if (numParsed > 1) {
-      ti = [NSDate timeIntervalSinceReferenceDate] - ti;
-    
-      [EventLogger addLog:[NSString stringWithFormat:@"Parsed %ld jumps from %ld netLog files in %.1f seconds", (long)numJumps, (long)numParsed, ti]];
-    }
-    
     if (firstRun) {
+      if (numParsed > 1) {
+        ti = [NSDate timeIntervalSinceReferenceDate] - ti;
+      
+        [EventLogger addLog:[NSString stringWithFormat:@"Parsed %ld jumps from %ld netLog files in %.1f seconds", (long)numJumps, (long)numParsed, ti]];
+      }
+    
       [EDSM.instance syncJumpsWithEDSM];
       
       firstRun = NO;

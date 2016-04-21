@@ -10,7 +10,7 @@
 #import "Jump.h"
 #import "EDSMConnection.h"
 #import "CoreDataManager.h"
-#import "EventLogger.h""
+#import "EventLogger.h"
 
 #ifdef DEBUG
 #warning TODO: replace with non-hardcoded data!
@@ -278,7 +278,12 @@
                        exit(-1);
                      }
                      
-                     [EventLogger addLog:[NSString stringWithFormat:@"Sent new jump to EDSM: %@ - %@", [NSDate dateWithTimeIntervalSinceReferenceDate:jump.timestamp], jump.system.name]];
+                     if (self.jumps.lastObject == jump) {
+                       [EventLogger addLog:@" - sent to EDSM!" timestamp:NO newline:NO];
+                     }
+                     else {
+                       [EventLogger addLog:[NSString stringWithFormat:@"Sent new jump to EDSM: %@ - %@", [NSDate dateWithTimeIntervalSinceReferenceDate:jump.timestamp], jump.system.name]];
+                     }
                    }
                    else {
                      NSLog(@"ERROR from EDSM: %ld - %@", (long)error.code, error.localizedDescription);
@@ -287,7 +292,7 @@
                  }];
 }
 
-#warning: working around a known SDK bug!
+#warning FIXME: workaround for a known SDK bug (http://stackoverflow.com/questions/7385439/exception-thrown-in-nsorderedset-generated-accessors)
 - (void)insertObject:(Jump *)value inJumpsAtIndex:(NSUInteger)idx {
   NSMutableOrderedSet *tempSet = [NSMutableOrderedSet orderedSetWithOrderedSet:self.jumps];
   

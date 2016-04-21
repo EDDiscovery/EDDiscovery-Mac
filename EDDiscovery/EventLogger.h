@@ -13,7 +13,6 @@
 
 + (EventLogger *)instance;
 
-+ (void)addProcessingStep;
 + (void)addLog:(NSString *)msg;
 + (void)addLog:(NSString *)msg timestamp:(BOOL)timestamp newline:(BOOL)newline;
 

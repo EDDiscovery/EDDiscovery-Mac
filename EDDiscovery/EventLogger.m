@@ -52,24 +52,6 @@
   [self.instance addLog:msg timestamp:timestamp newline:newline];
 }
 
-+ (void)addProcessingStep {
-  [self.instance addProcessingStep];
-}
-
-- (void)addProcessingStep {
-  if (text.length == 0) {
-    [text appendString:@"\n"];
-  }
-  else if ([text hasSuffix:@"."] == NO) {
-    [text appendString:@"\n"];
-  }
-  
-  [text appendString:@"."];
-  
-  [self.textView setString:text];
-  [self.textView scrollRangeToVisible:NSMakeRange(text.length, 0)];
-}
-
 - (void)addLog:(NSString *)msg timestamp:(BOOL)timestamp newline:(BOOL)newline {
   NSLog(@"%@", msg);
   
