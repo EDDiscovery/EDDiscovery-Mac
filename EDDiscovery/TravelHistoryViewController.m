@@ -32,7 +32,8 @@
   EventLogger.instance.textView = textView;
   
   coreDataContent.managedObjectContext = CoreDataManager.instance.managedObjectContext;
-  coreDataContent.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:NO selector:@selector(compare:)]];
+  
+  tableView.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:NO selector:@selector(compare:)]];
 }
 
 #pragma mark -
@@ -59,6 +60,12 @@
     
     [EDSM.instance setCommentForSystem:system];
   }
+}
+
+- (void)tableView:(NSTableView *)aTableView sortDescriptorsDidChange:(NSArray<NSSortDescriptor *> *)oldDescriptors {
+  NSLog(@"%s", __FUNCTION__);
+  
+  coreDataContent.sortDescriptors = aTableView.sortDescriptors;
 }
 
 @end
