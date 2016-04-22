@@ -10,6 +10,7 @@
 
 @implementation EventLogger {
   NSMutableString *text;
+  NSMutableString *currLine;
 }
 
 #pragma mark -
@@ -35,11 +36,17 @@
   self = [super init];
   
   if (self != nil) {
-    text = [[NSMutableString alloc] init];
+    text     = [[NSMutableString alloc] init];
+    currLine = [[NSMutableString alloc] init];
   }
   
   return self;
 }
+
+#pragma mark -
+#pragma mark properties
+
+@synthesize currLine;
 
 #pragma mark -
 #pragma mark user-visible debug logging
@@ -53,21 +60,31 @@
 }
 
 - (void)addLog:(NSString *)msg timestamp:(BOOL)timestamp newline:(BOOL)newline {
+  static NSDateFormatter *formatter = nil;
+  static dispatch_once_t  onceToken;
+  
+  dispatch_once(&onceToken, ^{
+    formatter = [[NSDateFormatter alloc] init];
+    
+    formatter.dateFormat = @"HH:mm:ss - ";
+  });
+  
   NSLog(@"%@", msg);
   
   if (text.length > 0 && newline) {
     [text appendString:@"\n"];
+    [currLine setString:@""];
   }
   
   if (timestamp) {
-    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    NSString *str = [formatter stringFromDate:NSDate.date];
     
-    formatter.dateFormat = @"HH:mm:ss - ";
-    
-    [text appendString:[formatter stringFromDate:NSDate.date]];
+    [text appendString:str];
+    [currLine appendString:str];
   }
   
   [text appendString:msg];
+  [currLine appendString:msg];
   
   [self.textView setString:text];
   [self.textView scrollRangeToVisible:NSMakeRange(text.length, 0)];

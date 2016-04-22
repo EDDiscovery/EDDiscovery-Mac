@@ -249,9 +249,6 @@
               }
             }];
           }
-          else {
-            msg = [msg stringByAppendingFormat:@" - x=%f, y=%f, z=%f", jump.system.x, jump.system.y, jump.system.z];
-          }
           
           [EDSM.instance sendJumpToEDSM:jump];
           

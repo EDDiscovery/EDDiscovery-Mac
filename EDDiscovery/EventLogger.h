@@ -16,6 +16,7 @@
 + (void)addLog:(NSString *)msg;
 + (void)addLog:(NSString *)msg timestamp:(BOOL)timestamp newline:(BOOL)newline;
 
-@property(nonatomic, strong) NSTextView *textView;
+@property(nonatomic, strong)   NSTextView *textView;
+@property(nonatomic, readonly) NSString   *currLine;
 
 @end

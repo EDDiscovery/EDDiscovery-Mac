@@ -278,7 +278,7 @@
                        exit(-1);
                      }
                      
-                     if (self.jumps.lastObject == jump) {
+                     if ([EventLogger.instance.currLine containsString:jump.system.name]) {
                        [EventLogger addLog:@" - sent to EDSM!" timestamp:NO newline:NO];
                      }
                      else {
