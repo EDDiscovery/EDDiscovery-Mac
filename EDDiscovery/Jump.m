@@ -100,4 +100,12 @@
   return array.lastObject;
 }
 
+- (NSString *)note {
+  return @"";
+}
+
+- (NSString *)distance {
+  return @"";
+}
+
 @end

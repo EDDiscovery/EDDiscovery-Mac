@@ -1,5 +1,5 @@
 //
-//  ViewController.h
+//  TravelHistoryViewController.h
 //  EDDiscovery
 //
 //  Created by Michele Noberasco on 15/04/16.
@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface ViewController : NSViewController
+@interface TravelHistoryViewController : NSViewController
 
 
 @end

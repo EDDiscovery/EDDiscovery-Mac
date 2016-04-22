@@ -19,6 +19,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSArray *)getAllJumpsInContext:(NSManagedObjectContext *)context;
 + (Jump *)getLastJumpInContext:(NSManagedObjectContext *)context;
 
+@property(nonnull, readonly) NSString *note;
+@property(nonnull, readonly) NSString *distance;
+
 @end
 
 NS_ASSUME_NONNULL_END

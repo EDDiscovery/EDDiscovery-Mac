@@ -28,7 +28,7 @@
 		D95E151A1CC42F7A0087BC07 /* KeychainItemWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = D95E15191CC42F7A0087BC07 /* KeychainItemWrapper.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		D9BAB5DD1CC0F7D80087BC07 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB5DC1CC0F7D80087BC07 /* AppDelegate.m */; };
 		D9BAB5E01CC0F7D80087BC07 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB5DF1CC0F7D80087BC07 /* main.m */; };
-		D9BAB5E31CC0F7D80087BC07 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB5E21CC0F7D80087BC07 /* ViewController.m */; };
+		D9BAB5E31CC0F7D80087BC07 /* TravelHistoryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB5E21CC0F7D80087BC07 /* TravelHistoryViewController.m */; };
 		D9BAB5E51CC0F7D80087BC07 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D9BAB5E41CC0F7D80087BC07 /* Assets.xcassets */; };
 		D9BAB5E81CC0F7D80087BC07 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D9BAB5E61CC0F7D80087BC07 /* Main.storyboard */; };
 		D9BAB6351CC126470087BC07 /* UKFileWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB62D1CC126470087BC07 /* UKFileWatcher.m */; };
@@ -80,8 +80,8 @@
 		D9BAB5DB1CC0F7D80087BC07 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D9BAB5DC1CC0F7D80087BC07 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		D9BAB5DF1CC0F7D80087BC07 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		D9BAB5E11CC0F7D80087BC07 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		D9BAB5E21CC0F7D80087BC07 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		D9BAB5E11CC0F7D80087BC07 /* TravelHistoryViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TravelHistoryViewController.h; sourceTree = "<group>"; };
+		D9BAB5E21CC0F7D80087BC07 /* TravelHistoryViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TravelHistoryViewController.m; sourceTree = "<group>"; };
 		D9BAB5E41CC0F7D80087BC07 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D9BAB5E71CC0F7D80087BC07 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D9BAB5E91CC0F7D80087BC07 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -193,8 +193,8 @@
 			children = (
 				D9BAB5DB1CC0F7D80087BC07 /* AppDelegate.h */,
 				D9BAB5DC1CC0F7D80087BC07 /* AppDelegate.m */,
-				D9BAB5E11CC0F7D80087BC07 /* ViewController.h */,
-				D9BAB5E21CC0F7D80087BC07 /* ViewController.m */,
+				D9BAB5E11CC0F7D80087BC07 /* TravelHistoryViewController.h */,
+				D9BAB5E21CC0F7D80087BC07 /* TravelHistoryViewController.m */,
 				D9BAB5E61CC0F7D80087BC07 /* Main.storyboard */,
 			);
 			name = GUI;
@@ -347,7 +347,7 @@
 				D9BAB6381CC126470087BC07 /* UKKQueue.m in Sources */,
 				D94DE2FD1CC5028B0087BC07 /* Jump+CoreDataProperties.m in Sources */,
 				D94DE30A1CC509720087BC07 /* EventLogger.m in Sources */,
-				D9BAB5E31CC0F7D80087BC07 /* ViewController.m in Sources */,
+				D9BAB5E31CC0F7D80087BC07 /* TravelHistoryViewController.m in Sources */,
 				D94DE3061CC506990087BC07 /* NetLogParser.m in Sources */,
 				D94DE2FE1CC5028B0087BC07 /* Jump.m in Sources */,
 				D9BAB5E01CC0F7D80087BC07 /* main.m in Sources */,
