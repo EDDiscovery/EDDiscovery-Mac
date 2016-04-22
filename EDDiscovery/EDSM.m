@@ -218,7 +218,7 @@
                                        exit(-1);
                                      }
                                      
-                                     [EventLogger addLog:[NSString stringWithFormat:@"Received %ld new comments from EDSM", (long)comments.count]];
+                                     [EventLogger addLog:[NSString stringWithFormat:@"Received %ld comments from EDSM", (long)comments.count]];
                                    }
                                    
                                  }];
