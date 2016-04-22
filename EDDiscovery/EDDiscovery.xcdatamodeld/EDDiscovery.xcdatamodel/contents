@@ -25,6 +25,7 @@
         <relationship name="jumps" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Jump" inverseName="netLogFile" inverseEntity="Jump" syncable="YES"/>
     </entity>
     <entity name="System" representedClassName="System" syncable="YES">
+        <attribute name="comment" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="name" attributeType="String" syncable="YES"/>
         <attribute name="x" optional="YES" attributeType="Double" syncable="YES"/>
         <attribute name="y" optional="YES" attributeType="Double" syncable="YES"/>
@@ -38,6 +39,6 @@
         <element name="Image" positionX="-7335" positionY="-613" width="128" height="73"/>
         <element name="Jump" positionX="-7785" positionY="-765" width="128" height="103"/>
         <element name="NetLogFile" positionX="-8021" positionY="-688" width="128" height="118"/>
-        <element name="System" positionX="-7562" positionY="-720" width="128" height="133"/>
+        <element name="System" positionX="-7562" positionY="-720" width="128" height="148"/>
     </elements>
 </model>

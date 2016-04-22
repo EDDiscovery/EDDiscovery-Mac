@@ -173,7 +173,76 @@
                                 [self sendJumpsToEDSM:jumpsToSend];
                                 
                                 [Jump printStats];
+                                
+                                [self getComments];
+                                
                               }];
+}
+
+- (void)getComments {
+  [EDSMConnection getCommentsForCommander:self.commander
+                                   apiKey:self.apiKey
+                                 response:^(NSArray *comments, NSError *connectionError) {
+                                   
+                                   if (![comments isKindOfClass:NSArray.class]) {
+                                     NSLog(@"ERROR from EDSM: %ld - %@", (long)connectionError.code, connectionError.localizedDescription);
+                                     
+                                     return;
+                                   }
+                                   
+                                   if (comments.count > 0) {
+                                     NSManagedObjectContext *context = self.managedObjectContext;
+                                     NSError                *error   = nil;
+                                     
+                                     for (NSDictionary *comment in comments) {
+                                       NSString *name   = comment[@"system"];
+                                       NSString *txt    = comment[@"comment"];
+                                       System   *system = [System systemWithName:name inContext:self.managedObjectContext];
+                                       
+                                       if (system == nil) {
+                                         NSString *className = NSStringFromClass(System.class);
+                                         
+                                         system = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
+                                         
+                                         system.name = name;
+                                       }
+                                       
+                                       system.comment = txt;
+                                     }
+                                     
+                                     [context save:&error];
+                                     
+                                     if (error != nil) {
+                                       NSLog(@"ERROR saving context: %@", error);
+                                       
+                                       exit(-1);
+                                     }
+                                     
+                                     [EventLogger addLog:[NSString stringWithFormat:@"Received %ld new comments from EDSM", (long)comments.count]];
+                                   }
+                                   
+                                 }];
+}
+
+- (void)setCommentForSystem:(System *)system {
+  [EDSMConnection setCommentForSystem:system
+                            commander:self.commander
+                               apiKey:self.apiKey
+                             response:^(BOOL success, NSError *error) {
+    
+                               if (success) {
+                                 if (system.comment.length > 0) {
+                                   [EventLogger addLog:[NSString stringWithFormat:@"Comment for system %@ saved to EDSM", system.name]];
+                                 }
+                                 else {
+                                   [EventLogger addLog:[NSString stringWithFormat:@"Comment for system %@ removed from EDSM", system.name]];
+                                 }
+                               }
+                               else {
+                                 [EventLogger addLog:[NSString stringWithFormat:@"ERROR: could not save comment for system: %ld - %@", (long)error.code, error.localizedDescription]];
+                               }
+                               
+                             }];
 }
 
 - (void)receiveJumpsFromEDSM:(NSArray *)jumps {

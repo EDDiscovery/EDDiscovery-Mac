@@ -10,6 +10,7 @@
 #import <CoreData/CoreData.h>
 
 @class Jump;
+@class System;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -21,6 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)syncJumpsWithEDSM;
 - (void)sendJumpToEDSM:(Jump *)jump;
+
+- (void)setCommentForSystem:(System *)system;
 
 @end
 

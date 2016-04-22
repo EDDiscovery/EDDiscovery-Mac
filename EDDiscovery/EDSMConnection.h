@@ -22,4 +22,8 @@
 + (void)getJumpsForCommander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(NSArray *jumps, NSError *error))response;
 + (void)addJump:(Jump *)jump forCommander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(BOOL success, NSError *error))response;
 
+//commander coments about systems
++ (void)getCommentsForCommander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(NSArray *comments, NSError *error))response;
++ (void)setCommentForSystem:(System *)system commander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(BOOL success, NSError *error))response;
+
 @end

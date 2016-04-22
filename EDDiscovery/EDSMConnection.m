@@ -276,4 +276,91 @@ responseCallback:^(id output, NSError *error) {
    ];
 }
 
++ (void)getCommentsForCommander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(NSArray *comments, NSError *error))response {
+  NSAssert(commanderName.length > 0, @"missing commanderName");
+  NSAssert(apiKey.length > 0, @"missing apiKey");
+  
+  [self callApi:@"api-logs-v1/get-comments"
+     withMethod:@"POST"
+ sendCredential:NO
+responseCallback:^(id output, NSError *error) {
+  
+  if (error == nil) {
+    NSArray      *comments = nil;
+    NSError      *error    = nil;
+    NSDictionary *data     = [NSJSONSerialization JSONObjectWithData:output options:0 error:&error];
+    
+    if ([data isKindOfClass:NSDictionary.class]) {
+      NSInteger result = [data[@"msgnum"] integerValue];
+      
+      //100 --> success
+      
+      if (result == 100) {
+        comments = data[@"comments"];
+      }
+      else {
+        error = [NSError errorWithDomain:@"EDDiscovery"
+                                    code:result
+                                userInfo:@{NSLocalizedDescriptionKey:data[@"msg"]}];
+      }
+    }
+    
+    response(comments, error);
+  }
+  else {
+    response(nil, error);
+  }
+  
+}
+     parameters:2,
+   @"commanderName", commanderName,
+   @"apiKey", apiKey
+   ];
+}
+
++ (void)setCommentForSystem:(System *)system commander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(BOOL success, NSError *error))response {
+  NSAssert(system != nil, @"missing system");
+  NSAssert(commanderName.length > 0, @"missing commanderName");
+  NSAssert(apiKey.length > 0, @"missing apiKey");
+  
+  [self callApi:@"api-logs-v1/set-comment"
+     withMethod:@"POST"
+ sendCredential:NO
+responseCallback:^(id output, NSError *error) {
+  
+  if (error == nil) {
+    NSError      *error   = nil;
+    NSDictionary *data    = [NSJSONSerialization JSONObjectWithData:output options:0 error:&error];
+    BOOL          success = NO;
+    
+    if ([data isKindOfClass:NSDictionary.class]) {
+      NSInteger result = [data[@"msgnum"] integerValue];
+      
+      //100 --> success
+      
+      if (result == 100) {
+        success = YES;
+      }
+      else {
+        error = [NSError errorWithDomain:@"EDDiscovery"
+                                    code:result
+                                userInfo:@{NSLocalizedDescriptionKey:data[@"msg"]}];
+      }
+    }
+    
+    response(success, error);
+  }
+  else {
+    response(NO, error);
+  }
+  
+}
+     parameters:4,
+   @"systemName", system.name,
+   @"comment", (system.comment.length > 0) ? system.comment : @"",
+   @"commanderName", commanderName,
+   @"apiKey", apiKey
+   ];
+}
+
 @end

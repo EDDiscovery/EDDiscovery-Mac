@@ -11,6 +11,8 @@
 #import "EventLogger.h"
 #import "CoreDataManager.h"
 #import "Jump.h"
+#import "System.h"
+#import "EDSM.h"
 
 @interface TravelHistoryViewController() <NSTableViewDataSource, NSTabViewDelegate>
 @end
@@ -31,6 +33,32 @@
   
   coreDataContent.managedObjectContext = CoreDataManager.instance.managedObjectContext;
   coreDataContent.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:NO selector:@selector(compare:)]];
+}
+
+#pragma mark -
+#pragma mark NSTableView management
+
+- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
+//  NSLog(@"%s: row %ld, col %@", __FUNCTION__, (long)rowIndex, aTableColumn.identifier);
+  
+  if ([aTableColumn.identifier isEqualToString:@"rowID"]) {
+    return @(rowIndex + 1);
+  }
+  
+  return nil;
+}
+
+- (void)tableView:(NSTableView *)aTableView setObjectValue:(id)anObject forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
+  NSLog(@"%s: %@ (row %ld, col %@)", __FUNCTION__, anObject, (long)rowIndex, aTableColumn.identifier);
+  
+  if ([aTableColumn.identifier isEqualToString:@"note"]) {
+    Jump   *jump   = coreDataContent.arrangedObjects[rowIndex];
+    System *system = jump.system;
+    
+    NSLog(@"New comment for system %@", system.name);
+    
+    [EDSM.instance setCommentForSystem:system];
+  }
 }
 
 @end

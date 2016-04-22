@@ -2,7 +2,7 @@
 //  System+CoreDataProperties.h
 //  EDDiscovery
 //
-//  Created by Michele Noberasco on 19/04/16.
+//  Created by thorin on 22/04/16.
 //  Copyright © 2016 Michele Noberasco. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
@@ -19,6 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) double x;
 @property (nonatomic) double y;
 @property (nonatomic) double z;
+@property (nullable, nonatomic, retain) NSString *comment;
 @property (nullable, nonatomic, retain) NSSet<Image *> *images;
 @property (nullable, nonatomic, retain) NSSet<Jump *> *jumps;
 
