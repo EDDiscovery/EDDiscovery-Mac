@@ -242,7 +242,7 @@
         if (netLogFile.complete == NO) {
           NSString *msg = [NSString stringWithFormat:@"Jump to %@ (num visits: %ld)", jump.system.name, (long)jump.system.jumps.count];
           
-          if (jump.system.haveCoordinates == NO) {
+          if (jump.system.hasCoordinates == NO) {
             [EDSMConnection getSystemInfo:jump.system.name response:^(NSDictionary *response, NSError *error) {
               if (response != nil) {
                 [jump.system parseEDSMData:response];
@@ -257,18 +257,20 @@
       }
     }
 
-    NSError *error = nil;
-    
-    [netLogFile.managedObjectContext save:&error];
-    
-    if (error != nil) {
-      NSLog(@"ERROR saving context: %@", error);
+    if (count > 0) {
+      NSError *error = nil;
       
-      exit(-1);
-    }
-    
-    if (netLogFile.complete == YES && count > 0) {
-      NSLog(@"Parsed %ld jumps.", (long)count);
+      [netLogFile.managedObjectContext save:&error];
+      
+      if (error != nil) {
+        NSLog(@"ERROR saving context: %@", error);
+        
+        exit(-1);
+      }
+      
+      if (netLogFile.complete == YES && count > 0) {
+        NSLog(@"Parsed %ld jumps.", (long)count);
+      }
     }
   }
   

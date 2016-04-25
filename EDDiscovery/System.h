@@ -19,7 +19,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (System *)systemWithName:(NSString *)name inContext:(NSManagedObjectContext *)context;
 + (void)updateSystemsFromEDSM:(void(^)(void))response;
 
-- (BOOL)haveCoordinates;
+- (NSUInteger)numVisits;
+- (BOOL)hasCoordinates;
+- (NSNumber *)distanceToSol;
 - (void)parseEDSMData:(NSDictionary *)data;
 
 @end

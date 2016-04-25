@@ -280,6 +280,8 @@ responseCallback:^(id output, NSError *error) {
   NSAssert(commanderName.length > 0, @"missing commanderName");
   NSAssert(apiKey.length > 0, @"missing apiKey");
   
+#warning TODO: timestamp sync commenti
+  
   [self callApi:@"api-logs-v1/get-comments"
      withMethod:@"POST"
  sendCredential:NO

@@ -14,7 +14,7 @@
 #import "System.h"
 #import "EDSM.h"
 
-@interface TravelHistoryViewController() <NSTableViewDataSource, NSTabViewDelegate>
+@interface TravelHistoryViewController() <NSTableViewDataSource, NSTabViewDelegate, NSTextFieldDelegate>
 @end
 
 @implementation TravelHistoryViewController {
@@ -56,16 +56,56 @@
     Jump   *jump   = coreDataContent.arrangedObjects[rowIndex];
     System *system = jump.system;
     
-    NSLog(@"New comment for system %@", system.name);
-    
-    [EDSM.instance setCommentForSystem:system];
+    [self systemNoteUpdated:system];
   }
 }
 
-- (void)tableView:(NSTableView *)aTableView sortDescriptorsDidChange:(NSArray<NSSortDescriptor *> *)oldDescriptors {
-  NSLog(@"%s", __FUNCTION__);
+- (void)tableView:(NSTableView *)aTableView willDisplayCell:(NSTextFieldCell *)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
+  if ([aTableColumn.identifier isEqualToString:@"system"]) {
+    Jump   *jump   = coreDataContent.arrangedObjects[rowIndex];
+    System *system = jump.system;
+
+    if (system.hasCoordinates) {
+      aCell.textColor = NSColor.blackColor;
+    }
+    else {
+      if (aTableView.selectedRow == rowIndex) {
+        aCell.textColor = NSColor.whiteColor;
+      }
+      else {
+        aCell.textColor = NSColor.blueColor;
+      }
+    }
+  }
+}
+
+- (BOOL)tableView:(NSTableView *)aTableView shouldSelectRow:(NSInteger)rowIndex {
+  [coreDataContent setSelectionIndex:rowIndex];
   
+  return YES;
+}
+
+- (void)tableView:(NSTableView *)aTableView sortDescriptorsDidChange:(NSArray<NSSortDescriptor *> *)oldDescriptors {
   coreDataContent.sortDescriptors = aTableView.sortDescriptors;
+}
+
+#pragma mark -
+#pragma mark text field delegate
+
+- (void)controlTextDidEndEditing:(NSNotification *)aNotification {
+  Jump   *jump   = coreDataContent.arrangedObjects[coreDataContent.selectionIndex];
+  System *system = jump.system;
+  
+  [self systemNoteUpdated:system];
+}
+
+#pragma mark -
+#pragma mark update notes
+
+- (void)systemNoteUpdated:(System *)system {
+  NSLog(@"New comment for system %@", system.name);
+  
+  [EDSM.instance setCommentForSystem:system];
 }
 
 @end
