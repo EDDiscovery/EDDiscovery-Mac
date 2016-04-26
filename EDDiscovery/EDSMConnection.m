@@ -162,9 +162,6 @@ responseCallback:^(id output, NSError *error) {
 }
 
 + (void)getJumpsForCommander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(NSArray *jumps, NSError *error))response {
-  NSAssert(commanderName.length > 0, @"missing commanderName");
-  NSAssert(apiKey.length > 0, @"missing apiKey");
-  
   NSDate *lastSyncDate = [NSUserDefaults.standardUserDefaults objectForKey:EDSM_JUMPS_UPDATE_TIMESTAMP];
 
   NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
@@ -226,8 +223,6 @@ responseCallback:^(id output, NSError *error) {
 + (void)addJump:(Jump *)jump forCommander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(BOOL success, NSError *error))response {
   NSAssert(jump != nil, @"missing jump");
   NSAssert(jump.edsm == nil, @"jump already sent to EDSM");
-  NSAssert(commanderName.length > 0, @"missing commanderName");
-  NSAssert(apiKey.length > 0, @"missing apiKey");
 
   NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
   
@@ -277,9 +272,6 @@ responseCallback:^(id output, NSError *error) {
 }
 
 + (void)getCommentsForCommander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(NSArray *comments, NSError *error))response {
-  NSAssert(commanderName.length > 0, @"missing commanderName");
-  NSAssert(apiKey.length > 0, @"missing apiKey");
-  
   NSDate *lastSyncDate = [NSUserDefaults.standardUserDefaults objectForKey:EDSM_COMMENTS_UPDATE_TIMESTAMP];
   
   NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
@@ -340,8 +332,6 @@ responseCallback:^(id output, NSError *error) {
 
 + (void)setCommentForSystem:(System *)system commander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(BOOL success, NSError *error))response {
   NSAssert(system != nil, @"missing system");
-  NSAssert(commanderName.length > 0, @"missing commanderName");
-  NSAssert(apiKey.length > 0, @"missing apiKey");
   
   [self callApi:@"api-logs-v1/set-comment"
      withMethod:@"POST"

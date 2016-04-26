@@ -12,15 +12,6 @@
 #import "CoreDataManager.h"
 #import "EventLogger.h"
 
-#ifdef DEBUG
-#warning TODO: replace with non-hardcoded data!
-#else
-#error TODO: replace with non-hardcoded data!
-#endif
-#define CMDR_NAME    @"<your-cmdr-name>"
-#define CMDR_API_KEY @"<your-api-key>"
-#error insert your commander data
-
 @implementation EDSM
 
 + (EDSM *)instance {
@@ -53,8 +44,6 @@
     
     instance = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
     
-    instance.commander = CMDR_NAME;
-    
     [context save:&error];
     
     if (error != nil) {
@@ -67,12 +56,12 @@
   return instance;
 }
 
-- (NSString *)apiKey {
-  return CMDR_API_KEY;
+- (NSString *)commander {
+  return [NSUserDefaults.standardUserDefaults objectForKey:EDSM_CMDR_NAME_KEY];
 }
 
-- (void)setApiKey:(NSString *)apiKey {
-  NSLog(@"!!!TODO!!!");
+- (NSString *)apiKey {
+  return [NSUserDefaults.standardUserDefaults objectForKey:EDSM_API_KEY_KEY];
 }
 
 - (void)syncJumpsWithEDSM {

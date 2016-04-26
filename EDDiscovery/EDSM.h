@@ -9,6 +9,9 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
+#define EDSM_CMDR_NAME_KEY @"EDSMCmdrNameKey"
+#define EDSM_API_KEY_KEY   @"EDSMApiKeyKey"
+
 @class Jump;
 @class System;
 
@@ -18,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (EDSM *)instance;
 
-@property(nonatomic, strong) NSString *apiKey;
+@property(nonatomic, readonly) NSString *apiKey;
 
 - (void)syncJumpsWithEDSM;
 - (void)sendJumpToEDSM:(Jump *)jump;

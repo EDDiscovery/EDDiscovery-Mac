@@ -14,6 +14,8 @@
 #import "System.h"
 #import "EDSM.h"
 #import "AppDelegate.h"
+#import "NetLogParser.h"
+
 
 @interface TravelHistoryViewController() <NSTableViewDataSource, NSTabViewDelegate, NSTextFieldDelegate>
 @end
@@ -148,6 +150,42 @@
   
   prevSystem = system.name;
   prevNote   = system.comment;
+}
+
+#pragma mark -
+#pragma mark log file dir selection
+
+- (IBAction)selectLogDirPathButtonTapped:(id)sender {
+  NSOpenPanel *openDlg = NSOpenPanel.openPanel;
+  NSString    *path    = [NSUserDefaults.standardUserDefaults objectForKey:LOG_DIR_PATH_SETING_KEY];
+  
+  if (path == nil) {
+    path = DEFAULT_LOG_DIR_PATH_DIR;
+  }
+
+  NSLog(@"%s: %@", __FUNCTION__, path);
+  
+  openDlg.canChooseFiles = NO;
+  openDlg.canChooseDirectories = YES;
+  openDlg.allowsMultipleSelection = NO;
+  openDlg.directoryURL = [NSURL fileURLWithPath:path];
+  
+  if ([openDlg runModal] == NSFileHandlingPanelOKButton) {
+    NSString *path   = openDlg.URLs.firstObject.path;
+    BOOL      exists = NO;
+    BOOL      isDir  = NO;
+    
+    if (path != nil) {
+      exists = [NSFileManager.defaultManager fileExistsAtPath:path isDirectory:&isDir];
+    }
+    
+    if (exists == YES && isDir == YES) {
+      [NSUserDefaults.standardUserDefaults setObject:path forKey:LOG_DIR_PATH_SETING_KEY];
+      
+      [NetLogParser instanceWithPath:path];
+    }
+
+  }
 }
 
 @end

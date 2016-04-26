@@ -195,7 +195,7 @@
   return result;
 }
 
-- (void)updateFromEDSM:(void(^)(void))resultBlock {
+- (void)updateFromEDSM:(void(^__nullable)(void))resultBlock {
   [EDSMConnection getSystemInfo:self.name response:^(NSDictionary *response, NSError *error) {
     if (response != nil) {
       [self parseEDSMData:response parseDistances:YES save:YES];

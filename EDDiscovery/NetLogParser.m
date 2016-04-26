@@ -17,28 +17,21 @@
 #import "System.h"
 #import "Jump.h"
 
-#ifdef DEBUG
-#warning TODO: replace with non-hardcoded data!
-#else
-#error TODO: replace with non-hardcoded data!
-#endif
-#define LOG_DIR_PATH @"<your-log-dir-path>"
-#error insert your log dir path
-
 @implementation NetLogParser {
   NetLogFile *currNetLogFile;
   Jump       *lastJump;
   UKKQueue   *queue;
+  NSString   *logDirPath;
 }
 
 #pragma mark -
 #pragma mark instance management
 
-+ (NetLogParser *)instance {
++ (NetLogParser *)instanceWithPath:(NSString *)path {
   static NetLogParser *instance = nil;
   
   if (instance == nil) {
-    instance = [[NetLogParser alloc] initInstance];
+    instance = [[NetLogParser alloc] initInstance:path];
   }
   
   return instance;
@@ -50,14 +43,16 @@
   return nil;
 }
 
-- (id)initInstance {
+- (id)initInstance:(NSString *)path {
   self = [super init];
   
   if (self) {
+    logDirPath = path;
+    
     queue = [UKKQueue sharedFileWatcher];
     
     [queue setDelegate:self];
-    [queue addPathToQueue:LOG_DIR_PATH];
+    [queue addPathToQueue:logDirPath];
     
     [self scanLogFilesDir];
   }
@@ -69,7 +64,7 @@
 #pragma mark UKKQueue delegate
 
 - (void)watcher:(id<UKFileWatcher>)kq receivedNotification:(NSString *)nm forPath:(NSString *)path {
-  if ([path isEqualToString:LOG_DIR_PATH]) {
+  if ([path isEqualToString:logDirPath]) {
     NSLog(@"Log directory contents changed");
     
     [self scanLogFilesDir];
@@ -92,7 +87,7 @@
     [queue removePathFromQueue:currNetLogFile.path];
   }
   
-  NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:LOG_DIR_PATH error:nil];
+  NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:logDirPath error:nil];
   
   if (firstRun) {
     [EventLogger addLog:[NSString stringWithFormat:@"Have %ld files in log directory", files.count]];
@@ -113,7 +108,7 @@
   NSMutableArray *netLogs = [NSMutableArray arrayWithCapacity:netLogFiles.count];
   
   for (NSString *file in netLogFiles) {
-    NSString     *path  = [LOG_DIR_PATH stringByAppendingPathComponent:file];
+    NSString     *path  = [logDirPath stringByAppendingPathComponent:file];
     NSDictionary *attrs = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:nil];
     
     if (attrs != nil) {
@@ -146,7 +141,7 @@
     
     for (NSDictionary *netLogData in netLogs) {
       NSString   *netLog     = netLogData[FILE_KEY];
-      NSString   *path       = [LOG_DIR_PATH stringByAppendingPathComponent:netLog];
+      NSString   *path       = [logDirPath stringByAppendingPathComponent:netLog];
       NetLogFile *netLogFile = [NetLogFile netLogFileWithPath:path inContext:context];
       
       if (netLogFile == nil) {
