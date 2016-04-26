@@ -9,8 +9,9 @@
 #import "HttpApiManager.h"
 #import "System.h"
 
-#define EDSM_SYSTEM_UPDATE_TIMESTAMP @"edsmSystemUpdateTimestamp"
-#define EDSM_JUMPS_UPDATE_TIMESTAMP  @"edsmJumpsUpdateTimestamp"
+#define EDSM_SYSTEM_UPDATE_TIMESTAMP   @"edsmSystemUpdateTimestamp"
+#define EDSM_JUMPS_UPDATE_TIMESTAMP    @"edsmJumpsUpdateTimestamp"
+#define EDSM_COMMENTS_UPDATE_TIMESTAMP @"edsmCommentsUpdateTimestamp"
 
 @interface EDSMConnection : HttpApiManager
 

@@ -128,6 +128,7 @@
       case kDefaultDBVersion: {
         [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
         [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_JUMPS_UPDATE_TIMESTAMP];
+        [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_COMMENTS_UPDATE_TIMESTAMP];
         
         //fall through
       }
