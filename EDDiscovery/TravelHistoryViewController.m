@@ -13,6 +13,7 @@
 #import "Jump.h"
 #import "System.h"
 #import "EDSM.h"
+#import "AppDelegate.h"
 
 @interface TravelHistoryViewController() <NSTableViewDataSource, NSTabViewDelegate, NSTextFieldDelegate>
 @end
@@ -21,6 +22,7 @@
   IBOutlet NSTextView        *textView;
   IBOutlet NSTableView       *tableView;
   IBOutlet NSArrayController *coreDataContent;
+  IBOutlet NSTableView       *distancesTableView;
 }
 
 #pragma mark -
@@ -33,7 +35,8 @@
   
   coreDataContent.managedObjectContext = CoreDataManager.instance.managedObjectContext;
   
-  tableView.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:NO selector:@selector(compare:)]];
+  tableView.sortDescriptors          = @[[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:NO  selector:@selector(compare:)]];
+  distancesTableView.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"distance"  ascending:YES selector:@selector(compare:)]];
 }
 
 #pragma mark -
@@ -42,51 +45,78 @@
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
 //  NSLog(@"%s: row %ld, col %@", __FUNCTION__, (long)rowIndex, aTableColumn.identifier);
   
-  if ([aTableColumn.identifier isEqualToString:@"rowID"]) {
-    return @(rowIndex + 1);
+  if (aTableView == tableView) {
+    if ([aTableColumn.identifier isEqualToString:@"rowID"]) {
+      return @(rowIndex + 1);
+    }
   }
   
   return nil;
 }
 
 - (void)tableView:(NSTableView *)aTableView setObjectValue:(id)anObject forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
-  NSLog(@"%s: %@ (row %ld, col %@)", __FUNCTION__, anObject, (long)rowIndex, aTableColumn.identifier);
-  
-  if ([aTableColumn.identifier isEqualToString:@"note"]) {
-    Jump   *jump   = coreDataContent.arrangedObjects[rowIndex];
-    System *system = jump.system;
+  if (aTableView == tableView) {
+    NSLog(@"%s: %@ (row %ld, col %@)", __FUNCTION__, anObject, (long)rowIndex, aTableColumn.identifier);
     
-    [self systemNoteUpdated:system];
+    if ([aTableColumn.identifier isEqualToString:@"note"]) {
+      Jump   *jump   = coreDataContent.arrangedObjects[rowIndex];
+      System *system = jump.system;
+      
+      [self systemNoteUpdated:system];
+    }
   }
 }
 
 - (void)tableView:(NSTableView *)aTableView willDisplayCell:(NSTextFieldCell *)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
-  if ([aTableColumn.identifier isEqualToString:@"system"]) {
-    Jump   *jump   = coreDataContent.arrangedObjects[rowIndex];
-    System *system = jump.system;
+  if (aTableView == tableView) {
+    if ([aTableColumn.identifier isEqualToString:@"system"]) {
+      Jump   *jump   = coreDataContent.arrangedObjects[rowIndex];
+      System *system = jump.system;
 
-    if (system.hasCoordinates) {
-      aCell.textColor = NSColor.blackColor;
-    }
-    else {
-      if (aTableView.selectedRow == rowIndex) {
-        aCell.textColor = NSColor.whiteColor;
+      if (system.hasCoordinates) {
+        aCell.textColor = NSColor.blackColor;
       }
       else {
-        aCell.textColor = NSColor.blueColor;
+        if (aTableView.selectedRow == rowIndex) {
+          aCell.textColor = NSColor.whiteColor;
+        }
+        else {
+          aCell.textColor = NSColor.blueColor;
+        }
       }
     }
   }
 }
 
 - (BOOL)tableView:(NSTableView *)aTableView shouldSelectRow:(NSInteger)rowIndex {
-  [coreDataContent setSelectionIndex:rowIndex];
+  if (aTableView == tableView) {
+    Jump        *jump     = coreDataContent.arrangedObjects[rowIndex];
+    AppDelegate *delegate = NSApplication.sharedApplication.delegate;
+
+    jump.system.distanceSortDescriptors = distancesTableView.sortDescriptors;
+
+    delegate.selectedJump = jump;
+    
+    [coreDataContent setSelectionIndex:rowIndex];
+    
+    [jump.system updateFromEDSM];
+  }
   
   return YES;
 }
 
 - (void)tableView:(NSTableView *)aTableView sortDescriptorsDidChange:(NSArray<NSSortDescriptor *> *)oldDescriptors {
-  coreDataContent.sortDescriptors = aTableView.sortDescriptors;
+  if (aTableView == tableView) {
+    coreDataContent.sortDescriptors = aTableView.sortDescriptors;
+  }
+  else if (aTableView == distancesTableView) {
+    if (coreDataContent.selectionIndex != NSNotFound) {
+      Jump   *jump   = coreDataContent.arrangedObjects[coreDataContent.selectionIndex];
+      System *system = jump.system;
+
+      system.distanceSortDescriptors = aTableView.sortDescriptors;
+    }
+  }
 }
 
 #pragma mark -

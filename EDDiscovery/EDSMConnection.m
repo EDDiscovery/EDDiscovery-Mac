@@ -280,8 +280,6 @@ responseCallback:^(id output, NSError *error) {
   NSAssert(commanderName.length > 0, @"missing commanderName");
   NSAssert(apiKey.length > 0, @"missing apiKey");
   
-#warning TODO: timestamp sync commenti
-  
   NSDate *lastSyncDate = [NSUserDefaults.standardUserDefaults objectForKey:EDSM_COMMENTS_UPDATE_TIMESTAMP];
   
   NSDateFormatter *formatter = [[NSDateFormatter alloc] init];

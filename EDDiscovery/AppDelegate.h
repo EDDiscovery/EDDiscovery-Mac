@@ -8,8 +8,11 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class Jump;
+
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
+@property(nonatomic, strong) Jump *selectedJump;
 
 @end
 

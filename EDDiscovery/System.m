@@ -12,8 +12,16 @@
 #import "EDSMConnection.h"
 #import "CoreDataManager.h"
 #import "EventLogger.h"
+#import "Distance.h"
 
-@implementation System
+@interface System ()
+@property(nonatomic, strong) NSArray *sortedDistances;
+@end
+
+@implementation System {
+  NSArray *distanceSortDescriptors;
+  NSArray *sortedDistances;
+}
 
 + (NSArray *)allSystemsInContext:(NSManagedObjectContext *)context {
   NSString            *className = NSStringFromClass([System class]);
@@ -101,7 +109,7 @@
             numUpdated++;
           }
           
-          [system parseEDSMData:systemData save:NO];
+          [system parseEDSMData:systemData parseDistances:NO save:NO];
           
           if (((numAdded % 1000) == 0 && numAdded != 0) || ((numUpdated % 1000) == 0 && numUpdated != 0)) {
             NSLog(@"Added %ld, updated %ld systems (%ld left to update)", (long)numAdded, (long)numUpdated, (long)systems.count);
@@ -149,15 +157,18 @@
   return result;
 }
 
-- (void)parseEDSMData:(NSDictionary *)data {
-  [self parseEDSMData:data save:YES];
+- (void)updateFromEDSM {
+  [EDSMConnection getSystemInfo:self.name response:^(NSDictionary *response, NSError *error) {
+    if (response != nil) {
+      [self parseEDSMData:response parseDistances:YES save:YES];
+    }
+  }];
 }
 
-- (void)parseEDSMData:(NSDictionary *)data save:(BOOL)saveContext {
+- (void)parseEDSMData:(NSDictionary *)data parseDistances:(BOOL)parseDistances save:(BOOL)saveContext {
 //  NSLog(@"%s: %@", __FUNCTION__, data);
   
-  NSDictionary *coords    = data[@"coords"];
-//  NSArray      *distances = data[@"distances"];
+  NSDictionary *coords = data[@"coords"];
   
   if ([coords isKindOfClass:NSDictionary.class]) {
     self.x = [coords[@"x"] doubleValue];
@@ -169,53 +180,57 @@
     }
   }
   
-//  if ([distances isKindOfClass:NSArray.class]) {
-//    for (NSDictionary *distanceData in distances) {
-//      NSString *name = distanceData[@"name"];
-//      double    dist = [distanceData[@"distance"] doubleValue];
-//      
-//      if (name.length > 0 && dist > 0) {
-//        Distance *distance = nil;
-//        
-//        for (Distance *aDistance in self.distances) {
-//          NSArray *systems = aDistance.systems.allObjects;
-//          System  *system1 = systems.firstObject;
-//          System  *system2 = systems.lastObject;
-//          
-//          if ([system1.name compare:name options:NSCaseInsensitiveSearch] == NSOrderedSame ||
-//              [system2.name compare:name options:NSCaseInsensitiveSearch] == NSOrderedSame) {
-//            distance = aDistance;
-//            
-//            break;
-//          }
-//        }
-//        
-//        if (distance == nil) {
-//          NSString *className = NSStringFromClass(Distance.class);
-//          System   *system    = [System systemWithName:name inContext:self.managedObjectContext];
-//          
-//          if (system == nil) {
-//            NSString *className = NSStringFromClass(System.class);
-//            
-//            system = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:self.managedObjectContext];
-//            
-//            system.name = name;
-//          }
-//          
-//          distance = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:self.managedObjectContext];
-//
-//          [distance addSystemsObject:self];
-//          [distance addSystemsObject:system];
-//        }
-//        
-//        distance.distance = dist;
-//
-//        if (saveContext) {
-//          NSLog(@"%@ <== %f ==> %@", self.name, dist, name);
-//        }
-//      }
-//    }
-//  }
+  if (parseDistances == YES) {
+    NSArray *distances = data[@"distances"];
+    
+    if ([distances isKindOfClass:NSArray.class]) {
+      for (NSDictionary *distanceData in distances) {
+        NSString *name = distanceData[@"name"];
+        double    dist = [distanceData[@"distance"] doubleValue];
+        
+        if (name.length > 0 && dist > 0) {
+          Distance *distance = nil;
+          
+          for (Distance *aDistance in self.distances) {
+            NSArray *systems = aDistance.systems.allObjects;
+            System  *system1 = systems.firstObject;
+            System  *system2 = systems.lastObject;
+            
+            if ([system1.name compare:name options:NSCaseInsensitiveSearch] == NSOrderedSame ||
+                [system2.name compare:name options:NSCaseInsensitiveSearch] == NSOrderedSame) {
+              distance = aDistance;
+              
+              break;
+            }
+          }
+          
+          if (distance == nil) {
+            NSString *className = NSStringFromClass(Distance.class);
+            System   *system    = [System systemWithName:name inContext:self.managedObjectContext];
+            
+            if (system == nil) {
+              NSString *className = NSStringFromClass(System.class);
+              
+              system = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:self.managedObjectContext];
+              
+              system.name = name;
+            }
+            
+            distance = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:self.managedObjectContext];
+
+            [distance addSystemsObject:self];
+            [distance addSystemsObject:system];
+          }
+          
+          distance.distance = dist;
+
+          if (saveContext) {
+            NSLog(@"%@ <== %f ==> %@", self.name, dist, name);
+          }
+        }
+      }
+    }
+  }
   
   if (saveContext) {
     NSError *error = nil;
@@ -228,6 +243,32 @@
       exit(-1);
     }
   }
+}
+
+- (NSArray *)distanceSortDescriptors {
+  return distanceSortDescriptors;
+}
+
+- (void)setDistanceSortDescriptors:(NSArray *)newDistanceSortDescriptors {
+  [self willChangeValueForKey:@"distanceSortDescriptors"];
+  distanceSortDescriptors = newDistanceSortDescriptors;
+  [self didChangeValueForKey:@"distanceSortDescriptors"];
+  
+  [self updateSortedDistances];
+}
+
+- (NSArray *)sortedDistances {
+  if (sortedDistances == nil && self.distances.count > 0) {
+    [self updateSortedDistances];
+  }
+  
+  return sortedDistances;
+}
+
+- (void)updateSortedDistances {
+  [self willChangeValueForKey:@"sortedDistances"];
+  sortedDistances = [self.distances sortedArrayUsingDescriptors:self.distanceSortDescriptors];
+  [self didChangeValueForKey:@"sortedDistances"];
 }
 
 @end

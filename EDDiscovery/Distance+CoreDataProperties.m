@@ -1,5 +1,5 @@
 //
-//  System+CoreDataProperties.m
+//  Distance+CoreDataProperties.m
 //  EDDiscovery
 //
 //  Created by thorin on 26/04/16.
@@ -9,17 +9,11 @@
 //  to delete and recreate this implementation file for your updated model.
 //
 
-#import "System+CoreDataProperties.h"
+#import "Distance+CoreDataProperties.h"
 
-@implementation System (CoreDataProperties)
+@implementation Distance (CoreDataProperties)
 
-@dynamic comment;
-@dynamic name;
-@dynamic x;
-@dynamic y;
-@dynamic z;
-@dynamic images;
-@dynamic jumps;
-@dynamic distances;
+@dynamic distance;
+@dynamic systems;
 
 @end

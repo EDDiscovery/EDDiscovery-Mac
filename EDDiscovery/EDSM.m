@@ -190,6 +190,8 @@
                                      return;
                                    }
                                    
+                                   NSLog(@"Received %ld new comments from EDSM", (long)comments.count);
+                                   
                                    if (comments.count > 0) {
                                      NSManagedObjectContext *context = self.managedObjectContext;
                                      NSError                *error   = nil;
@@ -218,7 +220,9 @@
                                        exit(-1);
                                      }
                                      
-                                     [EventLogger addLog:[NSString stringWithFormat:@"Received %ld comments from EDSM", (long)comments.count]];
+                                     if (comments.count > 0) {
+                                       [EventLogger addLog:[NSString stringWithFormat:@"Received %ld new comments from EDSM", (long)comments.count]];
+                                     }
                                    }
                                    
                                  }];

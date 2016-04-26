@@ -22,7 +22,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSUInteger)numVisits;
 - (BOOL)hasCoordinates;
 - (NSNumber *)distanceToSol;
-- (void)parseEDSMData:(NSDictionary *)data;
+
+- (void)updateFromEDSM;
+
+@property(nonatomic, strong  ) NSArray *distanceSortDescriptors;
+@property(nonatomic, readonly) NSArray *sortedDistances;
 
 @end
 

@@ -243,11 +243,7 @@
           NSString *msg = [NSString stringWithFormat:@"Jump to %@ (num visits: %ld)", jump.system.name, (long)jump.system.jumps.count];
           
           if (jump.system.hasCoordinates == NO) {
-            [EDSMConnection getSystemInfo:jump.system.name response:^(NSDictionary *response, NSError *error) {
-              if (response != nil) {
-                [jump.system parseEDSMData:response];
-              }
-            }];
+            [jump.system updateFromEDSM];
           }
           
           [EDSM.instance sendJumpToEDSM:jump];

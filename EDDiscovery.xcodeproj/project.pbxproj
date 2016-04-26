@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		D917A8E81CC672E20087BC07 /* EDSM+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = D917A8E51CC672E20087BC07 /* EDSM+CoreDataProperties.m */; };
 		D917A8E91CC672E20087BC07 /* EDSM.m in Sources */ = {isa = PBXBuildFile; fileRef = D917A8E71CC672E20087BC07 /* EDSM.m */; };
+		D920C9E71CCFA42D0087BC07 /* Distance+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = D920C9E41CCFA42D0087BC07 /* Distance+CoreDataProperties.m */; };
+		D920C9E81CCFA42D0087BC07 /* Distance.m in Sources */ = {isa = PBXBuildFile; fileRef = D920C9E61CCFA42D0087BC07 /* Distance.m */; };
 		D94DE2931CC4EA0E0087BC07 /* EDDiscovery.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2911CC4EA0E0087BC07 /* EDDiscovery.xcdatamodeld */; };
 		D94DE2B41CC4FF320087BC07 /* CoreDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2B31CC4FF320087BC07 /* CoreDataManager.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		D94DE2DF1CC5024D0087BC07 /* DBVersion+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2CE1CC5024D0087BC07 /* DBVersion+CoreDataProperties.m */; };
@@ -43,6 +45,10 @@
 		D917A8E51CC672E20087BC07 /* EDSM+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "EDSM+CoreDataProperties.m"; sourceTree = "<group>"; };
 		D917A8E61CC672E20087BC07 /* EDSM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EDSM.h; sourceTree = "<group>"; };
 		D917A8E71CC672E20087BC07 /* EDSM.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EDSM.m; sourceTree = "<group>"; };
+		D920C9E31CCFA42D0087BC07 /* Distance+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Distance+CoreDataProperties.h"; sourceTree = "<group>"; };
+		D920C9E41CCFA42D0087BC07 /* Distance+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Distance+CoreDataProperties.m"; sourceTree = "<group>"; };
+		D920C9E51CCFA42D0087BC07 /* Distance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Distance.h; sourceTree = "<group>"; };
+		D920C9E61CCFA42D0087BC07 /* Distance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Distance.m; sourceTree = "<group>"; };
 		D94DE2921CC4EA0E0087BC07 /* EDDiscovery.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = EDDiscovery.xcdatamodel; sourceTree = "<group>"; };
 		D94DE2B21CC4FF320087BC07 /* CoreDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreDataManager.h; sourceTree = "<group>"; };
 		D94DE2B31CC4FF320087BC07 /* CoreDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreDataManager.m; sourceTree = "<group>"; };
@@ -115,6 +121,10 @@
 				D94DE2CE1CC5024D0087BC07 /* DBVersion+CoreDataProperties.m */,
 				D94DE2CF1CC5024D0087BC07 /* DBVersion.h */,
 				D94DE2D01CC5024D0087BC07 /* DBVersion.m */,
+				D920C9E31CCFA42D0087BC07 /* Distance+CoreDataProperties.h */,
+				D920C9E41CCFA42D0087BC07 /* Distance+CoreDataProperties.m */,
+				D920C9E51CCFA42D0087BC07 /* Distance.h */,
+				D920C9E61CCFA42D0087BC07 /* Distance.m */,
 				D917A8E41CC672E20087BC07 /* EDSM+CoreDataProperties.h */,
 				D917A8E51CC672E20087BC07 /* EDSM+CoreDataProperties.m */,
 				D917A8E61CC672E20087BC07 /* EDSM.h */,
@@ -350,6 +360,7 @@
 				D9BAB5E31CC0F7D80087BC07 /* TravelHistoryViewController.m in Sources */,
 				D94DE3061CC506990087BC07 /* NetLogParser.m in Sources */,
 				D94DE2FE1CC5028B0087BC07 /* Jump.m in Sources */,
+				D920C9E81CCFA42D0087BC07 /* Distance.m in Sources */,
 				D9BAB5E01CC0F7D80087BC07 /* main.m in Sources */,
 				D94DE2E01CC5024D0087BC07 /* DBVersion.m in Sources */,
 				D94DE2FB1CC5028B0087BC07 /* Image+CoreDataProperties.m in Sources */,
@@ -363,6 +374,7 @@
 				D94DE2B41CC4FF320087BC07 /* CoreDataManager.m in Sources */,
 				D94DE2FF1CC5028B0087BC07 /* System+CoreDataProperties.m in Sources */,
 				D9BAB6361CC126470087BC07 /* UKFNSubscribeFileWatcher.m in Sources */,
+				D920C9E71CCFA42D0087BC07 /* Distance+CoreDataProperties.m in Sources */,
 				D9BAB6391CC126470087BC07 /* UKMainThreadProxy.m in Sources */,
 				D94DE3001CC5028B0087BC07 /* System.m in Sources */,
 				D94DE2FC1CC5028B0087BC07 /* Image.m in Sources */,
