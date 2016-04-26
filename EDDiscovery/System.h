@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)hasCoordinates;
 - (NSNumber *)distanceToSol;
 
-- (void)updateFromEDSM;
+- (void)updateFromEDSM:(void(^)(void))response;
 
 @property(nonatomic, strong  ) NSArray *distanceSortDescriptors;
 @property(nonatomic, readonly) NSArray *sortedDistances;

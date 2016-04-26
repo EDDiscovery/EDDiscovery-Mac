@@ -99,7 +99,9 @@
     
     [coreDataContent setSelectionIndex:rowIndex];
     
-    [jump.system updateFromEDSM];
+    [jump.system updateFromEDSM:^{
+      jump.system.distanceSortDescriptors = jump.system.distanceSortDescriptors;
+    }];
   }
   
   return YES;
