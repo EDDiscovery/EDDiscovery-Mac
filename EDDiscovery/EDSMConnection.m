@@ -313,7 +313,7 @@ responseCallback:^(id output, NSError *error) {
           NSDictionary *latestComment = comments.lastObject;
           NSDate       *lastSyncDate  = [formatter dateFromString:latestComment[@"lastUpdate"]];
           
-          //add 1 second to date of last recorded jump (otherwise EDSM will return this jump to me next time I sync)
+          //add 1 second to date of last recorded comment (otherwise EDSM will return this comment to me next time I sync)
           lastSyncDate = [lastSyncDate dateByAddingTimeInterval:1];
           
           [NSUserDefaults.standardUserDefaults setObject:lastSyncDate forKey:EDSM_COMMENTS_UPDATE_TIMESTAMP];
