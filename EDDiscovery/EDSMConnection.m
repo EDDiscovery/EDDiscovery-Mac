@@ -282,6 +282,15 @@ responseCallback:^(id output, NSError *error) {
   
 #warning TODO: timestamp sync commenti
   
+  NSDate *lastSyncDate = [NSUserDefaults.standardUserDefaults objectForKey:EDSM_COMMENTS_UPDATE_TIMESTAMP];
+  
+  NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+  
+  formatter.timeZone   = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
+  formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
+  
+  NSString *from = [formatter stringFromDate:lastSyncDate];
+  
   [self callApi:@"api-logs-v1/get-comments"
      withMethod:@"POST"
  sendCredential:NO
@@ -299,6 +308,16 @@ responseCallback:^(id output, NSError *error) {
       
       if (result == 100) {
         comments = data[@"comments"];
+        
+        if (comments.count > 0) {
+          NSDictionary *latestComment = comments.lastObject;
+          NSDate       *lastSyncDate  = [formatter dateFromString:latestComment[@"lastUpdate"]];
+          
+          //add 1 second to date of last recorded jump (otherwise EDSM will return this jump to me next time I sync)
+          lastSyncDate = [lastSyncDate dateByAddingTimeInterval:1];
+          
+          [NSUserDefaults.standardUserDefaults setObject:lastSyncDate forKey:EDSM_COMMENTS_UPDATE_TIMESTAMP];
+        }
       }
       else {
         error = [NSError errorWithDomain:@"EDDiscovery"
@@ -314,7 +333,8 @@ responseCallback:^(id output, NSError *error) {
   }
   
 }
-     parameters:2,
+     parameters:3,
+   @"startdatetime", from, // <-- return only systems updated after this date
    @"commanderName", commanderName,
    @"apiKey", apiKey
    ];
