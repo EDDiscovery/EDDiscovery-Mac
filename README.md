@@ -3,14 +3,14 @@ Mac version of EDDiscovery
 
 This is a work in progress.
 
-Before you compile it, you will need to edit the source code and set:
+Needless to say, you need to enable verbose logging on your ED installation.
+
+At first launch, you should set:
 - your ED log path
 - your ESDM cmdr name
 - your EDSM api key
 
-Needless to say, you need to enable verbose logging on your ED installation.
-
-At first launch, the application will:
+After configuring your data, the application will:
 - fetch all systems with known coordinates from EDSM
 - parse all netlog files and create local jump database
 - fetch your complete jump history form EDSM
@@ -29,10 +29,8 @@ After launch and while it is running, the application will:
 - request system information for newly visited systems in real time from EDSM
 - add newly visited to your EDSM jump history in real time
 
-All this is done automatically without user interaction. In fact, the application has no GUI at all apart from a logging window.
+All this is done automatically without user interaction.
 
 TODO:
-- add a jump list screen like the one on EDDiscovery for Windows
-- add the ability to sync system notes form / to EDSM
 - add a trilateration screen like the one on EDDiscovery for Windows and integrate it with EDSM
 - ...
