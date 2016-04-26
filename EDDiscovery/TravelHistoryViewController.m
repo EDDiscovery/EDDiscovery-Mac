@@ -103,9 +103,19 @@
 #pragma mark update notes
 
 - (void)systemNoteUpdated:(System *)system {
+  static NSString *prevSystem = nil;
+  static NSString *prevNote   = nil;
+
+  if (prevSystem != nil && prevNote != nil && [prevSystem isEqualToString:system.name] && [prevNote isEqualToString:system.comment]) {
+    return;
+  }
+  
   NSLog(@"New comment for system %@", system.name);
   
   [EDSM.instance setCommentForSystem:system];
+  
+  prevSystem = system.name;
+  prevNote   = system.comment;
 }
 
 @end
