@@ -6,9 +6,13 @@
 //  Copyright 2009 __MyCompanyName__. All rights reserved.
 //
 
+#import <Cocoa/Cocoa.h>
+
 #import "CoreDataManager.h"
 #import "DBVersion.h"
+#import "EDSM.h"
 #import "EDSMConnection.h"
+#import "NetLogParser.h"
 
 #define kDefaultDBVersion 0
 #define kCurrentDBVersion 1
@@ -129,6 +133,9 @@
         [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
         [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_JUMPS_UPDATE_TIMESTAMP];
         [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_COMMENTS_UPDATE_TIMESTAMP];
+        [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_CMDR_NAME_KEY];
+        [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_API_KEY_KEY];
+        [NSUserDefaults.standardUserDefaults removeObjectForKey:LOG_DIR_PATH_SETING_KEY];
         
         //fall through
       }

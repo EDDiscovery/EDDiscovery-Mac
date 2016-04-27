@@ -689,7 +689,7 @@
                                                             <rect key="frame" x="1" y="0.0" width="468" height="441"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
-                                                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="sequential" alternatingRowBackgroundColors="YES" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" headerView="eX4-W7-Df1" id="Bam-q7-TPi">
+                                                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="sequential" alternatingRowBackgroundColors="YES" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" typeSelect="NO" headerView="eX4-W7-Df1" id="Bam-q7-TPi">
                                                                     <rect key="frame" x="0.0" y="0.0" width="468" height="19"/>
                                                                     <autoresizingMask key="autoresizingMask"/>
                                                                     <size key="intercellSpacing" width="3" height="2"/>
@@ -952,6 +952,7 @@
                                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                 </textFieldCell>
                                                 <connections>
+                                                    <action selector="ESDMAccountChanged:" target="XfG-lQ-9wD" id="Yid-R4-Cxx"/>
                                                     <binding destination="QgB-gy-OgE" name="value" keyPath="values.EDSMCmdrNameKey" id="R6o-0a-hIN"/>
                                                 </connections>
                                             </textField>
@@ -1072,7 +1073,7 @@
                                                     <rect key="frame" x="1" y="0.0" width="280" height="175"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <subviews>
-                                                        <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" multipleSelection="NO" autosaveColumns="NO" headerView="kPt-6a-8Ml" id="FTN-4D-V9h">
+                                                        <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" multipleSelection="NO" autosaveColumns="NO" typeSelect="NO" headerView="kPt-6a-8Ml" id="FTN-4D-V9h">
                                                             <rect key="frame" x="0.0" y="0.0" width="280" height="152"/>
                                                             <autoresizingMask key="autoresizingMask"/>
                                                             <size key="intercellSpacing" width="3" height="2"/>
@@ -1175,6 +1176,7 @@
                                                     </allowedInputSourceLocales>
                                                 </secureTextFieldCell>
                                                 <connections>
+                                                    <action selector="ESDMAccountChanged:" target="XfG-lQ-9wD" id="9G9-gT-aXH"/>
                                                     <binding destination="QgB-gy-OgE" name="value" keyPath="values.EDSMApiKeyKey" id="jEA-AQ-6z8"/>
                                                 </connections>
                                             </secureTextField>

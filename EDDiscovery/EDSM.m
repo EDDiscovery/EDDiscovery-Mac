@@ -44,6 +44,8 @@
     
     instance = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
     
+    instance.commander = instance.commander;
+    
     [context save:&error];
     
     if (error != nil) {
@@ -52,6 +54,8 @@
       exit(-1);
     }
   }
+  
+  instance.commander = instance.commander;
   
   return instance;
 }

@@ -188,4 +188,18 @@
   }
 }
 
+#pragma mark -
+#pragma mark EDSM account selection
+
+- (IBAction)ESDMAccountChanged:(id)sender {
+  NSString *cmdrName = [NSUserDefaults.standardUserDefaults objectForKey:EDSM_CMDR_NAME_KEY];
+  NSString *apiKey   = [NSUserDefaults.standardUserDefaults objectForKey:EDSM_API_KEY_KEY];
+
+  NSLog(@"%s: %@ - %@", __FUNCTION__, cmdrName, apiKey);
+  
+  if (cmdrName.length > 0 && apiKey.length > 0) {
+    [EDSM.instance syncJumpsWithEDSM];
+  }
+}
+
 @end

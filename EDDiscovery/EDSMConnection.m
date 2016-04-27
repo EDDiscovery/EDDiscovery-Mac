@@ -114,8 +114,6 @@ responseCallback:^(id output, NSError *error) {
     }];
   }
   else {
-    [self setup];
-    
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     
     formatter.timeZone   = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
@@ -124,6 +122,8 @@ responseCallback:^(id output, NSError *error) {
     NSString *from = [formatter stringFromDate:lastSyncDate];
     
     lastSyncDate = NSDate.date;
+    
+    [self setup];
     
     [self callApi:@"api-v1/systems"
        withMethod:@"GET"
@@ -170,6 +170,8 @@ responseCallback:^(id output, NSError *error) {
   formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
   
   NSString *from = [formatter stringFromDate:lastSyncDate];
+  
+  [self setup];
   
   [self callApi:@"api-logs-v1/get-logs"
      withMethod:@"POST"
@@ -232,6 +234,8 @@ responseCallback:^(id output, NSError *error) {
   NSString *name      = jump.system.name;
   NSString *timestamp = [formatter stringFromDate:[NSDate dateWithTimeIntervalSinceReferenceDate:jump.timestamp]];
   
+  [self setup];
+  
   [self callApi:@"api-logs-v1/set-log"
      withMethod:@"POST"
  sendCredential:NO
@@ -280,6 +284,8 @@ responseCallback:^(id output, NSError *error) {
   formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
   
   NSString *from = [formatter stringFromDate:lastSyncDate];
+  
+  [self setup];
   
   [self callApi:@"api-logs-v1/get-comments"
      withMethod:@"POST"
@@ -332,6 +338,8 @@ responseCallback:^(id output, NSError *error) {
 
 + (void)setCommentForSystem:(System *)system commander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(BOOL success, NSError *error))response {
   NSAssert(system != nil, @"missing system");
+  
+  [self setup];
   
   [self callApi:@"api-logs-v1/set-comment"
      withMethod:@"POST"

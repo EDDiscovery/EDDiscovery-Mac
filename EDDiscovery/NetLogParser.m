@@ -70,7 +70,7 @@
     [self scanLogFilesDir];
   }
   else {
-    [self parseNetLogFile:currNetLogFile systems:nil names:nil];
+    [self parseNetLogFile:currNetLogFile systems:nil names:nil jumps:nil];
   }
 }
 
@@ -126,6 +126,7 @@
   if (netLogs.count > 0) {
     NSMutableArray *systems   = nil;
     NSMutableArray *names     = nil;
+    NSMutableArray *jumps     = nil;
     NSTimeInterval  ti        = [NSDate timeIntervalSinceReferenceDate];
     NSUInteger      numParsed = 0;
     NSUInteger      numJumps  = 0;
@@ -133,6 +134,7 @@
     if (netLogs.count > 1) {
       systems = [[System allSystemsInContext:context] mutableCopy];
       names   = [NSMutableArray arrayWithCapacity:systems.count];
+      jumps   = [[Jump getAllJumpsInContext:context] mutableCopy];
       
       for (System *aSystem in systems) {
         [names addObject:aSystem.name];
@@ -157,7 +159,7 @@
         
         netLogFile.complete = YES;
         
-        numJumps += [self parseNetLogFile:netLogFile systems:systems names:names];
+        numJumps += [self parseNetLogFile:netLogFile systems:systems names:names jumps:jumps];
         
         numParsed++;
       }
@@ -196,7 +198,7 @@
 #pragma mark -
 #pragma mark log file scanning
 
-- (NSUInteger)parseNetLogFile:(NetLogFile *)netLogFile systems:(NSMutableArray *)systems names:(NSMutableArray *)names {
+- (NSUInteger)parseNetLogFile:(NetLogFile *)netLogFile systems:(NSMutableArray *)systems names:(NSMutableArray *)names jumps:(NSMutableArray *)jumps {
   static NSString     *currPath   = nil;
   static NSFileHandle *fileHandle = nil;
   static NSString     *fileDate   = nil;
@@ -225,7 +227,7 @@
     for (NSString *record in records) {
       NSString *entry = [[NSString stringWithFormat:@"{%@", record] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
       
-      [self parseNetLogRecord:entry inFile:netLogFile referenceDate:fileDate systems:systems names:names];
+      [self parseNetLogRecord:entry inFile:netLogFile referenceDate:fileDate systems:systems names:names jumps:jumps];
     }
     
     netLogFile.fileOffset = fileHandle.offsetInFile;
@@ -268,7 +270,7 @@
   return count;
 }
 
-- (void)parseNetLogRecord:(NSString *)record inFile:(NetLogFile *)netLogFile referenceDate:(NSString *)referenceDateTime systems:(NSMutableArray *)systems names:(NSMutableArray *)names {
+- (void)parseNetLogRecord:(NSString *)record inFile:(NetLogFile *)netLogFile referenceDate:(NSString *)referenceDateTime systems:(NSMutableArray *)systems names:(NSMutableArray *)names jumps:(NSMutableArray *)jumps {
   BOOL      logRecord   = NO;
   BOOL      parseRecord = NO;
   NSString *systemName  = nil;
@@ -350,17 +352,17 @@
   }
   
   if (parseRecord) {
-    [self parseNetLogSystemRecord:record inFile:netLogFile referenceDate:referenceDateTime systems:systems names:names];
+    [self parseNetLogSystemRecord:record inFile:netLogFile referenceDate:referenceDateTime systems:systems names:names jumps:jumps];
   }
 }
 
-- (void)parseNetLogSystemRecord:(NSString *)record inFile:(NetLogFile *)netLogFile referenceDate:(NSString *)referenceDateTime systems:(NSMutableArray *)systems names:(NSMutableArray *)names {
+- (void)parseNetLogSystemRecord:(NSString *)record inFile:(NetLogFile *)netLogFile referenceDate:(NSString *)referenceDateTime systems:(NSMutableArray *)systems names:(NSMutableArray *)names jumps:(NSMutableArray *)jumps {
   NSDate   *date = [self parseDateOfRecord:record referenceDateTime:referenceDateTime];
   NSString *name = [self parseSystemNameOfRecord:record];
   
   if (name != nil && date != nil) {
-    NSManagedObjectContext *context = netLogFile.managedObjectContext;
-    System                 *system  = nil;
+    NSManagedObjectContext *context  = netLogFile.managedObjectContext;
+    System                 *system   = nil;
     
     if (systems == nil || names == nil) {
       system = [System systemWithName:name inContext:context];
@@ -393,11 +395,20 @@
       }
     }
     
-    NSString *className = NSStringFromClass(Jump.class);
-    Jump     *jump      = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
+    Jump *jump = [jumps filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"timestamp == %@", date]].lastObject;
     
-    jump.system     = system;
-    jump.timestamp  = [date timeIntervalSinceReferenceDate];
+    if (jump == nil) {
+      NSString *className = NSStringFromClass(Jump.class);
+      
+      jump = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
+    
+      jump.system    = system;
+      jump.timestamp = [date timeIntervalSinceReferenceDate];
+    }
+    else {
+      [jumps removeObject:jump];
+    }
+    
     jump.netLogFile = netLogFile;
     
     lastJump = jump;
