@@ -8,7 +8,7 @@
         <relationship name="systems" toMany="YES" minCount="2" maxCount="2" deletionRule="Nullify" destinationEntity="System" inverseName="distances" inverseEntity="System" syncable="YES"/>
     </entity>
     <entity name="EDSM" representedClassName="EDSM" syncable="YES">
-        <attribute name="commander" attributeType="String" syncable="YES"/>
+        <attribute name="commander" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="jumps" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Jump" inverseName="edsm" inverseEntity="Jump" syncable="YES"/>
     </entity>
     <entity name="Image" representedClassName="Image" syncable="YES">
@@ -40,11 +40,11 @@
     </entity>
     <elements>
         <element name="DBVersion" positionX="-7328" positionY="-823" width="128" height="58"/>
+        <element name="Distance" positionX="-7328" positionY="-700" width="128" height="73"/>
         <element name="EDSM" positionX="-8021" positionY="-837" width="128" height="73"/>
         <element name="Image" positionX="-7326" positionY="-577" width="128" height="73"/>
         <element name="Jump" positionX="-7785" positionY="-765" width="128" height="103"/>
         <element name="NetLogFile" positionX="-8021" positionY="-688" width="128" height="118"/>
         <element name="System" positionX="-7562" positionY="-720" width="128" height="163"/>
-        <element name="Distance" positionX="-7328" positionY="-700" width="128" height="73"/>
     </elements>
 </model>
