@@ -11,6 +11,7 @@
 #import "EDSM.h"
 #import "EventLogger.h"
 #import "CoreDataManager.h"
+#import "Distance.h"
 
 @implementation Jump
 
@@ -100,8 +101,51 @@
   return array.lastObject;
 }
 
-- (NSString *)distance {
-  return @"";
+- (NSNumber *)distanceFromPreviousJump {
+  NSString            *className = NSStringFromClass([Jump class]);
+  NSFetchRequest      *request   = [[NSFetchRequest alloc] init];
+  NSEntityDescription *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:self.managedObjectContext];
+  NSError             *error     = nil;
+  NSArray             *array     = nil;
+  NSNumber            *distance  = nil;
+  
+  request.entity                 = entity;
+  request.returnsObjectsAsFaults = NO;
+  request.includesPendingChanges = YES;
+  request.predicate              = [NSPredicate predicateWithFormat:@"timestamp <= %@", [NSDate dateWithTimeIntervalSinceReferenceDate:self.timestamp]];
+  request.sortDescriptors        = @[[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:NO]];
+  request.fetchLimit             = 2;
+  
+  array = [self.managedObjectContext executeFetchRequest:request error:&error];
+  
+  NSAssert1(error == nil, @"could not execute fetch request: %@", error);
+  NSAssert1(array.count <= 2, @"this query should return at maximum 1 element: got %lu instead", (unsigned long)array.count);
+  
+  if (array.count == 2) {
+    Jump     *jump     = array.lastObject;
+    NSString *name     = jump.system.name;
+    
+    
+    for (Distance *aDistance in self.system.distances) {
+      if (aDistance.distance == aDistance.calculatedDistance && [aDistance.name isEqualToString:name]) {
+        distance = @(aDistance.distance);
+        
+        break;
+      }
+    }
+    
+    if (distance == nil) {
+      for (Distance *aDistance in jump.system.distances) {
+        if (aDistance.distance == aDistance.calculatedDistance && [aDistance.name isEqualToString:name]) {
+          distance = @(aDistance.distance);
+          
+          break;
+        }
+      }
+    }
+  }
+  
+  return distance;
 }
 
 @end

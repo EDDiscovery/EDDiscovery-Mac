@@ -4,8 +4,10 @@
         <attribute name="dbVersion" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
     </entity>
     <entity name="Distance" representedClassName="Distance" syncable="YES">
+        <attribute name="calculatedDistance" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
         <attribute name="distance" attributeType="Double" syncable="YES"/>
-        <relationship name="systems" toMany="YES" minCount="2" maxCount="2" deletionRule="Nullify" destinationEntity="System" inverseName="distances" inverseEntity="System" syncable="YES"/>
+        <attribute name="name" attributeType="String" syncable="YES"/>
+        <relationship name="system" maxCount="1" deletionRule="Nullify" destinationEntity="System" inverseName="distances" inverseEntity="System" syncable="YES"/>
     </entity>
     <entity name="EDSM" representedClassName="EDSM" syncable="YES">
         <attribute name="commander" optional="YES" attributeType="String" syncable="YES"/>
@@ -34,13 +36,13 @@
         <attribute name="x" optional="YES" attributeType="Double" syncable="YES"/>
         <attribute name="y" optional="YES" attributeType="Double" syncable="YES"/>
         <attribute name="z" optional="YES" attributeType="Double" syncable="YES"/>
-        <relationship name="distances" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Distance" inverseName="systems" inverseEntity="Distance" syncable="YES"/>
+        <relationship name="distances" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Distance" inverseName="system" inverseEntity="Distance" syncable="YES"/>
         <relationship name="images" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Image" inverseName="system" inverseEntity="Image" syncable="YES"/>
         <relationship name="jumps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Jump" inverseName="system" inverseEntity="Jump" syncable="YES"/>
     </entity>
     <elements>
         <element name="DBVersion" positionX="-7328" positionY="-823" width="128" height="58"/>
-        <element name="Distance" positionX="-7328" positionY="-700" width="128" height="73"/>
+        <element name="Distance" positionX="-7328" positionY="-700" width="128" height="103"/>
         <element name="EDSM" positionX="-8021" positionY="-837" width="128" height="73"/>
         <element name="Image" positionX="-7326" positionY="-577" width="128" height="73"/>
         <element name="Jump" positionX="-7785" positionY="-765" width="128" height="103"/>

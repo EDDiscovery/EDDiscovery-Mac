@@ -95,10 +95,44 @@
   
   @try {
     dbVersion = self.dbVersion;
+	
+//  //force re-execution of a particular upgrade step (and subsequent ones)
+//#ifdef DEBUG
+//  #warning !!!REMOVE ME!!!
+//#else
+//  #error !!!REMOVE ME!!!
+//#endif
+//#if TARGET_IPHONE_SIMULATOR
+//  dbVersion = (dbVersion == kCurrentDBVersion) ? (kCurrentDBVersion - 1) : dbVersion;
+//#endif
+  
+    if (dbVersion < kCurrentDBVersion) {
+      NSLog(@"CoreDataManager: updating database from version %lu to version to %d", (unsigned long)dbVersion, kCurrentDBVersion);
+      
+      switch (dbVersion) {
+        case kDefaultDBVersion: {
+          [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
+          [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_JUMPS_UPDATE_TIMESTAMP];
+          [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_COMMENTS_UPDATE_TIMESTAMP];
+          [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_CMDR_NAME_KEY];
+          [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_API_KEY_KEY];
+          [NSUserDefaults.standardUserDefaults removeObjectForKey:LOG_DIR_PATH_SETING_KEY];
+          
+          //fall through
+        }
+      }
+
+      self.dbVersion = kCurrentDBVersion;
+      
+      NSLog(@"database update complete");
+    }
+    else {
+      NSLog(@"database version is up to date");
+    }
   }
   @catch (NSException *e) {
     NSString *msg = NSLocalizedString(@"Could not access application data base. This is a critical failure, please contact customer care. Quitting to prevent data loss.", @"");
-
+    
     NSLog(@"ERROR: %@ - %@", msg, e.reason);
     
     NSAlert *alert = [[NSAlert alloc] init];
@@ -111,43 +145,7 @@
     [alert runModal];
     
     exit(-1);
-    
-    return;
   }
-	
-//  //force re-execution of a particular upgrade step (and subsequent ones)
-//#ifdef DEBUG
-//  #warning !!!REMOVE ME!!!
-//#else
-//  #error !!!REMOVE ME!!!
-//#endif
-//#if TARGET_IPHONE_SIMULATOR
-//  dbVersion = (dbVersion == kCurrentDBVersion) ? (kCurrentDBVersion - 1) : dbVersion;
-//#endif
-  
-	if (dbVersion < kCurrentDBVersion) {
-		NSLog(@"CoreDataManager: updating database from version %lu to version to %d", (unsigned long)dbVersion, kCurrentDBVersion);
-		
-    switch (dbVersion) {
-      case kDefaultDBVersion: {
-        [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
-        [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_JUMPS_UPDATE_TIMESTAMP];
-        [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_COMMENTS_UPDATE_TIMESTAMP];
-        [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_CMDR_NAME_KEY];
-        [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_API_KEY_KEY];
-        [NSUserDefaults.standardUserDefaults removeObjectForKey:LOG_DIR_PATH_SETING_KEY];
-        
-        //fall through
-      }
-    }
-
-		self.dbVersion = kCurrentDBVersion;
-    
-		NSLog(@"database update complete");
-	}
-	else {
-		NSLog(@"database version is up to date");
-	}
 }
 
 // Returns a new instance of the managed object context for the application.
@@ -187,9 +185,9 @@
 																							 [NSNumber numberWithBool:YES], NSMigratePersistentStoresAutomaticallyOption,
 																							 [NSNumber numberWithBool:YES], NSInferMappingModelAutomaticallyOption,
 																							 nil];
-		
-		persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.managedObjectModel];
-		
+    
+    persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.managedObjectModel];
+    
 		if (![persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:storeUrl options:options error:&error]) {
 			NSLog(@"error initializing persistent store coordinator: %@", error);
 			NSLog(@"error userinfo: %@", [error userInfo]);
@@ -199,7 +197,7 @@
                                    userInfo:nil];
 		}
 	}
-	
+
 	return persistentStoreCoordinator;
 }
 

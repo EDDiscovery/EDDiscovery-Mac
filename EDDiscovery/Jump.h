@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSArray *)getAllJumpsInContext:(NSManagedObjectContext *)context;
 + (Jump *)getLastJumpInContext:(NSManagedObjectContext *)context;
 
-@property(nonatomic, readonly) NSString *distance;
+@property(nonatomic, readonly) NSNumber *distanceFromPreviousJump;
 
 @end
 

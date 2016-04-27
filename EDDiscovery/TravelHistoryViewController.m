@@ -15,7 +15,7 @@
 #import "EDSM.h"
 #import "AppDelegate.h"
 #import "NetLogParser.h"
-
+#import "Distance.h"
 
 @interface TravelHistoryViewController() <NSTableViewDataSource, NSTabViewDelegate, NSTextFieldDelegate>
 @end
@@ -45,12 +45,15 @@
 #pragma mark NSTableView management
 
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
-//  NSLog(@"%s: row %ld, col %@", __FUNCTION__, (long)rowIndex, aTableColumn.identifier);
-  
   if (aTableView == tableView) {
     if ([aTableColumn.identifier isEqualToString:@"rowID"]) {
       return @(rowIndex + 1);
     }
+//    else if ([aTableColumn.identifier isEqualToString:@"distanceFromPreviousJump"]) {
+//      if (![tableView.sortDescriptors.firstObject.key isEqualToString:@"timestamp"]) {
+//        return @"";
+//      }
+//    }
   }
   
   return nil;
@@ -88,17 +91,27 @@
       }
     }
   }
+  else if (aTableView == distancesTableView) {
+    Jump     *jump      = [coreDataContent valueForKeyPath:@"selection.self"];
+    System   *system    = jump.system;
+    NSArray  *distances = system.sortedDistances;
+    Distance *distance  = distances[rowIndex];
+    
+    if (distance.distance == distance.calculatedDistance) {
+      aCell.textColor = NSColor.blackColor;
+    }
+    else {
+      aCell.textColor = NSColor.redColor;
+    }
+  }
 }
 
 - (BOOL)tableView:(NSTableView *)aTableView shouldSelectRow:(NSInteger)rowIndex {
   if (aTableView == tableView) {
-    Jump        *jump     = coreDataContent.arrangedObjects[rowIndex];
-    AppDelegate *delegate = NSApplication.sharedApplication.delegate;
+    Jump *jump = coreDataContent.arrangedObjects[rowIndex];
 
     jump.system.distanceSortDescriptors = distancesTableView.sortDescriptors;
 
-    delegate.selectedJump = jump;
-    
     [coreDataContent setSelectionIndex:rowIndex];
     
     [jump.system updateFromEDSM:^{

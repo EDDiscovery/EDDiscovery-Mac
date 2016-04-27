@@ -678,19 +678,19 @@
                                 <rect key="frame" x="0.0" y="0.0" width="800" height="600"/>
                                 <subviews>
                                     <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nl6-60-2iZ">
-                                        <rect key="frame" x="0.0" y="0.0" width="470" height="600"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="404" height="600"/>
                                         <subviews>
                                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="yjH-4G-jlf">
-                                                <rect key="frame" x="0.0" y="158" width="470" height="442"/>
+                                                <rect key="frame" x="0.0" y="158" width="404" height="442"/>
                                                 <subviews>
                                                     <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Tue-Q3-riW">
-                                                        <rect key="frame" x="0.0" y="0.0" width="470" height="442"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="404" height="442"/>
                                                         <clipView key="contentView" drawsBackground="NO" id="uSA-PF-Q15">
-                                                            <rect key="frame" x="1" y="0.0" width="468" height="441"/>
+                                                            <rect key="frame" x="1" y="0.0" width="402" height="441"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="sequential" alternatingRowBackgroundColors="YES" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" typeSelect="NO" headerView="eX4-W7-Df1" id="Bam-q7-TPi">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="468" height="19"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="468" height="418"/>
                                                                     <autoresizingMask key="autoresizingMask"/>
                                                                     <size key="intercellSpacing" width="3" height="2"/>
                                                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -753,20 +753,21 @@
                                                                                 </binding>
                                                                             </connections>
                                                                         </tableColumn>
-                                                                        <tableColumn identifier="distance" editable="NO" width="60" minWidth="60" maxWidth="3.4028234663852886e+38" id="Tv1-en-sci">
+                                                                        <tableColumn identifier="distanceFromPreviousJump" editable="NO" width="60" minWidth="60" maxWidth="3.4028234663852886e+38" id="Tv1-en-sci">
                                                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Distance">
                                                                                 <font key="font" metaFont="smallSystem"/>
                                                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                                                             </tableHeaderCell>
                                                                             <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="Tpy-aF-hW2">
+                                                                                <numberFormatter key="formatter" formatterBehavior="custom10_4" positiveFormat="#,##0.00" negativeFormat="-#,##0.00" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" minimumFractionDigits="2" maximumFractionDigits="2" decimalSeparator="," groupingSeparator="." id="gNW-CB-zX0"/>
                                                                                 <font key="font" metaFont="system"/>
                                                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                                             </textFieldCell>
                                                                             <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                             <connections>
-                                                                                <binding destination="8om-YV-xhG" name="value" keyPath="arrangedObjects.distance" id="MJi-hu-iwp">
+                                                                                <binding destination="8om-YV-xhG" name="value" keyPath="arrangedObjects.distanceFromPreviousJump" id="PnD-ol-vn4">
                                                                                     <dictionary key="options">
                                                                                         <bool key="NSConditionallySetsEditable" value="YES"/>
                                                                                     </dictionary>
@@ -800,8 +801,8 @@
                                                             </subviews>
                                                             <nil key="backgroundColor"/>
                                                         </clipView>
-                                                        <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="GC1-Lc-jLS">
-                                                            <rect key="frame" x="1" y="425" width="468" height="16"/>
+                                                        <scroller key="horizontalScroller" verticalHuggingPriority="750" horizontal="YES" id="GC1-Lc-jLS">
+                                                            <rect key="frame" x="1" y="425" width="402" height="16"/>
                                                             <autoresizingMask key="autoresizingMask"/>
                                                         </scroller>
                                                         <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="wde-1p-INV">
@@ -809,7 +810,7 @@
                                                             <autoresizingMask key="autoresizingMask"/>
                                                         </scroller>
                                                         <tableHeaderView key="headerView" id="eX4-W7-Df1">
-                                                            <rect key="frame" x="0.0" y="0.0" width="469" height="23"/>
+                                                            <rect key="frame" x="0.0" y="0.0" width="468" height="23"/>
                                                             <autoresizingMask key="autoresizingMask"/>
                                                         </tableHeaderView>
                                                     </scrollView>
@@ -822,22 +823,22 @@
                                                 </constraints>
                                             </customView>
                                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="vzX-nf-nGG">
-                                                <rect key="frame" x="0.0" y="0.0" width="470" height="150"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="404" height="150"/>
                                                 <subviews>
                                                     <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Er6-5J-yGC">
-                                                        <rect key="frame" x="0.0" y="0.0" width="470" height="150"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="404" height="150"/>
                                                         <clipView key="contentView" id="yme-G6-HZj">
-                                                            <rect key="frame" x="1" y="1" width="468" height="148"/>
+                                                            <rect key="frame" x="1" y="1" width="402" height="148"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textView editable="NO" importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" smartInsertDelete="YES" id="5Gy-pe-5Yw">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="628" height="148"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="562" height="148"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                                    <size key="minSize" width="468" height="148"/>
+                                                                    <size key="minSize" width="402" height="148"/>
                                                                     <size key="maxSize" width="1276" height="10000000"/>
                                                                     <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                                    <size key="minSize" width="468" height="148"/>
+                                                                    <size key="minSize" width="402" height="148"/>
                                                                     <size key="maxSize" width="1276" height="10000000"/>
                                                                 </textView>
                                                             </subviews>
@@ -848,7 +849,7 @@
                                                             <autoresizingMask key="autoresizingMask"/>
                                                         </scroller>
                                                         <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="8sj-s9-Wda">
-                                                            <rect key="frame" x="453" y="1" width="16" height="148"/>
+                                                            <rect key="frame" x="387" y="1" width="16" height="148"/>
                                                             <autoresizingMask key="autoresizingMask"/>
                                                         </scroller>
                                                     </scrollView>
@@ -872,7 +873,7 @@
                                         </customSpacing>
                                     </stackView>
                                     <customView translatesAutoresizingMaskIntoConstraints="NO" id="v9z-do-dIz">
-                                        <rect key="frame" x="478" y="0.0" width="322" height="600"/>
+                                        <rect key="frame" x="412" y="0.0" width="388" height="600"/>
                                         <subviews>
                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oea-bZ-uSw">
                                                 <rect key="frame" x="18" y="394" width="50" height="17"/>
@@ -915,7 +916,7 @@
                                                 </textFieldCell>
                                             </textField>
                                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CRv-Zm-gw8">
-                                                <rect key="frame" x="74" y="391" width="228" height="22"/>
+                                                <rect key="frame" x="74" y="391" width="294" height="22"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="yRL-yv-Oqn">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -926,7 +927,7 @@
                                                 </connections>
                                             </textField>
                                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3XW-Q5-dhd">
-                                                <rect key="frame" x="74" y="533" width="195" height="22"/>
+                                                <rect key="frame" x="74" y="533" width="261" height="22"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="Tap button to select dir" drawsBackground="YES" id="T08-Uh-mfN">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -945,7 +946,7 @@
                                                 </textFieldCell>
                                             </textField>
                                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FiZ-Cv-NyC">
-                                                <rect key="frame" x="111" y="468" width="191" height="22"/>
+                                                <rect key="frame" x="111" y="468" width="257" height="22"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="Insert your CMDR name" drawsBackground="YES" id="nBx-C2-d20">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1005,7 +1006,7 @@
                                                 </connections>
                                             </textField>
                                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jvb-Bc-vwS">
-                                                <rect key="frame" x="222" y="370" width="80" height="22"/>
+                                                <rect key="frame" x="288" y="370" width="80" height="22"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="Dz6-ic-ljV">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1024,7 +1025,7 @@
                                                 </textFieldCell>
                                             </textField>
                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Pha-2Z-A5I">
-                                                <rect key="frame" x="179" y="373" width="37" height="17"/>
+                                                <rect key="frame" x="245" y="373" width="37" height="17"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Visits" id="xJB-hC-t3e">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -1056,7 +1057,7 @@
                                                 </textFieldCell>
                                             </textField>
                                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wgO-QM-Vhu">
-                                                <rect key="frame" x="74" y="234" width="228" height="70"/>
+                                                <rect key="frame" x="74" y="234" width="294" height="70"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="mnY-Fx-Woi">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1068,20 +1069,20 @@
                                                 </connections>
                                             </textField>
                                             <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Nd0-YB-u9M">
-                                                <rect key="frame" x="20" y="20" width="282" height="176"/>
+                                                <rect key="frame" x="20" y="20" width="348" height="176"/>
                                                 <clipView key="contentView" ambiguous="YES" id="38J-VL-0Ea">
-                                                    <rect key="frame" x="1" y="0.0" width="280" height="175"/>
+                                                    <rect key="frame" x="1" y="0.0" width="346" height="175"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <subviews>
                                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" multipleSelection="NO" autosaveColumns="NO" typeSelect="NO" headerView="kPt-6a-8Ml" id="FTN-4D-V9h">
-                                                            <rect key="frame" x="0.0" y="0.0" width="280" height="152"/>
+                                                            <rect key="frame" x="0.0" y="0.0" width="348" height="152"/>
                                                             <autoresizingMask key="autoresizingMask"/>
                                                             <size key="intercellSpacing" width="3" height="2"/>
                                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                             <tableViewGridLines key="gridStyleMask" vertical="YES" horizontal="YES"/>
                                                             <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                                             <tableColumns>
-                                                                <tableColumn identifier="system" editable="NO" width="200" minWidth="40" maxWidth="1000" id="87N-ja-nGN">
+                                                                <tableColumn identifier="system" editable="NO" width="199" minWidth="199" maxWidth="1000" id="87N-ja-nGN">
                                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="System">
                                                                         <font key="font" metaFont="smallSystem"/>
                                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -1092,17 +1093,17 @@
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                                     </textFieldCell>
-                                                                    <sortDescriptor key="sortDescriptorPrototype" selector="caseInsensitiveCompare:" sortKey="otherSystem.name"/>
+                                                                    <sortDescriptor key="sortDescriptorPrototype" selector="caseInsensitiveCompare:" sortKey="name"/>
                                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                     <connections>
-                                                                        <binding destination="8om-YV-xhG" name="value" keyPath="selection.system.sortedDistances.otherSystem.name" id="UIx-go-ks1">
+                                                                        <binding destination="8om-YV-xhG" name="value" keyPath="selection.system.sortedDistances.name" id="lLa-RK-J46">
                                                                             <dictionary key="options">
                                                                                 <bool key="NSConditionallySetsEditable" value="YES"/>
                                                                             </dictionary>
                                                                         </binding>
                                                                     </connections>
                                                                 </tableColumn>
-                                                                <tableColumn identifier="distance" editable="NO" width="74" minWidth="60" maxWidth="1000" id="OpQ-gw-9Ym">
+                                                                <tableColumn identifier="distance" editable="NO" width="70" minWidth="70" maxWidth="1000" id="OpQ-gw-9Ym">
                                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Distance">
                                                                         <font key="font" metaFont="smallSystem"/>
                                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -1117,11 +1118,29 @@
                                                                     <sortDescriptor key="sortDescriptorPrototype" selector="compare:" sortKey="distance"/>
                                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                     <connections>
-                                                                        <binding destination="8om-YV-xhG" name="value" keyPath="selection.system.sortedDistances.distance" id="kt1-XA-sBa">
+                                                                        <binding destination="8om-YV-xhG" name="value" keyPath="selection.system.sortedDistances.distance" id="1R9-df-Uzs">
                                                                             <dictionary key="options">
                                                                                 <bool key="NSConditionallySetsEditable" value="YES"/>
                                                                             </dictionary>
                                                                         </binding>
+                                                                    </connections>
+                                                                </tableColumn>
+                                                                <tableColumn identifier="calculatedDistance" width="70" minWidth="70" maxWidth="3.4028234663852886e+38" id="UfF-Wt-3EZ">
+                                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Calculated">
+                                                                        <font key="font" metaFont="smallSystem"/>
+                                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                                                    </tableHeaderCell>
+                                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="right" title="Text Cell" id="uKb-g9-Rvg">
+                                                                        <numberFormatter key="formatter" formatterBehavior="custom10_4" positiveFormat="#,##0.00" negativeFormat="-#,##0.00" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" minimumFractionDigits="2" maximumFractionDigits="2" decimalSeparator="," groupingSeparator="." id="xVs-7H-op8"/>
+                                                                        <font key="font" metaFont="system"/>
+                                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                                    </textFieldCell>
+                                                                    <sortDescriptor key="sortDescriptorPrototype" selector="compare:" sortKey="calculatedDistance"/>
+                                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                                    <connections>
+                                                                        <binding destination="8om-YV-xhG" name="value" keyPath="selection.system.sortedDistances.calculatedDistance" id="EiV-5U-vzn"/>
                                                                     </connections>
                                                                 </tableColumn>
                                                             </tableColumns>
@@ -1134,8 +1153,8 @@
                                                     </subviews>
                                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                 </clipView>
-                                                <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="1Fc-h7-Rg8">
-                                                    <rect key="frame" x="1" y="-16" width="0.0" height="16"/>
+                                                <scroller key="horizontalScroller" verticalHuggingPriority="750" horizontal="YES" id="1Fc-h7-Rg8">
+                                                    <rect key="frame" x="1" y="159" width="346" height="16"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                 </scroller>
                                                 <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="jHd-Oy-ZsH">
@@ -1143,20 +1162,10 @@
                                                     <autoresizingMask key="autoresizingMask"/>
                                                 </scroller>
                                                 <tableHeaderView key="headerView" id="kPt-6a-8Ml">
-                                                    <rect key="frame" x="0.0" y="0.0" width="280" height="23"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="348" height="23"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                 </tableHeaderView>
                                             </scrollView>
-                                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="VEr-yq-6Kz">
-                                                <rect key="frame" x="271" y="526" width="37" height="32"/>
-                                                <buttonCell key="cell" type="push" title="..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="gDc-V6-FYm">
-                                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                    <font key="font" metaFont="system"/>
-                                                </buttonCell>
-                                                <connections>
-                                                    <action selector="selectLogDirPathButtonTapped:" target="XfG-lQ-9wD" id="oba-b5-UoN"/>
-                                                </connections>
-                                            </button>
                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Oro-gX-KlZ">
                                                 <rect key="frame" x="18" y="450" width="87" height="17"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="API key" id="4R6-86-t4A">
@@ -1166,7 +1175,7 @@
                                                 </textFieldCell>
                                             </textField>
                                             <secureTextField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="E9u-Ne-y4z">
-                                                <rect key="frame" x="111" y="447" width="191" height="22"/>
+                                                <rect key="frame" x="111" y="447" width="257" height="22"/>
                                                 <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="Insert your API key" drawsBackground="YES" usesSingleLineMode="YES" id="LwC-Ag-eqa">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1180,9 +1189,19 @@
                                                     <binding destination="QgB-gy-OgE" name="value" keyPath="values.EDSMApiKeyKey" id="jEA-AQ-6z8"/>
                                                 </connections>
                                             </secureTextField>
+                                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="VEr-yq-6Kz">
+                                                <rect key="frame" x="337" y="526" width="37" height="32"/>
+                                                <buttonCell key="cell" type="push" title="..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="gDc-V6-FYm">
+                                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                    <font key="font" metaFont="system"/>
+                                                </buttonCell>
+                                                <connections>
+                                                    <action selector="selectLogDirPathButtonTapped:" target="XfG-lQ-9wD" id="oba-b5-UoN"/>
+                                                </connections>
+                                            </button>
                                         </subviews>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="322" id="mIB-GG-mhr"/>
+                                            <constraint firstAttribute="width" constant="388" id="mIB-GG-mhr"/>
                                         </constraints>
                                     </customView>
                                 </subviews>
@@ -1210,6 +1229,8 @@
                         <outlet property="textView" destination="5Gy-pe-5Yw" id="Fmv-yb-5un"/>
                     </connections>
                 </viewController>
+                <numberFormatter formatterBehavior="custom10_4" positiveFormat="#,##0.00" negativeFormat="-#,##0.00" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" minimumFractionDigits="2" maximumFractionDigits="2" decimalSeparator="," groupingSeparator="." id="D4e-r5-LFl"/>
+                <numberFormatter formatterBehavior="custom10_4" positiveFormat="#,##0.00" negativeFormat="-#,##0.00" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" minimumFractionDigits="2" maximumFractionDigits="2" decimalSeparator="," groupingSeparator="." id="4tu-Yh-bac"/>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
                 <arrayController mode="entity" entityName="Jump" automaticallyPreparesContent="YES" preservesSelection="NO" automaticallyRearrangesObjects="YES" id="8om-YV-xhG" userLabel="Core Data">
                     <declaredKeys>

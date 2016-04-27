@@ -15,8 +15,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface Distance : NSManagedObject
 
-@property(nonatomic, readonly) System *otherSystem;
-
 @end
 
 NS_ASSUME_NONNULL_END

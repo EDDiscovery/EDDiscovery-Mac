@@ -13,34 +13,6 @@
 #import "AppDelegate.h"
 #import "Jump.h"
 
-@implementation Distance {
-  System *otherSystem;
-}
-
-- (System *)otherSystem {
-  if (otherSystem == nil) {
-    [self refreshOtherSystem];
-  }
-  
-  return otherSystem;
-}
-
-- (void)refreshOtherSystem {
-  [self willChangeValueForKey:@"otherSystem"];
-  
-  AppDelegate *delegate = NSApplication.sharedApplication.delegate;
-  Jump        *jump     = delegate.selectedJump;
-  System      *system   = jump.system;
-  
-  for (System *aSystem in self.systems) {
-    if (aSystem != system) {
-      otherSystem = aSystem;
-      
-      break;
-    }
-  }
-  
-  [self didChangeValueForKey:@"otherSystem"];
-}
+@implementation Distance
 
 @end

@@ -2,7 +2,7 @@
 //  System+CoreDataProperties.m
 //  EDDiscovery
 //
-//  Created by thorin on 26/04/16.
+//  Created by thorin on 27/04/16.
 //  Copyright © 2016 Michele Noberasco. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
@@ -18,8 +18,8 @@
 @dynamic x;
 @dynamic y;
 @dynamic z;
+@dynamic distances;
 @dynamic images;
 @dynamic jumps;
-@dynamic distances;
 
 @end

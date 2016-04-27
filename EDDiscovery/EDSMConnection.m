@@ -45,10 +45,12 @@ responseCallback:^(id data, NSError *error) {
   }
   
 }
-     parameters:3,
-        @"sysname", systemName,
-        @"coords", @"1",
-        @"distances", @"1"
+     parameters:4,
+        @"sysname",       systemName,
+        @"coords",        @"1",
+        @"distances",     @"1",
+        @"problems",      @"1"
+      //@"includeHidden", @"1"
    ];
 }
 
@@ -151,12 +153,13 @@ responseCallback:^(id output, NSError *error) {
       response(nil, error);
     }
   }
-     parameters:3,
+     parameters:5,
    @"startdatetime", from, // <-- return only systems updated after this date
-   @"known", @"1",         // <-- return only systems with known coordinates
-   @"coords", @"1"         // <-- include system coordinates
-   //@"distances", @"1"    // <-- include distances from other susyems
-   //@"submitted", @"1",   // <-- who submitted the distances
+   @"known",         @"1", // <-- return only systems with known coordinates
+   @"coords",        @"1", // <-- include system coordinates
+   @"distances",     @"1", // <-- include distances from other susyems
+   @"problems",      @"1"  // <-- include information about known errors
+ //@"includeHidden", @"1"  // <-- include systems with wrong names or wrong distances
    ];
   }
 }

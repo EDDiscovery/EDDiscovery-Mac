@@ -12,7 +12,5 @@
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
-@property(nonatomic, strong) Jump *selectedJump;
-
 @end
 

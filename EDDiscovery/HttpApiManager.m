@@ -143,15 +143,8 @@ NSString* locale=nil;
                                                                                NULL,
                                                                                (CFStringRef)@"!*'();:@&=+$/?%#[]",//(CFStringRef)@"!*'();:@&=+$,/?%#[]",
                                                                                kCFStringEncodingUTF8 ));
-  [parameter appendFormat:@"&%@=%@", value1, value2!=nil?value2:@""];
+   [parameter appendFormat:@"%@%@=%@", (parameter.length == 0) ? @"" : @"&", value1, value2!=nil?value2:@""];
  }
- 
-//#ifdef HTTP_API_MANAGER_DEBUG
-// NSLog(@"---------- Request ----------");
-// NSLog(@"%@",urlString);
-// NSLog(@"---------- Parameters ----------");
-// NSLog(@"%@",parameter);
-//#endif
  
  NSMutableURLRequest *request;
  if ([aMethod isEqualToString:@"POST"])
