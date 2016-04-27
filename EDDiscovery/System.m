@@ -227,13 +227,17 @@
     
     if ([distances isKindOfClass:NSArray.class]) {
       if (distances.count > 0) {
+        Distance *prevDistance = nil;
+        
         NSLog(@"Got %ld distances from EDSM", (long)distances.count);
+        
+        distances = [distances sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
         
         for (NSDictionary *distanceData in distances) {
           NSString *name = distanceData[@"name"];
           double    dist = [distanceData[@"distance"] doubleValue];
           
-          if (name.length > 0 && dist > 0) {
+          if (name.length > 0 && dist > 0 && (prevDistance == nil || ![prevDistance.name isEqualToString:name] || prevDistance.distance != dist)) {
             NSString *className = NSStringFromClass(Distance.class);
             Distance *distance  = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:self.managedObjectContext];
             
@@ -255,6 +259,21 @@
                 }
               }
             }
+            
+            //filter out known bad distances if a good alternative is available
+            
+            if ([prevDistance.name isEqualToString:name]) {
+              if (prevDistance.distance != prevDistance.calculatedDistance && distance.distance == distance.calculatedDistance) {
+                [self.managedObjectContext deleteObject:prevDistance];
+              }
+              else if (prevDistance.distance == prevDistance.calculatedDistance && distance.distance != distance.calculatedDistance) {
+                [self.managedObjectContext deleteObject:distance];
+                
+                continue;
+              }
+            }
+            
+            prevDistance = distance;
           }
         }
       }
