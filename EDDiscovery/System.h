@@ -9,9 +9,12 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
-@class Distance, Image, Jump;
-
 NS_ASSUME_NONNULL_BEGIN
+
+@class Note;
+@class Distance;
+@class Image;
+@class Jump;
 
 @interface System : NSManagedObject
 
@@ -25,8 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)updateFromEDSM:(void(^__nullable)(void))response;
 
-@property(nonatomic, strong  ) NSArray *distanceSortDescriptors;
-@property(nonatomic, readonly) NSArray *sortedDistances;
+@property(nonatomic, strong  ) NSArray  *distanceSortDescriptors;
+@property(nonatomic, readonly) NSArray  *sortedDistances;
+@property(nonatomic, strong  ) NSString *note;
 
 @end
 

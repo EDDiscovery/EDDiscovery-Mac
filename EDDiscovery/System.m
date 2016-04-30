@@ -8,11 +8,13 @@
 
 #import "System.h"
 #import "Image.h"
-#import "Jump.h"
 #import "EDSMConnection.h"
 #import "CoreDataManager.h"
 #import "EventLogger.h"
+#import "Commander.h"
 #import "Distance.h"
+#import "Note.h"
+#import "EDSM.h"
 
 @implementation System {
   NSArray *distanceSortDescriptors;
@@ -105,6 +107,8 @@
       NSTimeInterval          ti         = [NSDate timeIntervalSinceReferenceDate];
       NSString               *prevName   = 0;
       
+      NSLog(@"Have %ld systems in local DB", (long)systems.count);
+      
       for (System *aSystem in systems) {
         [names addObject:aSystem.name];
       }
@@ -142,7 +146,7 @@
           [system parseEDSMData:systemData parseDistances:YES save:NO];
           
           if (((numAdded % 1000) == 0 && numAdded != 0) || ((numUpdated % 1000) == 0 && numUpdated != 0)) {
-            NSLog(@"Added %ld, updated %ld systems (%ld left to update)", (long)numAdded, (long)numUpdated, (long)systems.count);
+            NSLog(@"Added %ld, updated %ld systems", (long)numAdded, (long)numUpdated);
           }
           
           prevName = name;
@@ -319,6 +323,61 @@
   [self willChangeValueForKey:@"sortedDistances"];
   sortedDistances = [self.distances sortedArrayUsingDescriptors:self.distanceSortDescriptors];
   [self didChangeValueForKey:@"sortedDistances"];
+}
+
+- (NSString *)note {
+  NSAssert(Commander.activeCommander != nil, @"must have an active commander");
+
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"edsm.commander == %@", Commander.activeCommander];
+  NSSet       *notes     = [self.notes filteredSetUsingPredicate:predicate];
+  Note        *note      = notes.anyObject;
+  
+  NSAssert(notes.count < 2, @"Cannot have more than 1 note");
+  
+  return note.note;
+}
+
+- (void)setNote:(NSString *)newNote {
+  NSAssert(Commander.activeCommander != nil, @"must have an active commander");
+
+  [self willChangeValueForKey:@"note"];
+  
+  NSManagedObjectContext *context   = Commander.activeCommander.managedObjectContext;
+  NSPredicate            *predicate = [NSPredicate predicateWithFormat:@"edsm.commander == %@", Commander.activeCommander];
+  NSSet                  *notes     = [self.notes filteredSetUsingPredicate:predicate];
+  Note                   *note      = notes.anyObject;
+  NSError                *error     = nil;
+  BOOL                    save      = NO;
+  
+  NSAssert(notes.count < 2, @"Cannot have more than 1 note");
+
+  if (note == nil) {
+    NSString *className = NSStringFromClass(Note.class);
+    
+    note = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
+    
+    note.edsm   = Commander.activeCommander.edsmAccount;
+    note.system = self;
+  }
+  
+  if ([note.note isEqualToString:newNote] == NO) {
+    note.note = newNote;
+    
+    save = YES;
+  }
+  
+  if (save == YES) {
+    [context save:&error];
+    
+    if (error != nil) {
+      NSLog(@"%s: ERROR: cannot save context: %@", __FUNCTION__, error);
+      exit(-1);
+    }
+    
+    [Commander.activeCommander.edsmAccount sendNoteToEDSM:newNote forSystem:self.name];
+  }
+  
+  [self didChangeValueForKey:@"note"];
 }
 
 @end

@@ -2,7 +2,7 @@
 //  EDSM+CoreDataProperties.h
 //  EDDiscovery
 //
-//  Created by Michele Noberasco on 19/04/16.
+//  Created by thorin on 30/04/16.
 //  Copyright © 2016 Michele Noberasco. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
@@ -15,12 +15,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface EDSM (CoreDataProperties)
 
-@property (nullable, nonatomic, retain) NSString *commander;
+@property (nonatomic) NSTimeInterval jumpsUpdateTimestamp;
+@property (nonatomic) NSTimeInterval notesUpdateTimestamp;
+@property (nullable, nonatomic, retain) Commander *commander;
+@property (nullable, nonatomic, retain) NSSet<Note *> *notes;
 @property (nullable, nonatomic, retain) NSOrderedSet<Jump *> *jumps;
 
 @end
 
 @interface EDSM (CoreDataGeneratedAccessors)
+
+- (void)addNotesObject:(Note *)value;
+- (void)removeNotesObject:(Note *)value;
+- (void)addNotes:(NSSet<Note *> *)values;
+- (void)removeNotes:(NSSet<Note *> *)values;
 
 - (void)insertObject:(Jump *)value inJumpsAtIndex:(NSUInteger)idx;
 - (void)removeObjectFromJumpsAtIndex:(NSUInteger)idx;

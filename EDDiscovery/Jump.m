@@ -12,10 +12,12 @@
 #import "EventLogger.h"
 #import "CoreDataManager.h"
 #import "Distance.h"
+#import "Commander.h"
+#import "NetLogFile.h"
 
 @implementation Jump
 
-+ (void)printStats {
++ (void)printStatsOfCommander:(Commander *)commander {
   NSManagedObjectContext *context   = CoreDataManager.instance.managedObjectContext;
   NSString               *className = NSStringFromClass([Jump class]);
   NSFetchRequest         *request   = [[NSFetchRequest alloc] init];
@@ -25,6 +27,7 @@
   NSArray<Jump *>        *array     = nil;
   
   request.entity                 = entity;
+  request.predicate              = CMDR_PREDICATE;
   request.returnsObjectsAsFaults = YES;
   request.includesPendingChanges = YES;
 
@@ -61,14 +64,16 @@
   [EventLogger addLog:msg];
 }
 
-+ (NSArray *)getAllJumpsInContext:(NSManagedObjectContext *)context {
-  NSString            *className = NSStringFromClass([Jump class]);
-  NSFetchRequest      *request   = [[NSFetchRequest alloc] init];
-  NSEntityDescription *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
-  NSError             *error     = nil;
-  NSArray             *array     = nil;
++ (NSArray *)allJumpsOfCommander:(Commander *)commander {
+  NSManagedObjectContext *context   = commander.managedObjectContext;
+  NSString               *className = NSStringFromClass([Jump class]);
+  NSFetchRequest         *request   = [[NSFetchRequest alloc] init];
+  NSEntityDescription    *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
+  NSError                *error     = nil;
+  NSArray                *array     = nil;
   
   request.entity                 = entity;
+  request.predicate              = CMDR_PREDICATE;
   request.returnsObjectsAsFaults = NO;
   request.includesPendingChanges = YES;
   request.sortDescriptors        = @[[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:YES]];
@@ -80,14 +85,16 @@
   return array;
 }
 
-+ (Jump *)getLastJumpInContext:(NSManagedObjectContext *)context {
-  NSString            *className = NSStringFromClass([Jump class]);
-  NSFetchRequest      *request   = [[NSFetchRequest alloc] init];
-  NSEntityDescription *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
-  NSError             *error     = nil;
-  NSArray             *array     = nil;
++ (Jump *)lastJumpOfCommander:(Commander *)commander {
+  NSManagedObjectContext *context   = commander.managedObjectContext;
+  NSString               *className = NSStringFromClass([Jump class]);
+  NSFetchRequest         *request   = [[NSFetchRequest alloc] init];
+  NSEntityDescription    *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
+  NSError                *error     = nil;
+  NSArray                *array     = nil;
   
   request.entity                 = entity;
+  request.predicate              = CMDR_PREDICATE;
   request.returnsObjectsAsFaults = NO;
   request.includesPendingChanges = YES;
   request.sortDescriptors        = @[[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:NO]];
@@ -108,11 +115,18 @@
   NSError             *error     = nil;
   NSArray             *array     = nil;
   NSNumber            *distance  = nil;
+  Commander           *commander = self.edsm.commander;
+  
+  if (commander == nil) {
+    commander = self.netLogFile.commander;
+  }
+  
+  NSAssert(commander != nil, @"Current jump must have a commander!");
   
   request.entity                 = entity;
   request.returnsObjectsAsFaults = NO;
   request.includesPendingChanges = YES;
-  request.predicate              = [NSPredicate predicateWithFormat:@"timestamp <= %@", [NSDate dateWithTimeIntervalSinceReferenceDate:self.timestamp]];
+  request.predicate              = [NSCompoundPredicate andPredicateWithSubpredicates:@[CMDR_PREDICATE, [NSPredicate predicateWithFormat:@"timestamp <= %@", [NSDate dateWithTimeIntervalSinceReferenceDate:self.timestamp]]]];
   request.sortDescriptors        = @[[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:NO]];
   request.fetchLimit             = 2;
   

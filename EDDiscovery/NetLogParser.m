@@ -16,22 +16,24 @@
 #import "CoreDataManager.h"
 #import "System.h"
 #import "Jump.h"
+#import "Commander.h"
 
 @implementation NetLogParser {
+  Commander  *commander;
   NetLogFile *currNetLogFile;
   Jump       *lastJump;
   UKKQueue   *queue;
-  NSString   *logDirPath;
+  BOOL        firstRun;
 }
 
 #pragma mark -
 #pragma mark instance management
 
-+ (NetLogParser *)instanceWithPath:(NSString *)path {
++ (NetLogParser *)instanceWithCommander:(Commander *)commander {
   static NetLogParser *instance = nil;
   
-  if (instance == nil) {
-    instance = [[NetLogParser alloc] initInstance:path];
+  if (instance == nil || instance->commander != commander) {
+    instance = [[NetLogParser alloc] initInstance:commander];
   }
   
   return instance;
@@ -43,28 +45,63 @@
   return nil;
 }
 
-- (id)initInstance:(NSString *)path {
+- (id)initInstance:(Commander *)aCommander {
   self = [super init];
   
   if (self) {
-    logDirPath = path;
+    commander = aCommander;
     
-    queue = [UKKQueue sharedFileWatcher];
-    
-    [queue setDelegate:self];
-    [queue addPathToQueue:logDirPath];
-    
-    [self scanLogFilesDir];
+    if ([self netlogDirIsValid:commander]) {
+      firstRun = YES;
+      queue    = [UKKQueue sharedFileWatcher];
+      
+      [queue setDelegate:self];
+      [queue addPathToQueue:aCommander.netLogFilesDir];
+      
+      [self scanLogFilesDir];
+    }
+    else {
+      self = nil;
+    }
   }
   
   return self;
+}
+
+- (void)dealloc {
+  NSLog(@"%s (%@)", __FUNCTION__, commander.name);
+  
+  if (currNetLogFile.path.length > 0) {
+    [queue removePathFromQueue:currNetLogFile.path];
+  }
+  
+  if (commander.netLogFilesDir.length > 0) {
+    [queue removePathFromQueue:commander.netLogFilesDir];
+  }
+  
+  commander = nil;
+}
+
+#pragma mark -
+#pragma mark UKKQueue delegate
+
+- (BOOL)netlogDirIsValid:(Commander *)aCommander {
+  NSString  *path  = aCommander.netLogFilesDir;
+  BOOL      exists = NO;
+  BOOL      isDir  = NO;
+
+  if (path != nil) {
+    exists = [NSFileManager.defaultManager fileExistsAtPath:path isDirectory:&isDir];
+  }
+
+  return (exists && isDir);
 }
 
 #pragma mark -
 #pragma mark UKKQueue delegate
 
 - (void)watcher:(id<UKFileWatcher>)kq receivedNotification:(NSString *)nm forPath:(NSString *)path {
-  if ([path isEqualToString:logDirPath]) {
+  if ([path isEqualToString:commander.netLogFilesDir]) {
     NSLog(@"Log directory contents changed");
     
     [self scanLogFilesDir];
@@ -81,13 +118,11 @@
 #define FILE_KEY @"file"
 #define ATTR_KEY @"attr"
   
-  static BOOL firstRun = YES;
-  
   if (currNetLogFile != nil) {
     [queue removePathFromQueue:currNetLogFile.path];
   }
   
-  NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:logDirPath error:nil];
+  NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:commander.netLogFilesDir error:nil];
   
   if (firstRun) {
     [EventLogger addLog:[NSString stringWithFormat:@"Have %ld files in log directory", files.count]];
@@ -108,7 +143,7 @@
   NSMutableArray *netLogs = [NSMutableArray arrayWithCapacity:netLogFiles.count];
   
   for (NSString *file in netLogFiles) {
-    NSString     *path  = [logDirPath stringByAppendingPathComponent:file];
+    NSString     *path  = [commander.netLogFilesDir stringByAppendingPathComponent:file];
     NSDictionary *attrs = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:nil];
     
     if (attrs != nil) {
@@ -134,7 +169,7 @@
     if (netLogs.count > 1) {
       systems = [[System allSystemsInContext:context] mutableCopy];
       names   = [NSMutableArray arrayWithCapacity:systems.count];
-      jumps   = [[Jump getAllJumpsInContext:context] mutableCopy];
+      jumps   = [[Jump allJumpsOfCommander:commander] mutableCopy];
       
       for (System *aSystem in systems) {
         [names addObject:aSystem.name];
@@ -143,7 +178,7 @@
     
     for (NSDictionary *netLogData in netLogs) {
       NSString   *netLog     = netLogData[FILE_KEY];
-      NSString   *path       = [logDirPath stringByAppendingPathComponent:netLog];
+      NSString   *path       = [commander.netLogFilesDir stringByAppendingPathComponent:netLog];
       NetLogFile *netLogFile = [NetLogFile netLogFileWithPath:path inContext:context];
       
       if (netLogFile == nil) {
@@ -151,7 +186,8 @@
         
         netLogFile = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
         
-        netLogFile.path = path;
+        netLogFile.commander = commander;
+        netLogFile.path      = path;
       }
       
       if (netLogFile.complete == NO) {
@@ -179,8 +215,10 @@
       
         [EventLogger addLog:[NSString stringWithFormat:@"Parsed %ld jumps from %ld netLog files in %.1f seconds", (long)numJumps, (long)numParsed, ti]];
       }
-    
-      [EDSM.instance syncJumpsWithEDSM];
+      
+      if (commander.edsmAccount != nil) {
+        [commander.edsmAccount syncJumpsWithEDSM];
+      }
       
       firstRun = NO;
     }
@@ -243,7 +281,9 @@
             [jump.system updateFromEDSM:nil];
           }
           
-          [EDSM.instance sendJumpToEDSM:jump];
+          if (commander.edsmAccount != nil) {
+            [commander.edsmAccount sendJumpToEDSM:jump];
+          }
           
           [EventLogger addLog:msg];
         }
@@ -343,7 +383,7 @@
   
   if (parseRecord) {
     if (lastJump == nil) {
-      lastJump = [Jump getLastJumpInContext:netLogFile.managedObjectContext];
+      lastJump = [Jump lastJumpOfCommander:commander];
     }
     
     if ([lastJump.system.name isEqualToString:systemName] == YES) {

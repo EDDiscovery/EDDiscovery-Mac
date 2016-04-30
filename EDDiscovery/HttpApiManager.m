@@ -49,43 +49,47 @@ NSString* locale=nil;
 
 +(BOOL)loadCredential
 {
- NSString* appID = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
- NSString* accessGroup=[NSString stringWithFormat:@"%@.%@",keychainPrefix,appID];
- NSLog(@"Loading HttpApi data to keychain with ID: %@ and Group: %@",HTTP_API_MANAGER_IDENTIFIER,accessGroup);
- 
- KeychainItemWrapper* aKeychainWrapper=[[KeychainItemWrapper alloc] initWithIdentifier:HTTP_API_MANAGER_IDENTIFIER accessGroup:accessGroup];
- 
- // [aKeychainWrapper setObject:HTTP_API_MANAGER_IDENTIFIER forKey:HTTP_API_MANAGER_SERVICE_KEY];
- email=[aKeychainWrapper objectForKey:HTTP_API_MANAGER_EMAIL_KEY];
- password=[aKeychainWrapper objectForKey:HTTP_API_MANAGER_PASSWORD_KEY];
- locale=[[[NSLocale currentLocale] localeIdentifier] stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
- 
- return email!=nil && ![email isEqualToString:@""] && password!=nil && ![password isEqualToString:@""];
+#warning TODO
+  return NO;
+// NSString* appID = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
+// NSString* accessGroup=[NSString stringWithFormat:@"%@.%@",keychainPrefix,appID];
+// NSLog(@"Loading HttpApi data to keychain with ID: %@ and Group: %@",HTTP_API_MANAGER_IDENTIFIER,accessGroup);
+// 
+// KeychainItemWrapper* aKeychainWrapper=[[KeychainItemWrapper alloc] initWithIdentifier:HTTP_API_MANAGER_IDENTIFIER accessGroup:accessGroup];
+// 
+// // [aKeychainWrapper setObject:HTTP_API_MANAGER_IDENTIFIER forKey:HTTP_API_MANAGER_SERVICE_KEY];
+// email=[aKeychainWrapper objectForKey:HTTP_API_MANAGER_EMAIL_KEY];
+// password=[aKeychainWrapper objectForKey:HTTP_API_MANAGER_PASSWORD_KEY];
+// locale=[[[NSLocale currentLocale] localeIdentifier] stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
+// 
+// return email!=nil && ![email isEqualToString:@""] && password!=nil && ![password isEqualToString:@""];
 }
 
 +(void)saveCredential
 {
- NSString* appID = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
- NSString* accessGroup=[NSString stringWithFormat:@"%@.%@",keychainPrefix,appID];
- NSLog(@"Saving HttpApi data to keychain with ID: %@ and Group: %@",HTTP_API_MANAGER_IDENTIFIER,accessGroup);
- 
- KeychainItemWrapper* aKeychainWrapper=[[KeychainItemWrapper alloc] initWithIdentifier:HTTP_API_MANAGER_IDENTIFIER accessGroup:accessGroup];
- 
- // [aKeychainWrapper setObject:HTTP_API_MANAGER_IDENTIFIER forKey:HTTP_API_MANAGER_SERVICE_KEY];
- [aKeychainWrapper setObject:email forKey:HTTP_API_MANAGER_EMAIL_KEY];
- [aKeychainWrapper setObject:password forKey:HTTP_API_MANAGER_PASSWORD_KEY];
+#warning TODO
+//NSString* appID = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
+// NSString* accessGroup=[NSString stringWithFormat:@"%@.%@",keychainPrefix,appID];
+// NSLog(@"Saving HttpApi data to keychain with ID: %@ and Group: %@",HTTP_API_MANAGER_IDENTIFIER,accessGroup);
+// 
+// KeychainItemWrapper* aKeychainWrapper=[[KeychainItemWrapper alloc] initWithIdentifier:HTTP_API_MANAGER_IDENTIFIER accessGroup:accessGroup];
+// 
+// // [aKeychainWrapper setObject:HTTP_API_MANAGER_IDENTIFIER forKey:HTTP_API_MANAGER_SERVICE_KEY];
+// [aKeychainWrapper setObject:email forKey:HTTP_API_MANAGER_EMAIL_KEY];
+// [aKeychainWrapper setObject:password forKey:HTTP_API_MANAGER_PASSWORD_KEY];
 }
 
 +(void)resetCredential
 {
- NSString* appID = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
- NSString* accessGroup=[NSString stringWithFormat:@"%@.%@",keychainPrefix,appID];
- NSLog(@"Resetting HttpApi data for keychain with ID: %@ and Group: %@",HTTP_API_MANAGER_IDENTIFIER,accessGroup);
- 
- KeychainItemWrapper* aKeychainWrapper=[[KeychainItemWrapper alloc] initWithIdentifier:appID accessGroup:accessGroup];
- 
- // [aKeychainWrapper setObject:HTTP_API_MANAGER_IDENTIFIER forKey:HTTP_API_MANAGER_SERVICE_KEY];
- [aKeychainWrapper resetKeychainItem];
+#warning TODO
+// NSString* appID = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
+// NSString* accessGroup=[NSString stringWithFormat:@"%@.%@",keychainPrefix,appID];
+// NSLog(@"Resetting HttpApi data for keychain with ID: %@ and Group: %@",HTTP_API_MANAGER_IDENTIFIER,accessGroup);
+// 
+// KeychainItemWrapper* aKeychainWrapper=[[KeychainItemWrapper alloc] initWithIdentifier:appID accessGroup:accessGroup];
+// 
+// // [aKeychainWrapper setObject:HTTP_API_MANAGER_IDENTIFIER forKey:HTTP_API_MANAGER_SERVICE_KEY];
+// [aKeychainWrapper resetKeychainItem];
 }
 
 +(NSMutableString*)constructBaseParameterWithCredential:(BOOL)sendUsernameAndPassword

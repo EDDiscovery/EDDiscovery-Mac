@@ -16,14 +16,17 @@
 #import "AppDelegate.h"
 #import "NetLogParser.h"
 #import "Distance.h"
+#import "Commander.h"
 
-@interface TravelHistoryViewController() <NSTableViewDataSource, NSTabViewDelegate, NSTextFieldDelegate>
+@interface TravelHistoryViewController() < NSTableViewDataSource, NSTabViewDelegate>
 @end
 
 @implementation TravelHistoryViewController {
+  IBOutlet NSPopUpButton     *cmdrSelButton;
   IBOutlet NSTextView        *textView;
-  IBOutlet NSTableView       *tableView;
-  IBOutlet NSArrayController *coreDataContent;
+  IBOutlet NSArrayController *cmdrArrayController;
+  IBOutlet NSArrayController *jumpsArrayController;
+  IBOutlet NSTableView       *jumpsTableView;
   IBOutlet NSTableView       *distancesTableView;
 }
 
@@ -35,47 +38,37 @@
   
   EventLogger.instance.textView = textView;
   
-  coreDataContent.managedObjectContext = CoreDataManager.instance.managedObjectContext;
+  cmdrArrayController.managedObjectContext = CoreDataManager.instance.managedObjectContext;
+  jumpsArrayController.managedObjectContext = CoreDataManager.instance.managedObjectContext;
   
-  tableView.sortDescriptors          = @[[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:NO  selector:@selector(compare:)]];
-  distancesTableView.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"distance"  ascending:YES selector:@selector(compare:)]];
+  cmdrArrayController.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"name"      ascending:YES selector:@selector(caseInsensitiveCompare:)]];
+  jumpsTableView.sortDescriptors      = @[[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:NO  selector:@selector(compare:)]];
+  distancesTableView.sortDescriptors  = @[[NSSortDescriptor sortDescriptorWithKey:@"distance"  ascending:YES selector:@selector(compare:)]];
+  
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    [cmdrArrayController fetchWithRequest:nil merge:NO error:nil];
+    [self activeCommanderDidChange];
+  });
 }
 
 #pragma mark -
 #pragma mark NSTableView management
 
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
-  if (aTableView == tableView) {
+  if (aTableView == jumpsTableView) {
     if ([aTableColumn.identifier isEqualToString:@"rowID"]) {
       return @(rowIndex + 1);
     }
-//    else if ([aTableColumn.identifier isEqualToString:@"distanceFromPreviousJump"]) {
-//      if (![tableView.sortDescriptors.firstObject.key isEqualToString:@"timestamp"]) {
-//        return @"";
-//      }
-//    }
   }
   
   return nil;
 }
 
-- (void)tableView:(NSTableView *)aTableView setObjectValue:(id)anObject forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
-  if (aTableView == tableView) {
-    NSLog(@"%s: %@ (row %ld, col %@)", __FUNCTION__, anObject, (long)rowIndex, aTableColumn.identifier);
-    
-    if ([aTableColumn.identifier isEqualToString:@"note"]) {
-      Jump   *jump   = coreDataContent.arrangedObjects[rowIndex];
-      System *system = jump.system;
-      
-      [self systemNoteUpdated:system];
-    }
-  }
-}
-
 - (void)tableView:(NSTableView *)aTableView willDisplayCell:(NSTextFieldCell *)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
-  if (aTableView == tableView) {
+  if (aTableView == jumpsTableView) {
     if ([aTableColumn.identifier isEqualToString:@"system"]) {
-      Jump   *jump   = coreDataContent.arrangedObjects[rowIndex];
+      Jump   *jump   = jumpsArrayController.arrangedObjects[rowIndex];
       System *system = jump.system;
 
       if (system.hasCoordinates) {
@@ -92,7 +85,7 @@
     }
   }
   else if (aTableView == distancesTableView) {
-    Jump     *jump      = [coreDataContent valueForKeyPath:@"selection.self"];
+    Jump     *jump      = [jumpsArrayController valueForKeyPath:@"selection.self"];
     System   *system    = jump.system;
     NSArray  *distances = system.sortedDistances;
     Distance *distance  = distances[rowIndex];
@@ -107,12 +100,12 @@
 }
 
 - (BOOL)tableView:(NSTableView *)aTableView shouldSelectRow:(NSInteger)rowIndex {
-  if (aTableView == tableView) {
-    Jump *jump = coreDataContent.arrangedObjects[rowIndex];
+  if (aTableView == jumpsTableView) {
+    Jump *jump = jumpsArrayController.arrangedObjects[rowIndex];
 
     jump.system.distanceSortDescriptors = distancesTableView.sortDescriptors;
 
-    [coreDataContent setSelectionIndex:rowIndex];
+    [jumpsArrayController setSelectionIndex:rowIndex];
     
     [jump.system updateFromEDSM:^{
       jump.system.distanceSortDescriptors = jump.system.distanceSortDescriptors;
@@ -123,12 +116,12 @@
 }
 
 - (void)tableView:(NSTableView *)aTableView sortDescriptorsDidChange:(NSArray<NSSortDescriptor *> *)oldDescriptors {
-  if (aTableView == tableView) {
-    coreDataContent.sortDescriptors = aTableView.sortDescriptors;
+  if (aTableView == jumpsTableView) {
+    jumpsArrayController.sortDescriptors = aTableView.sortDescriptors;
   }
   else if (aTableView == distancesTableView) {
-    if (coreDataContent.selectionIndex != NSNotFound) {
-      Jump   *jump   = coreDataContent.arrangedObjects[coreDataContent.selectionIndex];
+    if (jumpsArrayController.selectionIndex != NSNotFound) {
+      Jump   *jump   = jumpsArrayController.arrangedObjects[jumpsArrayController.selectionIndex];
       System *system = jump.system;
 
       system.distanceSortDescriptors = aTableView.sortDescriptors;
@@ -137,40 +130,11 @@
 }
 
 #pragma mark -
-#pragma mark text field delegate
-
-- (void)controlTextDidEndEditing:(NSNotification *)aNotification {
-  Jump   *jump   = coreDataContent.arrangedObjects[coreDataContent.selectionIndex];
-  System *system = jump.system;
-  
-  [self systemNoteUpdated:system];
-}
-
-#pragma mark -
-#pragma mark update notes
-
-- (void)systemNoteUpdated:(System *)system {
-  static NSString *prevSystem = nil;
-  static NSString *prevNote   = nil;
-
-  if (prevSystem != nil && prevNote != nil && [prevSystem isEqualToString:system.name] && [prevNote isEqualToString:system.comment]) {
-    return;
-  }
-  
-  NSLog(@"New comment for system %@", system.name);
-  
-  [EDSM.instance setCommentForSystem:system];
-  
-  prevSystem = system.name;
-  prevNote   = system.comment;
-}
-
-#pragma mark -
 #pragma mark log file dir selection
 
 - (IBAction)selectLogDirPathButtonTapped:(id)sender {
   NSOpenPanel *openDlg = NSOpenPanel.openPanel;
-  NSString    *path    = [NSUserDefaults.standardUserDefaults objectForKey:LOG_DIR_PATH_SETING_KEY];
+  NSString    *path    = Commander.activeCommander.netLogFilesDir;
   
   if (path == nil) {
     path = DEFAULT_LOG_DIR_PATH_DIR;
@@ -193,9 +157,9 @@
     }
     
     if (exists == YES && isDir == YES) {
-      [NSUserDefaults.standardUserDefaults setObject:path forKey:LOG_DIR_PATH_SETING_KEY];
+      Commander.activeCommander.netLogFilesDir = path;
       
-      [NetLogParser instanceWithPath:path];
+      [NetLogParser instanceWithCommander:Commander.activeCommander];
     }
 
   }
@@ -205,14 +169,78 @@
 #pragma mark EDSM account selection
 
 - (IBAction)ESDMAccountChanged:(id)sender {
-  NSString *cmdrName = [NSUserDefaults.standardUserDefaults objectForKey:EDSM_CMDR_NAME_KEY];
-  NSString *apiKey   = [NSUserDefaults.standardUserDefaults objectForKey:EDSM_API_KEY_KEY];
+  NSString *cmdrName = Commander.activeCommander.name;
+  NSString *apiKey   = Commander.activeCommander.edsmAccount.apiKey;
 
   NSLog(@"%s: %@ - %@", __FUNCTION__, cmdrName, apiKey);
   
   if (cmdrName.length > 0 && apiKey.length > 0) {
-    [EDSM.instance syncJumpsWithEDSM];
+    [Commander.activeCommander.edsmAccount syncJumpsWithEDSM];
   }
+}
+
+#pragma mark -
+#pragma mark commander management
+
+- (IBAction)commanderSelected:(id)sender {
+  Commander *commander = cmdrArrayController.arrangedObjects[cmdrSelButton.indexOfSelectedItem];
+  
+  if ([Commander.activeCommander.name isEqualToString:commander.name] == NO) {
+    Commander.activeCommander = commander;
+    
+    [self activeCommanderDidChange];
+  }
+}
+
+- (IBAction)newCommanderButtonTapped:(id)sender {
+  NSAlert *alert = [[NSAlert alloc] init];
+  
+  alert.messageText = NSLocalizedString(@"Please insert new commander name", @"");
+  
+  [alert addButtonWithTitle:NSLocalizedString(@"OK", @"")];
+  [alert addButtonWithTitle:NSLocalizedString(@"Cancel", @"")];
+  
+  NSTextField *input = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 200, 24)];
+  
+  input.placeholderString = NSLocalizedString(@"Commander name", @"");
+  
+  [alert setAccessoryView:input];
+  
+  NSInteger button = [alert runModal];
+  
+  if (button == NSAlertFirstButtonReturn) {
+    [input validateEditing];
+    
+    Commander *commander = [Commander createCommanderWithName:[input stringValue]];
+    
+    if (commander != nil) {
+      [self activeCommanderDidChange];
+    }
+  }
+}
+
+- (void)activeCommanderDidChange {
+  Commander *commander = Commander.activeCommander;
+  NSString  *name      = commander.name;
+  
+  NSLog(@"%s: %@", __FUNCTION__, name);
+  
+  [EventLogger clearLogs];
+  
+  [System updateSystemsFromEDSM:^{
+    if (name.length > 0) {
+      [cmdrSelButton selectItemWithTitle:name];
+      
+      [cmdrArrayController setSelectedObjects:@[commander]];
+      
+      [jumpsArrayController setFetchPredicate:CMDR_PREDICATE];
+      [jumpsArrayController fetchWithRequest:nil merge:NO error:nil];
+      
+      if ([NetLogParser instanceWithCommander:Commander.activeCommander] == nil) {
+        [self ESDMAccountChanged:nil];
+      }
+    }
+  }];
 }
 
 @end

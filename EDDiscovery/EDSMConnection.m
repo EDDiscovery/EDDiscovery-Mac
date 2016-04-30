@@ -8,6 +8,10 @@
 
 #import "EDSMConnection.h"
 #import "Jump.h"
+#import "System.h"
+#import "Note.h"
+#import "Commander.h"
+#import "EDSM.h"
 
 #define BASE_URL @"http://www.edsm.net"
 #define KEYCHAIN_PREFIX nil
@@ -164,9 +168,13 @@ responseCallback:^(id output, NSError *error) {
   }
 }
 
-+ (void)getJumpsForCommander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(NSArray *jumps, NSError *error))response {
-  NSDate *lastSyncDate = [NSUserDefaults.standardUserDefaults objectForKey:EDSM_JUMPS_UPDATE_TIMESTAMP];
-
++ (void)getJumpsForCommander:(Commander *)commander response:(void(^)(NSArray *jumps, NSError *error))response {
+  NSDate *lastSyncDate = nil;
+  
+  if (commander.edsmAccount.jumpsUpdateTimestamp != 0) {
+    lastSyncDate = [NSDate dateWithTimeIntervalSinceReferenceDate:commander.edsmAccount.jumpsUpdateTimestamp];
+  }
+  
   NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
   
   formatter.timeZone   = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
@@ -201,7 +209,7 @@ responseCallback:^(id output, NSError *error) {
           //add 1 second to date of last recorded jump (otherwise EDSM will return this jump to me next time I sync)
           lastSyncDate = [lastSyncDate dateByAddingTimeInterval:1];
           
-          [NSUserDefaults.standardUserDefaults setObject:lastSyncDate forKey:EDSM_JUMPS_UPDATE_TIMESTAMP];
+          commander.edsmAccount.jumpsUpdateTimestamp = [lastSyncDate timeIntervalSinceReferenceDate];
         }
       }
       else {
@@ -219,8 +227,8 @@ responseCallback:^(id output, NSError *error) {
   
 }
      parameters:3,
-   @"commanderName", commanderName,
-   @"apiKey", apiKey,
+   @"commanderName", commander.name,
+   @"apiKey", commander.edsmAccount.apiKey,
    @"startdatetime", from
    ];
 }
@@ -278,8 +286,12 @@ responseCallback:^(id output, NSError *error) {
    ];
 }
 
-+ (void)getCommentsForCommander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(NSArray *comments, NSError *error))response {
-  NSDate *lastSyncDate = [NSUserDefaults.standardUserDefaults objectForKey:EDSM_COMMENTS_UPDATE_TIMESTAMP];
++ (void)getNotesForCommander:(Commander *)commander response:(void(^)(NSArray *comments, NSError *error))response {
+  NSDate *lastSyncDate = nil;
+  
+  if (commander.edsmAccount.notesUpdateTimestamp != 0) {
+    lastSyncDate = [NSDate dateWithTimeIntervalSinceReferenceDate:commander.edsmAccount.notesUpdateTimestamp];
+  }
   
   NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
   
@@ -315,7 +327,7 @@ responseCallback:^(id output, NSError *error) {
           //add 1 second to date of last recorded comment (otherwise EDSM will return this comment to me next time I sync)
           lastSyncDate = [lastSyncDate dateByAddingTimeInterval:1];
           
-          [NSUserDefaults.standardUserDefaults setObject:lastSyncDate forKey:EDSM_COMMENTS_UPDATE_TIMESTAMP];
+          commander.edsmAccount.notesUpdateTimestamp = [lastSyncDate timeIntervalSinceReferenceDate];
         }
       }
       else {
@@ -334,12 +346,12 @@ responseCallback:^(id output, NSError *error) {
 }
      parameters:3,
    @"startdatetime", from, // <-- return only systems updated after this date
-   @"commanderName", commanderName,
-   @"apiKey", apiKey
+   @"commanderName", commander.name,
+   @"apiKey", commander.edsmAccount.apiKey
    ];
 }
 
-+ (void)setCommentForSystem:(System *)system commander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(BOOL success, NSError *error))response {
++ (void)setNote:(NSString *)note system:(NSString *)system commander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(BOOL success, NSError *error))response {
   NSAssert(system != nil, @"missing system");
   
   [self setup];
@@ -377,8 +389,8 @@ responseCallback:^(id output, NSError *error) {
   
 }
      parameters:4,
-   @"systemName", system.name,
-   @"comment", (system.comment.length > 0) ? system.comment : @"",
+   @"systemName", system,
+   @"comment", (note.length > 0) ? note : @"",
    @"commanderName", commanderName,
    @"apiKey", apiKey
    ];

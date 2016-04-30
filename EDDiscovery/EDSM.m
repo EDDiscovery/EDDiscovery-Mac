@@ -7,81 +7,75 @@
 //
 
 #import "EDSM.h"
-#import "Jump.h"
+
 #import "EDSMConnection.h"
 #import "CoreDataManager.h"
 #import "EventLogger.h"
+#import "SSKeychain.h"
+#import "Jump.h"
+#import "System.h"
+#import "Commander.h"
+#import "Note.h"
 
-@implementation EDSM
 
-+ (EDSM *)instance {
-  static EDSM *instance = nil;
-  
-  if (instance == nil) {
-    NSManagedObjectContext *context   = CoreDataManager.instance.managedObjectContext;;
-    NSString               *className = NSStringFromClass([EDSM class]);
-    NSFetchRequest         *request   = [[NSFetchRequest alloc] init];
-    NSEntityDescription    *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
-    NSError                *error     = nil;
-    NSArray                *array     = nil;
-    
-    request.entity                 = entity;
-    request.returnsObjectsAsFaults = NO;
-    request.includesPendingChanges = YES;
-    
-    array = [context executeFetchRequest:request error:&error];
-    
-    NSAssert1(error == nil, @"could not execute fetch request: %@", error);
-    NSAssert1(array.count <= 1, @"this query should return at maximum 1 element: got %lu instead", (unsigned long)array.count);
-    
-    instance = array.lastObject;
-  }
-  
-  if (instance == nil) {
-    NSManagedObjectContext *context   = CoreDataManager.instance.managedObjectContext;;
-    NSString               *className = NSStringFromClass([EDSM class]);
-    NSError                *error     = nil;
-    
-    instance = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
-    
-    instance.commander = instance.commander;
-    
-    [context save:&error];
-    
-    if (error != nil) {
-      NSLog(@"ERROR saving context: %@", error);
-      
-      exit(-1);
-    }
-  }
-  
-  instance.commander = instance.commander;
-  
-  return instance;
+@implementation EDSM {
+  NSString *apiKey;
 }
 
-- (NSString *)commander {
-  return [NSUserDefaults.standardUserDefaults objectForKey:EDSM_CMDR_NAME_KEY];
-}
+#pragma mark -
+#pragma mark properties
 
 - (NSString *)apiKey {
-  return [NSUserDefaults.standardUserDefaults objectForKey:EDSM_API_KEY_KEY];
+  NSAssert(self.commander.name.length > 0, @"Must have commander name!");
+  
+  if (apiKey.length == 0 && self.commander.name.length > 0) {
+    apiKey = [SSKeychain passwordForService:NSStringFromClass(self.class) account:self.commander.name];
+  }
+  
+  return apiKey;
 }
+
+- (void)setApiKey:(NSString *)newApiKey {
+  NSAssert(self.commander.name.length > 0, @"Must have commander name!");
+  
+  if (self.commander.name.length > 0) {
+    if (newApiKey.length > 0) {
+      [SSKeychain setPassword:newApiKey forService:NSStringFromClass(self.class) account:self.commander.name];
+      apiKey = newApiKey;
+    }
+    else {
+      [SSKeychain deletePasswordForService:NSStringFromClass(self.class) account:self.commander.name];
+      apiKey = nil;
+    }
+  }
+}
+
+- (void)changeCommanderName:(NSString *)oldName to:(NSString *)newName {
+  NSString *service = NSStringFromClass(self.class);
+  
+  apiKey = [SSKeychain passwordForService:NSStringFromClass(self.class) account:oldName];
+  
+  [SSKeychain deletePasswordForService:service account:oldName];
+  
+  [SSKeychain setPassword:apiKey forService:service account:newName];
+}
+
+#pragma mark -
+#pragma mark jumps management
 
 - (void)syncJumpsWithEDSM {
   [EDSMConnection getJumpsForCommander:self.commander
-                                apiKey:self.apiKey
                               response:^(NSArray *travelLogs, NSError *connectionError) {
                                 
                                 if (![travelLogs isKindOfClass:NSArray.class]) {
-                                  NSLog(@"ERROR from EDSM: %ld - %@", (long)connectionError.code, connectionError.localizedDescription);
+                                  [EventLogger addError:[NSString stringWithFormat:@"ERROR from EDSM: %ld - %@", (long)connectionError.code, connectionError.localizedDescription]];
                                         
-                                  [Jump printStats];
+                                  [Jump printStatsOfCommander:self.commander];
                                         
                                   return;
                                 }
     
-                                NSArray         *allJumps         = [Jump getAllJumpsInContext:self.managedObjectContext];
+                                NSArray         *allJumps         = [Jump allJumpsOfCommander:self.commander];
                                 NSMutableArray  *jumps            = [allJumps mutableCopy];
                                 NSString        *prevSystem       = nil;
                                 NSTimeInterval   prevTimestamp    = 0;
@@ -165,81 +159,11 @@
                                 
                                 [self sendJumpsToEDSM:jumpsToSend];
                                 
-                                [Jump printStats];
+                                [Jump printStatsOfCommander:self.commander];
                                 
-                                [self getComments];
+                                [self getNotesFromEDSM];
                                 
                               }];
-}
-
-- (void)getComments {
-  [EDSMConnection getCommentsForCommander:self.commander
-                                   apiKey:self.apiKey
-                                 response:^(NSArray *comments, NSError *connectionError) {
-                                   
-                                   if (![comments isKindOfClass:NSArray.class]) {
-                                     NSLog(@"ERROR from EDSM: %ld - %@", (long)connectionError.code, connectionError.localizedDescription);
-                                     
-                                     return;
-                                   }
-                                   
-                                   NSLog(@"Received %ld new comments from EDSM", (long)comments.count);
-                                   
-                                   if (comments.count > 0) {
-                                     NSManagedObjectContext *context = self.managedObjectContext;
-                                     NSError                *error   = nil;
-                                     
-                                     for (NSDictionary *comment in comments) {
-                                       NSString *name   = comment[@"system"];
-                                       NSString *txt    = comment[@"comment"];
-                                       System   *system = [System systemWithName:name inContext:self.managedObjectContext];
-                                       
-                                       if (system == nil) {
-                                         NSString *className = NSStringFromClass(System.class);
-                                         
-                                         system = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
-                                         
-                                         system.name = name;
-                                       }
-                                       
-                                       system.comment = txt;
-                                     }
-                                     
-                                     [context save:&error];
-                                     
-                                     if (error != nil) {
-                                       NSLog(@"ERROR saving context: %@", error);
-                                       
-                                       exit(-1);
-                                     }
-                                     
-                                     if (comments.count > 0) {
-                                       [EventLogger addLog:[NSString stringWithFormat:@"Received %ld new comments from EDSM", (long)comments.count]];
-                                     }
-                                   }
-                                   
-                                 }];
-}
-
-- (void)setCommentForSystem:(System *)system {
-  [EDSMConnection setCommentForSystem:system
-                            commander:self.commander
-                               apiKey:self.apiKey
-                             response:^(BOOL success, NSError *error) {
-    
-                               if (success) {
-                                 if (system.comment.length > 0) {
-                                   [EventLogger addLog:[NSString stringWithFormat:@"Comment for system %@ saved to EDSM", system.name]];
-                                 }
-                                 else {
-                                   [EventLogger addLog:[NSString stringWithFormat:@"Comment for system %@ removed from EDSM", system.name]];
-                                 }
-                               }
-                               else {
-                                 [EventLogger addLog:[NSString stringWithFormat:@"ERROR: could not save comment for system: %ld - %@", (long)error.code, error.localizedDescription]];
-                               }
-                               
-                             }];
 }
 
 - (void)receiveJumpsFromEDSM:(NSArray *)jumps {
@@ -312,7 +236,7 @@
   NSLog(@"Sending jump to EDSM: %@ - %@", [NSDate dateWithTimeIntervalSinceReferenceDate:jump.timestamp], jump.system.name);
   
   [EDSMConnection addJump:jump
-             forCommander:self.commander
+             forCommander:self.commander.name
                    apiKey:self.apiKey
                  response:^(BOOL success, NSError *error) {
                    
@@ -352,7 +276,7 @@
                      }
                    }
                    else {
-                     NSLog(@"ERROR from EDSM: %ld - %@", (long)error.code, error.localizedDescription);
+                     [EventLogger addError:[NSString stringWithFormat:@"ERROR from EDSM: %ld - %@", (long)error.code, error.localizedDescription]];
                    }
                    
                  }];
@@ -368,8 +292,91 @@
 }
 
 #pragma mark -
-#pragma mark private functions
+#pragma mark notes management
 
+- (void)getNotesFromEDSM {
+  [EDSMConnection getNotesForCommander:self.commander
+                              response:^(NSArray *comments, NSError *connectionError) {
+                                   
+                                 if (![comments isKindOfClass:NSArray.class]) {
+                                   [EventLogger addError:[NSString stringWithFormat:@"ERROR from EDSM: %ld - %@", (long)connectionError.code, connectionError.localizedDescription]];
+                                   
+                                   return;
+                                 }
+                                 
+                                 NSLog(@"Received %ld new comments from EDSM", (long)comments.count);
+                                 
+                                 if (comments.count > 0) {
+                                   NSManagedObjectContext *context = self.managedObjectContext;
+                                   NSError                *error   = nil;
+                                   
+                                   for (NSDictionary *comment in comments) {
+                                     NSString    *name      = comment[@"system"];
+                                     NSString    *txt       = comment[@"comment"];
+                                     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"system.name == %@", name];
+                                     NSSet       *notes     = [self.notes filteredSetUsingPredicate:predicate];
+                                     Note        *note      = notes.anyObject;
+                                     
+                                     NSAssert(notes.count < 2, @"Cannot have more than 1 note");
+                                     
+                                     if (note == nil) {
+                                       NSString *className = NSStringFromClass(Note.class);
+                                       System   *system    = [System systemWithName:name inContext:self.managedObjectContext];
+                                       
+                                       if (system == nil) {
+                                         NSString *className = NSStringFromClass(System.class);
+                                         
+                                         system = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
+                                         
+                                         system.name = name;
+                                       }
+                                       
+                                       note = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
+                                       
+                                       note.edsm   = self;
+                                       note.system = system;
+                                     }
+                                     
+                                     
+                                     note.note = txt;
+                                   }
+                                   
+                                   [context save:&error];
+                                   
+                                   if (error != nil) {
+                                     NSLog(@"ERROR saving context: %@", error);
+                                     
+                                     exit(-1);
+                                   }
+                                   
+                                   if (comments.count > 0) {
+                                     [EventLogger addLog:[NSString stringWithFormat:@"Received %ld new comments from EDSM", (long)comments.count]];
+                                   }
+                                 }
+                                   
+                              }];
+}
 
+- (void)sendNoteToEDSM:(NSString *)note forSystem:(NSString *)system {
+  [EDSMConnection setNote:note
+                   system:system
+                commander:self.commander.name
+                   apiKey:self.apiKey
+                 response:^(BOOL success, NSError *error) {
+                   
+                   if (success) {
+                     if (note.length > 0) {
+                       [EventLogger addLog:[NSString stringWithFormat:@"Comment for system %@ saved to EDSM", system]];
+                     }
+                     else {
+                       [EventLogger addLog:[NSString stringWithFormat:@"Comment for system %@ removed from EDSM", system]];
+                     }
+                   }
+                   else {
+                     [EventLogger addLog:[NSString stringWithFormat:@"ERROR: could not save comment for system: %ld - %@", (long)error.code, error.localizedDescription]];
+                   }
+                   
+                 }];
+}
 
 @end

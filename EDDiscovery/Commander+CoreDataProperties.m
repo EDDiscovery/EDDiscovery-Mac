@@ -1,5 +1,5 @@
 //
-//  System+CoreDataProperties.m
+//  Commander+CoreDataProperties.m
 //  EDDiscovery
 //
 //  Created by thorin on 30/04/16.
@@ -9,17 +9,13 @@
 //  to delete and recreate this implementation file for your updated model.
 //
 
-#import "System+CoreDataProperties.h"
+#import "Commander+CoreDataProperties.h"
 
-@implementation System (CoreDataProperties)
+@implementation Commander (CoreDataProperties)
 
 @dynamic name;
-@dynamic x;
-@dynamic y;
-@dynamic z;
-@dynamic notes;
-@dynamic distances;
-@dynamic images;
-@dynamic jumps;
+@dynamic netLogFilesDir;
+@dynamic edsmAccount;
+@dynamic netLogFiles;
 
 @end

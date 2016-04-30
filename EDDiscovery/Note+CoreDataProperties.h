@@ -1,5 +1,5 @@
 //
-//  Jump+CoreDataProperties.h
+//  Note+CoreDataProperties.h
 //  EDDiscovery
 //
 //  Created by thorin on 30/04/16.
@@ -9,15 +9,14 @@
 //  to delete and recreate this implementation file for your updated model.
 //
 
-#import "Jump.h"
+#import "Note.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface Jump (CoreDataProperties)
+@interface Note (CoreDataProperties)
 
-@property (nonatomic) NSTimeInterval timestamp;
+@property (nullable, nonatomic, retain) NSString *note;
 @property (nullable, nonatomic, retain) EDSM *edsm;
-@property (nullable, nonatomic, retain) NetLogFile *netLogFile;
 @property (nullable, nonatomic, retain) System *system;
 
 @end

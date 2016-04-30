@@ -7,7 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "KeychainItemWrapper.h"
+#import "SSKeychain.h"
 
 #define HTTP_API_MANAGER_DEBUG
 

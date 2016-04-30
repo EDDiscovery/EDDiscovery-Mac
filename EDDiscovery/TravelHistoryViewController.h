@@ -8,8 +8,9 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface TravelHistoryViewController : NSViewController
+@class Commander;
 
+@interface TravelHistoryViewController : NSViewController
 
 @end
 

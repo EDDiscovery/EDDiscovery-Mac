@@ -13,6 +13,8 @@
 
 + (EventLogger *)instance;
 
++ (void)clearLogs;
++ (void)addError:(NSString *)msg;
 + (void)addLog:(NSString *)msg;
 + (void)addLog:(NSString *)msg timestamp:(BOOL)timestamp newline:(BOOL)newline;
 

@@ -9,15 +9,17 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
-@class System, EDSM, NetLogFile;
+@class System, EDSM, NetLogFile, Commander;
 
 NS_ASSUME_NONNULL_BEGIN
 
+#define CMDR_PREDICATE [NSPredicate predicateWithFormat:@"edsm.commander == %@ OR netLogFile.commander == %@", commander, commander]
+
 @interface Jump : NSManagedObject
 
-+ (void)printStats;
-+ (NSArray *)getAllJumpsInContext:(NSManagedObjectContext *)context;
-+ (Jump *)getLastJumpInContext:(NSManagedObjectContext *)context;
++ (void)printStatsOfCommander:(Commander *)commander;
++ (NSArray *)allJumpsOfCommander:(Commander *)commander;
++ (Jump *)lastJumpOfCommander:(Commander *)commander;
 
 @property(nonatomic, readonly) NSNumber *distanceFromPreviousJump;
 

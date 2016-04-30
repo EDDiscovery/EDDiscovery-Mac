@@ -8,11 +8,12 @@
 
 #import <Foundation/Foundation.h>
 
-#define LOG_DIR_PATH_SETING_KEY  @"logDirPathSettingKey"
 #define DEFAULT_LOG_DIR_PATH_DIR [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES).firstObject stringByAppendingPathComponent:@"Frontier Developments/Elite Dangerous/Logs"]
+
+@class Commander;
 
 @interface NetLogParser : NSObject
 
-+ (NetLogParser *)instanceWithPath:(NSString *)path;
++ (NetLogParser *)instanceWithCommander:(Commander *)commander;
 
 @end

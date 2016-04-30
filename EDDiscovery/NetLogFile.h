@@ -10,6 +10,7 @@
 #import <CoreData/CoreData.h>
 
 @class Jump;
+@class Commander;
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -112,11 +112,6 @@
       switch (dbVersion) {
         case kDefaultDBVersion: {
           [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
-          [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_JUMPS_UPDATE_TIMESTAMP];
-          [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_COMMENTS_UPDATE_TIMESTAMP];
-          [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_CMDR_NAME_KEY];
-          [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_API_KEY_KEY];
-          [NSUserDefaults.standardUserDefaults removeObjectForKey:LOG_DIR_PATH_SETING_KEY];
           
           //fall through
         }

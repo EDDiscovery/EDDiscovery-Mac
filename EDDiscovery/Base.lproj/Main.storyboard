@@ -690,7 +690,7 @@
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="sequential" alternatingRowBackgroundColors="YES" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" typeSelect="NO" headerView="eX4-W7-Df1" id="Bam-q7-TPi">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="468" height="418"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="468" height="19"/>
                                                                     <autoresizingMask key="autoresizingMask"/>
                                                                     <size key="intercellSpacing" width="3" height="2"/>
                                                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -774,7 +774,7 @@
                                                                                 </binding>
                                                                             </connections>
                                                                         </tableColumn>
-                                                                        <tableColumn identifier="note" width="10" minWidth="10" maxWidth="3.4028234663852886e+38" id="q1U-u4-OOq">
+                                                                        <tableColumn identifier="note" editable="NO" width="10" minWidth="10" maxWidth="3.4028234663852886e+38" id="q1U-u4-OOq">
                                                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Note">
                                                                                 <font key="font" metaFont="smallSystem"/>
                                                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -785,10 +785,10 @@
                                                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                                             </textFieldCell>
-                                                                            <sortDescriptor key="sortDescriptorPrototype" selector="caseInsensitiveCompare:" sortKey="system.comment" ascending="NO"/>
+                                                                            <sortDescriptor key="sortDescriptorPrototype" selector="caseInsensitiveCompare:" sortKey="system.note" ascending="NO"/>
                                                                             <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                             <connections>
-                                                                                <binding destination="8om-YV-xhG" name="value" keyPath="arrangedObjects.system.comment" id="fcQ-8H-67s"/>
+                                                                                <binding destination="8om-YV-xhG" name="value" keyPath="arrangedObjects.system.note" id="1yj-rc-cM5"/>
                                                                             </connections>
                                                                         </tableColumn>
                                                                     </tableColumns>
@@ -876,7 +876,7 @@
                                         <rect key="frame" x="412" y="0.0" width="388" height="600"/>
                                         <subviews>
                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oea-bZ-uSw">
-                                                <rect key="frame" x="18" y="394" width="50" height="17"/>
+                                                <rect key="frame" x="18" y="374" width="50" height="17"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="System" id="p9K-Jn-Lee">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -884,15 +884,23 @@
                                                 </textFieldCell>
                                             </textField>
                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ICn-Iq-7XG">
-                                                <rect key="frame" x="18" y="536" width="50" height="17"/>
+                                                <rect key="frame" x="18" y="496" width="50" height="17"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Log dir" id="7S7-Mw-J6d">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                 </textFieldCell>
                                             </textField>
+                                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wZP-fM-BQI">
+                                                <rect key="frame" x="18" y="563" width="87" height="17"/>
+                                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Commander" id="fIT-MD-cDk">
+                                                    <font key="font" metaFont="system"/>
+                                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                </textFieldCell>
+                                            </textField>
                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YDF-1J-C5W">
-                                                <rect key="frame" x="18" y="563" width="286" height="17"/>
+                                                <rect key="frame" x="18" y="523" width="286" height="17"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="justified" title="Log files parsing" id="YEz-fS-5xM">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -900,7 +908,7 @@
                                                 </textFieldCell>
                                             </textField>
                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="QT1-Jz-tNu">
-                                                <rect key="frame" x="18" y="498" width="286" height="17"/>
+                                                <rect key="frame" x="18" y="453" width="286" height="17"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="justified" title="EDSM account" id="jFv-ir-2iH">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -908,7 +916,7 @@
                                                 </textFieldCell>
                                             </textField>
                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rAm-ue-q9f">
-                                                <rect key="frame" x="18" y="285" width="50" height="17"/>
+                                                <rect key="frame" x="18" y="265" width="50" height="17"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Note" id="zJP-hn-nR6">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -916,7 +924,7 @@
                                                 </textFieldCell>
                                             </textField>
                                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CRv-Zm-gw8">
-                                                <rect key="frame" x="74" y="391" width="294" height="22"/>
+                                                <rect key="frame" x="74" y="371" width="294" height="22"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="yRL-yv-Oqn">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -927,38 +935,18 @@
                                                 </connections>
                                             </textField>
                                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3XW-Q5-dhd">
-                                                <rect key="frame" x="74" y="533" width="261" height="22"/>
+                                                <rect key="frame" x="74" y="493" width="261" height="22"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="Tap button to select dir" drawsBackground="YES" id="T08-Uh-mfN">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                 </textFieldCell>
                                                 <connections>
-                                                    <binding destination="QgB-gy-OgE" name="value" keyPath="values.logDirPathSettingKey" id="pxD-VX-E3d"/>
-                                                </connections>
-                                            </textField>
-                                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Gsc-7q-Z4G">
-                                                <rect key="frame" x="18" y="471" width="87" height="17"/>
-                                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="CMDR name" id="rTY-c0-hS6">
-                                                    <font key="font" metaFont="system"/>
-                                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                </textFieldCell>
-                                            </textField>
-                                            <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FiZ-Cv-NyC">
-                                                <rect key="frame" x="111" y="468" width="257" height="22"/>
-                                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="Insert your CMDR name" drawsBackground="YES" id="nBx-C2-d20">
-                                                    <font key="font" metaFont="system"/>
-                                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
-                                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                </textFieldCell>
-                                                <connections>
-                                                    <action selector="ESDMAccountChanged:" target="XfG-lQ-9wD" id="Yid-R4-Cxx"/>
-                                                    <binding destination="QgB-gy-OgE" name="value" keyPath="values.EDSMCmdrNameKey" id="R6o-0a-hIN"/>
+                                                    <binding destination="w4z-Tg-Rgr" name="value" keyPath="selection.netLogFilesDir" id="ia7-wz-ID2"/>
                                                 </connections>
                                             </textField>
                                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="06G-od-pyF">
-                                                <rect key="frame" x="74" y="370" width="80" height="22"/>
+                                                <rect key="frame" x="74" y="350" width="80" height="22"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="erz-cb-BiA">
                                                     <numberFormatter key="formatter" formatterBehavior="custom10_4" numberStyle="decimal" alwaysShowsDecimalSeparator="YES" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" minimumFractionDigits="2" maximumFractionDigits="2" id="CS8-xS-Ad5"/>
                                                     <font key="font" metaFont="system"/>
@@ -970,7 +958,7 @@
                                                 </connections>
                                             </textField>
                                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nPX-ik-KFh">
-                                                <rect key="frame" x="74" y="349" width="80" height="22"/>
+                                                <rect key="frame" x="74" y="329" width="80" height="22"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="sMN-N3-pQL">
                                                     <numberFormatter key="formatter" formatterBehavior="custom10_4" numberStyle="decimal" alwaysShowsDecimalSeparator="YES" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" minimumFractionDigits="2" maximumFractionDigits="2" id="04l-Rp-AS8"/>
                                                     <font key="font" metaFont="system"/>
@@ -982,7 +970,7 @@
                                                 </connections>
                                             </textField>
                                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="BJ5-z3-du4">
-                                                <rect key="frame" x="74" y="328" width="80" height="22"/>
+                                                <rect key="frame" x="74" y="308" width="80" height="22"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="4Sq-Go-dge">
                                                     <numberFormatter key="formatter" formatterBehavior="custom10_4" numberStyle="decimal" alwaysShowsDecimalSeparator="YES" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" minimumFractionDigits="2" maximumFractionDigits="2" id="g29-eA-1jS"/>
                                                     <font key="font" metaFont="system"/>
@@ -994,7 +982,7 @@
                                                 </connections>
                                             </textField>
                                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jTI-0t-5q8">
-                                                <rect key="frame" x="74" y="307" width="80" height="22"/>
+                                                <rect key="frame" x="74" y="287" width="80" height="22"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="Poq-EH-2J2">
                                                     <numberFormatter key="formatter" formatterBehavior="custom10_4" numberStyle="decimal" alwaysShowsDecimalSeparator="YES" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" minimumFractionDigits="2" maximumFractionDigits="2" id="dhM-mD-JI2"/>
                                                     <font key="font" metaFont="system"/>
@@ -1006,7 +994,7 @@
                                                 </connections>
                                             </textField>
                                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jvb-Bc-vwS">
-                                                <rect key="frame" x="288" y="370" width="80" height="22"/>
+                                                <rect key="frame" x="288" y="350" width="80" height="22"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="Dz6-ic-ljV">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1017,7 +1005,7 @@
                                                 </connections>
                                             </textField>
                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="f5c-4H-ICH">
-                                                <rect key="frame" x="31" y="373" width="37" height="17"/>
+                                                <rect key="frame" x="31" y="353" width="37" height="17"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="X" id="LPT-Gw-Qn1">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -1025,7 +1013,7 @@
                                                 </textFieldCell>
                                             </textField>
                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Pha-2Z-A5I">
-                                                <rect key="frame" x="245" y="373" width="37" height="17"/>
+                                                <rect key="frame" x="245" y="353" width="37" height="17"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Visits" id="xJB-hC-t3e">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -1033,7 +1021,7 @@
                                                 </textFieldCell>
                                             </textField>
                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JeV-f5-nQg">
-                                                <rect key="frame" x="31" y="351" width="37" height="17"/>
+                                                <rect key="frame" x="31" y="331" width="37" height="17"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Y" id="KMx-sV-5jl">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -1041,7 +1029,7 @@
                                                 </textFieldCell>
                                             </textField>
                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mCE-lW-lZP">
-                                                <rect key="frame" x="31" y="331" width="37" height="17"/>
+                                                <rect key="frame" x="31" y="311" width="37" height="17"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Z" id="sCe-Da-4nI">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -1049,7 +1037,7 @@
                                                 </textFieldCell>
                                             </textField>
                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oAR-Dh-gmX">
-                                                <rect key="frame" x="31" y="310" width="37" height="17"/>
+                                                <rect key="frame" x="31" y="290" width="37" height="17"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Sol" id="lvx-eQ-zpz">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -1057,15 +1045,14 @@
                                                 </textFieldCell>
                                             </textField>
                                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wgO-QM-Vhu">
-                                                <rect key="frame" x="74" y="234" width="294" height="70"/>
+                                                <rect key="frame" x="74" y="214" width="294" height="70"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="mnY-Fx-Woi">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                 </textFieldCell>
                                                 <connections>
-                                                    <binding destination="8om-YV-xhG" name="value" keyPath="selection.system.comment" id="L7T-iZ-M0h"/>
-                                                    <outlet property="delegate" destination="XfG-lQ-9wD" id="cJg-nG-VpV"/>
+                                                    <binding destination="8om-YV-xhG" name="value" keyPath="selection.system.note" id="yAf-wh-uoe"/>
                                                 </connections>
                                             </textField>
                                             <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Nd0-YB-u9M">
@@ -1167,7 +1154,7 @@
                                                 </tableHeaderView>
                                             </scrollView>
                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Oro-gX-KlZ">
-                                                <rect key="frame" x="18" y="450" width="87" height="17"/>
+                                                <rect key="frame" x="18" y="426" width="87" height="17"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="API key" id="4R6-86-t4A">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -1175,7 +1162,7 @@
                                                 </textFieldCell>
                                             </textField>
                                             <secureTextField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="E9u-Ne-y4z">
-                                                <rect key="frame" x="111" y="447" width="257" height="22"/>
+                                                <rect key="frame" x="111" y="423" width="257" height="22"/>
                                                 <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="Insert your API key" drawsBackground="YES" usesSingleLineMode="YES" id="LwC-Ag-eqa">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1186,11 +1173,11 @@
                                                 </secureTextFieldCell>
                                                 <connections>
                                                     <action selector="ESDMAccountChanged:" target="XfG-lQ-9wD" id="9G9-gT-aXH"/>
-                                                    <binding destination="QgB-gy-OgE" name="value" keyPath="values.EDSMApiKeyKey" id="jEA-AQ-6z8"/>
+                                                    <binding destination="w4z-Tg-Rgr" name="value" keyPath="selection.edsmAccount.apiKey" id="Jup-n3-7CC"/>
                                                 </connections>
                                             </secureTextField>
                                             <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="VEr-yq-6Kz">
-                                                <rect key="frame" x="337" y="526" width="37" height="32"/>
+                                                <rect key="frame" x="337" y="487" width="37" height="32"/>
                                                 <buttonCell key="cell" type="push" title="..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="gDc-V6-FYm">
                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                     <font key="font" metaFont="system"/>
@@ -1199,6 +1186,34 @@
                                                     <action selector="selectLogDirPathButtonTapped:" target="XfG-lQ-9wD" id="oba-b5-UoN"/>
                                                 </connections>
                                             </button>
+                                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mXh-cL-afl">
+                                                <rect key="frame" x="337" y="554" width="37" height="32"/>
+                                                <buttonCell key="cell" type="push" title="+" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ttT-HN-upA">
+                                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                    <font key="font" metaFont="system"/>
+                                                </buttonCell>
+                                                <connections>
+                                                    <action selector="newCommanderButtonTapped:" target="XfG-lQ-9wD" id="irw-A3-rig"/>
+                                                </connections>
+                                            </button>
+                                            <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Yro-Z3-P7m">
+                                                <rect key="frame" x="109" y="558" width="229" height="26"/>
+                                                <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="Seb-kq-Wwe" id="bP8-Sn-BbO">
+                                                    <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                                    <font key="font" metaFont="menu"/>
+                                                    <menu key="menu" id="JFL-6d-6rk">
+                                                        <items>
+                                                            <menuItem title="Item 1" state="on" id="Seb-kq-Wwe"/>
+                                                            <menuItem title="Item 2" id="aFA-Gw-jzE"/>
+                                                            <menuItem title="Item 3" id="7Sx-5K-Gue"/>
+                                                        </items>
+                                                    </menu>
+                                                </popUpButtonCell>
+                                                <connections>
+                                                    <action selector="commanderSelected:" target="XfG-lQ-9wD" id="YRl-8j-YLr"/>
+                                                    <binding destination="w4z-Tg-Rgr" name="content" keyPath="arrangedObjects.name" id="46A-lT-C7w"/>
+                                                </connections>
+                                            </popUpButton>
                                         </subviews>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="388" id="mIB-GG-mhr"/>
@@ -1223,16 +1238,18 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="coreDataContent" destination="8om-YV-xhG" id="P32-b0-cU7"/>
+                        <outlet property="cmdrArrayController" destination="w4z-Tg-Rgr" id="Bjr-79-ahc"/>
+                        <outlet property="cmdrSelButton" destination="Yro-Z3-P7m" id="HRq-0f-chW"/>
                         <outlet property="distancesTableView" destination="FTN-4D-V9h" id="xsr-1l-3Br"/>
-                        <outlet property="tableView" destination="Bam-q7-TPi" id="bvG-mV-dDy"/>
+                        <outlet property="jumpsArrayController" destination="8om-YV-xhG" id="fUw-hF-cEB"/>
+                        <outlet property="jumpsTableView" destination="Bam-q7-TPi" id="vSu-ML-3Bn"/>
                         <outlet property="textView" destination="5Gy-pe-5Yw" id="Fmv-yb-5un"/>
                     </connections>
                 </viewController>
                 <numberFormatter formatterBehavior="custom10_4" positiveFormat="#,##0.00" negativeFormat="-#,##0.00" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" minimumFractionDigits="2" maximumFractionDigits="2" decimalSeparator="," groupingSeparator="." id="D4e-r5-LFl"/>
                 <numberFormatter formatterBehavior="custom10_4" positiveFormat="#,##0.00" negativeFormat="-#,##0.00" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" minimumFractionDigits="2" maximumFractionDigits="2" decimalSeparator="," groupingSeparator="." id="4tu-Yh-bac"/>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-                <arrayController mode="entity" entityName="Jump" automaticallyPreparesContent="YES" preservesSelection="NO" automaticallyRearrangesObjects="YES" id="8om-YV-xhG" userLabel="Core Data">
+                <arrayController mode="entity" entityName="Jump" preservesSelection="NO" automaticallyRearrangesObjects="YES" id="8om-YV-xhG" userLabel="Jumps">
                     <declaredKeys>
                         <string>time</string>
                         <string>system</string>
@@ -1240,9 +1257,9 @@
                         <string>note</string>
                     </declaredKeys>
                 </arrayController>
-                <userDefaultsController representsSharedInstance="YES" id="QgB-gy-OgE"/>
+                <arrayController mode="entity" entityName="Commander" editable="NO" preservesSelection="NO" avoidsEmptySelection="NO" id="w4z-Tg-Rgr" userLabel="Commander"/>
             </objects>
-            <point key="canvasLocation" x="-516" y="1836"/>
+            <point key="canvasLocation" x="75" y="1408"/>
         </scene>
         <!--EDDiscovery-->
         <scene sceneID="oXk-4v-jIb">
@@ -1294,7 +1311,7 @@
                 </viewController>
                 <customObject id="Bce-dR-bhA" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="75" y="1270"/>
+            <point key="canvasLocation" x="952" y="948"/>
         </scene>
         <!--Screenshots-->
         <scene sceneID="JOG-w2-sk5">
@@ -1332,7 +1349,7 @@
                 </viewController>
                 <customObject id="w3s-Jv-f7p" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="602" y="1270"/>
+            <point key="canvasLocation" x="952" y="534"/>
         </scene>
     </scenes>
 </document>
