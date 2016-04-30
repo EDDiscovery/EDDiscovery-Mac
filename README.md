@@ -35,6 +35,7 @@ All this is done automatically without user interaction.
 
 UI side, at present you can:
 - switch between different commanders (each will have its own settings and data)
+- add / delete commanders
 - browse your jump history
 - select single jumps and see system information
 - add / edit / removed comments (changes will be synced to EDSM)
