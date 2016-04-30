@@ -157,11 +157,57 @@
     }
     
     if (exists == YES && isDir == YES) {
-      Commander.activeCommander.netLogFilesDir = path;
+      NSArray *commanders = [Commander commanders];
+      BOOL     goOn       = YES;
       
-      [NetLogParser instanceWithCommander:Commander.activeCommander];
-    }
+      for (Commander *commander in commanders) {
+        if ([Commander.activeCommander.name isEqualToString:commander.name] == NO) {
+          if ([path isEqualToString:commander.netLogFilesDir]) {
+            goOn = NO;
 
+            NSAlert *alert = [[NSAlert alloc] init];
+            
+            alert.messageText = [NSLocalizedString(@"This path is already in use by commander $$", @"") stringByReplacingOccurrencesOfString:@"$$" withString:commander.name];
+            alert.informativeText = NSLocalizedString(@"Plase select a different path", @"");
+            
+            [alert addButtonWithTitle:NSLocalizedString(@"OK", @"")];
+            
+            [alert runModal];
+            
+            break;
+          }
+        }
+        else if ([path isEqualToString:commander.netLogFilesDir] == NO && commander.netLogFilesDir.length > 0) {
+          NSAlert *alert = [[NSAlert alloc] init];
+          
+          alert.messageText = NSLocalizedString(@"Are you sure you want to change log files directory?", @"");
+          alert.informativeText = NSLocalizedString(@"All jumps parsed from current directory will be lost!", @"");
+          
+          [alert addButtonWithTitle:NSLocalizedString(@"OK", @"")];
+          [alert addButtonWithTitle:NSLocalizedString(@"Cancel", @"")];
+          
+          NSInteger button = [alert runModal];
+          
+          if (button != NSAlertFirstButtonReturn) {
+            goOn = NO;
+          }
+        }
+      }
+      
+      if (goOn == YES) {
+        Commander.activeCommander.netLogFilesDir = path;
+      }
+    }
+    else {
+      NSAlert *alert = [[NSAlert alloc] init];
+      
+      alert.messageText = NSLocalizedString(@"Invalid path", @"");
+      alert.informativeText = NSLocalizedString(@"Plase select a different path", @"");
+      
+      [alert addButtonWithTitle:NSLocalizedString(@"OK", @"")];
+      
+      [alert runModal];
+    }
   }
 }
 

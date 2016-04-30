@@ -29,9 +29,9 @@
 #pragma mark -
 #pragma mark instance management
 
+static NetLogParser *instance = nil;
+
 + (NetLogParser *)instanceWithCommander:(Commander *)commander {
-  static NetLogParser *instance = nil;
-  
   if (instance == nil || instance->commander != commander) {
     instance = [[NetLogParser alloc] initInstance:commander];
   }
@@ -66,6 +66,10 @@
   }
   
   return self;
+}
+
+- (void)stopInstance {
+  instance = nil;
 }
 
 - (void)dealloc {
@@ -179,7 +183,7 @@
     for (NSDictionary *netLogData in netLogs) {
       NSString   *netLog     = netLogData[FILE_KEY];
       NSString   *path       = [commander.netLogFilesDir stringByAppendingPathComponent:netLog];
-      NetLogFile *netLogFile = [NetLogFile netLogFileWithPath:path inContext:context];
+      NetLogFile *netLogFile = [NetLogFile netLogFileWithPath:path];
       
       if (netLogFile == nil) {
         NSString *className = NSStringFromClass(NetLogFile.class);

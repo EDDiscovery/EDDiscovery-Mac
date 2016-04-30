@@ -15,5 +15,6 @@
 @interface NetLogParser : NSObject
 
 + (NetLogParser *)instanceWithCommander:(Commander *)commander;
+- (void)stopInstance;
 
 @end
