@@ -6,8 +6,8 @@ This is a work in progress.
 Needless to say, you need to enable verbose logging on your ED installation.
 
 At first launch, you should set:
+- your CMDR name
 - your ED log path
-- your ESDM cmdr name
 - your EDSM api key
 
 After configuring your data, the application will:
@@ -34,6 +34,7 @@ After launch and while it is running, the application will:
 All this is done automatically without user interaction.
 
 UI side, at present you can:
+- switch between different commanders (each will have its own settings and data)
 - browse your jump history
 - select single jumps and see system information
 - add / edit / removed comments (changes will be synced to EDSM)
