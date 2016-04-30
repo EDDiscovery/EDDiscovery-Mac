@@ -1188,16 +1188,16 @@
                                             </button>
                                             <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mXh-cL-afl">
                                                 <rect key="frame" x="337" y="554" width="37" height="32"/>
-                                                <buttonCell key="cell" type="push" title="+" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ttT-HN-upA">
+                                                <buttonCell key="cell" type="push" title="-" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ttT-HN-upA">
                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                     <font key="font" metaFont="system"/>
                                                 </buttonCell>
                                                 <connections>
-                                                    <action selector="newCommanderButtonTapped:" target="XfG-lQ-9wD" id="irw-A3-rig"/>
+                                                    <action selector="deleteCommanderButtonTapped:" target="XfG-lQ-9wD" id="TKk-AU-Uxw"/>
                                                 </connections>
                                             </button>
                                             <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Yro-Z3-P7m">
-                                                <rect key="frame" x="109" y="558" width="229" height="26"/>
+                                                <rect key="frame" x="109" y="558" width="196" height="26"/>
                                                 <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="Seb-kq-Wwe" id="bP8-Sn-BbO">
                                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                                     <font key="font" metaFont="menu"/>
@@ -1214,6 +1214,16 @@
                                                     <binding destination="w4z-Tg-Rgr" name="content" keyPath="arrangedObjects.name" id="46A-lT-C7w"/>
                                                 </connections>
                                             </popUpButton>
+                                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="02q-w4-KUF">
+                                                <rect key="frame" x="304" y="554" width="37" height="32"/>
+                                                <buttonCell key="cell" type="push" title="+" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="sWA-II-m7s">
+                                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                    <font key="font" metaFont="system"/>
+                                                </buttonCell>
+                                                <connections>
+                                                    <action selector="newCommanderButtonTapped:" target="XfG-lQ-9wD" id="uCT-Cp-BOH"/>
+                                                </connections>
+                                            </button>
                                         </subviews>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="388" id="mIB-GG-mhr"/>
@@ -1240,6 +1250,7 @@
                     <connections>
                         <outlet property="cmdrArrayController" destination="w4z-Tg-Rgr" id="Bjr-79-ahc"/>
                         <outlet property="cmdrSelButton" destination="Yro-Z3-P7m" id="HRq-0f-chW"/>
+                        <outlet property="deleteCommanderButton" destination="mXh-cL-afl" id="zF4-uh-nPE"/>
                         <outlet property="distancesTableView" destination="FTN-4D-V9h" id="xsr-1l-3Br"/>
                         <outlet property="jumpsArrayController" destination="8om-YV-xhG" id="fUw-hF-cEB"/>
                         <outlet property="jumpsTableView" destination="Bam-q7-TPi" id="vSu-ML-3Bn"/>

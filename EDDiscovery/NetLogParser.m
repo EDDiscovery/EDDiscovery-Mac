@@ -73,8 +73,6 @@ static NetLogParser *instance = nil;
 }
 
 - (void)dealloc {
-  NSLog(@"%s (%@)", __FUNCTION__, commander.name);
-  
   if (currNetLogFile.path.length > 0) {
     [queue removePathFromQueue:currNetLogFile.path];
   }

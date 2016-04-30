@@ -35,7 +35,7 @@
   return apiKey;
 }
 
-- (void)setApiKey:(NSString *)newApiKey {
+- (void)setApiKey:(nullable NSString *)newApiKey {
   NSAssert(self.commander.name.length > 0, @"Must have commander name!");
   
   if (self.commander.name.length > 0) {

@@ -28,6 +28,7 @@
   IBOutlet NSArrayController *jumpsArrayController;
   IBOutlet NSTableView       *jumpsTableView;
   IBOutlet NSTableView       *distancesTableView;
+  IBOutlet NSButton          *deleteCommanderButton;
 }
 
 #pragma mark -
@@ -265,23 +266,59 @@
   }
 }
 
+- (IBAction)deleteCommanderButtonTapped:(id)sender {
+  NSAlert *alert = [[NSAlert alloc] init];
+  
+  alert.messageText = [NSLocalizedString(@"Are you sure you want to delete commander $$?", @"") stringByReplacingOccurrencesOfString:@"$$" withString:Commander.activeCommander.name];
+  alert.informativeText = NSLocalizedString(@"This operation cannot be undone!", @"");
+  
+  [alert addButtonWithTitle:NSLocalizedString(@"OK", @"")];
+  [alert addButtonWithTitle:NSLocalizedString(@"Cancel", @"")];
+  
+  NSInteger button = [alert runModal];
+  
+  if (button == NSAlertFirstButtonReturn) {
+    [Commander.activeCommander deleteCommander];
+    
+    [Commander setActiveCommander:nil];
+    
+    [self activeCommanderDidChange];
+  }
+}
+
 - (void)activeCommanderDidChange {
   Commander *commander = Commander.activeCommander;
   NSString  *name      = commander.name;
+  
+  if (name.length == 0) {
+    if ([cmdrArrayController.arrangedObjects count] > 0) {
+      commander = cmdrArrayController.arrangedObjects[0];
+      name      = commander.name;
+      
+      Commander.activeCommander = commander;
+    }
+  }
   
   NSLog(@"%s: %@", __FUNCTION__, name);
   
   [EventLogger clearLogs];
   
+  if (name.length > 0) {
+    [cmdrSelButton selectItemWithTitle:name];
+    
+    [cmdrArrayController setSelectedObjects:@[commander]];
+    
+    [jumpsArrayController setFetchPredicate:CMDR_PREDICATE];
+    [jumpsArrayController fetchWithRequest:nil merge:NO error:nil];
+    
+    deleteCommanderButton.enabled = YES;
+  }
+  else {
+    deleteCommanderButton.enabled = NO;
+  }
+  
   [System updateSystemsFromEDSM:^{
     if (name.length > 0) {
-      [cmdrSelButton selectItemWithTitle:name];
-      
-      [cmdrArrayController setSelectedObjects:@[commander]];
-      
-      [jumpsArrayController setFetchPredicate:CMDR_PREDICATE];
-      [jumpsArrayController fetchWithRequest:nil merge:NO error:nil];
-      
       if ([NetLogParser instanceWithCommander:Commander.activeCommander] == nil) {
         [self ESDMAccountChanged:nil];
       }

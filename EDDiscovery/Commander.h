@@ -16,11 +16,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface Commander : NSManagedObject
 
 + (Commander *)activeCommander;
-+ (void)setActiveCommander:(Commander *)commander;
++ (void)setActiveCommander:(nullable Commander *)commander;
 + (Commander *)createCommanderWithName:(NSString *)name;
 
 + (Commander *)commanderWithName:(NSString *)name;
 + (NSArray *)commanders;
+
+- (void)deleteCommander;
 
 @end
 

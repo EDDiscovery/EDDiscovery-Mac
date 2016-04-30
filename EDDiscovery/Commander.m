@@ -37,10 +37,15 @@ static Commander *activeCommander = nil;
   return activeCommander;
 }
 
-+ (void)setActiveCommander:(Commander *)commander {
++ (void)setActiveCommander:(nullable Commander *)commander {
   activeCommander = commander;
   
-  [NSUserDefaults.standardUserDefaults setObject:commander.name forKey:ACTIVE_COMMANDER_KEY];
+  if (commander.name.length > 0) {
+    [NSUserDefaults.standardUserDefaults setObject:commander.name forKey:ACTIVE_COMMANDER_KEY];
+  }
+  else {
+    [NSUserDefaults.standardUserDefaults removeObjectForKey:ACTIVE_COMMANDER_KEY];
+  }
 }
 
 + (Commander *)createCommanderWithName:(NSString *)name {
@@ -178,6 +183,37 @@ static Commander *activeCommander = nil;
   }
 }
 
+#pragma mark -
+#pragma mark deletion
 
+- (void)deleteCommander {
+  if (self.netLogFilesDir.length > 0) {
+    NetLogParser *parser = [NetLogParser instanceWithCommander:self];
+    
+    [parser stopInstance];
+    parser = nil;
+  }
+
+  NSArray *jumps = [Jump allJumpsOfCommander:self];
+  
+  for (Jump *jump in jumps) {
+    [jump.managedObjectContext deleteObject:jump];
+  }
+
+  NSLog(@"Deleted %ld jumps from travel history", (long)jumps.count);
+  
+  self.edsmAccount.apiKey = nil;
+  
+  [self.managedObjectContext deleteObject:self];
+  
+  NSError *error = nil;
+  
+  [self.managedObjectContext save:&error];
+  
+  if (error != nil) {
+    NSLog(@"%s: ERROR: cannot save context: %@", __FUNCTION__, error);
+    exit(-1);
+  }
+}
 
 @end
