@@ -14,6 +14,10 @@
 		D91CAA741CD416F10087BC07 /* Note.m in Sources */ = {isa = PBXBuildFile; fileRef = D91CAA721CD416F10087BC07 /* Note.m */; };
 		D920C9E71CCFA42D0087BC07 /* Distance+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = D920C9E41CCFA42D0087BC07 /* Distance+CoreDataProperties.m */; };
 		D920C9E81CCFA42D0087BC07 /* Distance.m in Sources */ = {isa = PBXBuildFile; fileRef = D920C9E61CCFA42D0087BC07 /* Distance.m */; };
+		D92ED45D1CD811F00087BC07 /* SuggestedReferences.m in Sources */ = {isa = PBXBuildFile; fileRef = D92ED45C1CD811F00087BC07 /* SuggestedReferences.m */; };
+		D92ED4601CD812D20087BC07 /* ReferencesSector.m in Sources */ = {isa = PBXBuildFile; fileRef = D92ED45F1CD812D20087BC07 /* ReferencesSector.m */; };
+		D92ED4631CD819890087BC07 /* ReferenceSystem.m in Sources */ = {isa = PBXBuildFile; fileRef = D92ED4621CD819890087BC07 /* ReferenceSystem.m */; };
+		D92ED4661CD81C820087BC07 /* SystemData.m in Sources */ = {isa = PBXBuildFile; fileRef = D92ED4651CD81C820087BC07 /* SystemData.m */; };
 		D94DE2931CC4EA0E0087BC07 /* EDDiscovery.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2911CC4EA0E0087BC07 /* EDDiscovery.xcdatamodeld */; };
 		D94DE2B41CC4FF320087BC07 /* CoreDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2B31CC4FF320087BC07 /* CoreDataManager.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		D94DE2DF1CC5024D0087BC07 /* DBVersion+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2CE1CC5024D0087BC07 /* DBVersion+CoreDataProperties.m */; };
@@ -32,6 +36,7 @@
 		D952CAB91CD371BF0087BC07 /* Commander.m in Sources */ = {isa = PBXBuildFile; fileRef = D952CAB71CD371BF0087BC07 /* Commander.m */; };
 		D95E150D1CC42DE40087BC07 /* HttpApiManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D95E150C1CC42DE40087BC07 /* HttpApiManager.m */; };
 		D95E15131CC42E620087BC07 /* EDSMConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = D95E15121CC42E620087BC07 /* EDSMConnection.m */; };
+		D9B5622B1CD787800087BC07 /* TrilaterationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D9B5622A1CD787800087BC07 /* TrilaterationViewController.m */; };
 		D9BAB5DD1CC0F7D80087BC07 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB5DC1CC0F7D80087BC07 /* AppDelegate.m */; };
 		D9BAB5E01CC0F7D80087BC07 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB5DF1CC0F7D80087BC07 /* main.m */; };
 		D9BAB5E31CC0F7D80087BC07 /* TravelHistoryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB5E21CC0F7D80087BC07 /* TravelHistoryViewController.m */; };
@@ -59,6 +64,14 @@
 		D920C9E41CCFA42D0087BC07 /* Distance+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Distance+CoreDataProperties.m"; sourceTree = "<group>"; };
 		D920C9E51CCFA42D0087BC07 /* Distance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Distance.h; sourceTree = "<group>"; };
 		D920C9E61CCFA42D0087BC07 /* Distance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Distance.m; sourceTree = "<group>"; };
+		D92ED45B1CD811F00087BC07 /* SuggestedReferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SuggestedReferences.h; sourceTree = "<group>"; };
+		D92ED45C1CD811F00087BC07 /* SuggestedReferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SuggestedReferences.m; sourceTree = "<group>"; };
+		D92ED45E1CD812D20087BC07 /* ReferencesSector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReferencesSector.h; sourceTree = "<group>"; };
+		D92ED45F1CD812D20087BC07 /* ReferencesSector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReferencesSector.m; sourceTree = "<group>"; };
+		D92ED4611CD819890087BC07 /* ReferenceSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReferenceSystem.h; sourceTree = "<group>"; };
+		D92ED4621CD819890087BC07 /* ReferenceSystem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReferenceSystem.m; sourceTree = "<group>"; };
+		D92ED4641CD81C820087BC07 /* SystemData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SystemData.h; sourceTree = "<group>"; };
+		D92ED4651CD81C820087BC07 /* SystemData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SystemData.m; sourceTree = "<group>"; };
 		D94DE2921CC4EA0E0087BC07 /* EDDiscovery.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = EDDiscovery.xcdatamodel; sourceTree = "<group>"; };
 		D94DE2B21CC4FF320087BC07 /* CoreDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreDataManager.h; sourceTree = "<group>"; };
 		D94DE2B31CC4FF320087BC07 /* CoreDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreDataManager.m; sourceTree = "<group>"; };
@@ -94,6 +107,8 @@
 		D95E150C1CC42DE40087BC07 /* HttpApiManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HttpApiManager.m; sourceTree = "<group>"; };
 		D95E15111CC42E620087BC07 /* EDSMConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EDSMConnection.h; sourceTree = "<group>"; };
 		D95E15121CC42E620087BC07 /* EDSMConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EDSMConnection.m; sourceTree = "<group>"; };
+		D9B562291CD787800087BC07 /* TrilaterationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrilaterationViewController.h; sourceTree = "<group>"; };
+		D9B5622A1CD787800087BC07 /* TrilaterationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TrilaterationViewController.m; sourceTree = "<group>"; };
 		D9BAB5D81CC0F7D80087BC07 /* EDDiscovery.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EDDiscovery.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9BAB5DB1CC0F7D80087BC07 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D9BAB5DC1CC0F7D80087BC07 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -128,6 +143,7 @@
 		D94DE2901CC4E9E50087BC07 /* Data management */ = {
 			isa = PBXGroup;
 			children = (
+				D9B5622C1CD7B1150087BC07 /* Trilateration */,
 				D94DE2911CC4EA0E0087BC07 /* EDDiscovery.xcdatamodeld */,
 				D952CAB41CD371BF0087BC07 /* Commander+CoreDataProperties.h */,
 				D952CAB51CD371BF0087BC07 /* Commander+CoreDataProperties.m */,
@@ -225,6 +241,8 @@
 				D9BAB5DC1CC0F7D80087BC07 /* AppDelegate.m */,
 				D9BAB5E11CC0F7D80087BC07 /* TravelHistoryViewController.h */,
 				D9BAB5E21CC0F7D80087BC07 /* TravelHistoryViewController.m */,
+				D9B562291CD787800087BC07 /* TrilaterationViewController.h */,
+				D9B5622A1CD787800087BC07 /* TrilaterationViewController.m */,
 				D9BAB5E61CC0F7D80087BC07 /* Main.storyboard */,
 			);
 			name = GUI;
@@ -264,6 +282,21 @@
 				D91CAA311CD3F8920087BC07 /* SSKeychain.m */,
 			);
 			name = "Keychain access";
+			sourceTree = "<group>";
+		};
+		D9B5622C1CD7B1150087BC07 /* Trilateration */ = {
+			isa = PBXGroup;
+			children = (
+				D92ED45B1CD811F00087BC07 /* SuggestedReferences.h */,
+				D92ED45C1CD811F00087BC07 /* SuggestedReferences.m */,
+				D92ED45E1CD812D20087BC07 /* ReferencesSector.h */,
+				D92ED45F1CD812D20087BC07 /* ReferencesSector.m */,
+				D92ED4611CD819890087BC07 /* ReferenceSystem.h */,
+				D92ED4621CD819890087BC07 /* ReferenceSystem.m */,
+				D92ED4641CD81C820087BC07 /* SystemData.h */,
+				D92ED4651CD81C820087BC07 /* SystemData.m */,
+			);
+			name = Trilateration;
 			sourceTree = "<group>";
 		};
 		D9BAB5CF1CC0F7D80087BC07 = {
@@ -388,16 +421,21 @@
 				D94DE2FB1CC5028B0087BC07 /* Image+CoreDataProperties.m in Sources */,
 				D94DE3101CC510D00087BC07 /* NetLogFile.m in Sources */,
 				D9BAB6351CC126470087BC07 /* UKFileWatcher.m in Sources */,
+				D92ED4631CD819890087BC07 /* ReferenceSystem.m in Sources */,
 				D94DE30F1CC510D00087BC07 /* NetLogFile+CoreDataProperties.m in Sources */,
 				D94DE2931CC4EA0E0087BC07 /* EDDiscovery.xcdatamodeld in Sources */,
+				D9B5622B1CD787800087BC07 /* TrilaterationViewController.m in Sources */,
 				D95E15131CC42E620087BC07 /* EDSMConnection.m in Sources */,
 				D91CAA731CD416F10087BC07 /* Note+CoreDataProperties.m in Sources */,
 				D94DE2DF1CC5024D0087BC07 /* DBVersion+CoreDataProperties.m in Sources */,
 				D917A8E81CC672E20087BC07 /* EDSM+CoreDataProperties.m in Sources */,
 				D94DE2B41CC4FF320087BC07 /* CoreDataManager.m in Sources */,
+				D92ED4661CD81C820087BC07 /* SystemData.m in Sources */,
 				D91CAA741CD416F10087BC07 /* Note.m in Sources */,
 				D94DE2FF1CC5028B0087BC07 /* System+CoreDataProperties.m in Sources */,
 				D952CAB81CD371BF0087BC07 /* Commander+CoreDataProperties.m in Sources */,
+				D92ED45D1CD811F00087BC07 /* SuggestedReferences.m in Sources */,
+				D92ED4601CD812D20087BC07 /* ReferencesSector.m in Sources */,
 				D9BAB6361CC126470087BC07 /* UKFNSubscribeFileWatcher.m in Sources */,
 				D920C9E71CCFA42D0087BC07 /* Distance+CoreDataProperties.m in Sources */,
 				D9BAB6391CC126470087BC07 /* UKMainThreadProxy.m in Sources */,

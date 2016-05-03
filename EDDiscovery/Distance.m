@@ -15,4 +15,14 @@
 
 @implementation Distance
 
+- (NSString *)status {
+  NSString *status = NSLocalizedString(@"OK", @"");
+  
+  if (self.distance != self.calculatedDistance) {
+    status = NSLocalizedString(@"Wrong distance?", @"");
+  }
+  
+  return status;
+}
+
 @end

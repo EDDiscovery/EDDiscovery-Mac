@@ -20,6 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)printStatsOfCommander:(Commander *)commander;
 + (NSArray *)allJumpsOfCommander:(Commander *)commander;
 + (Jump *)lastJumpOfCommander:(Commander *)commander;
++ (Jump *)lastXYZJumpOfCommander:(Commander *)commander;
 
 @property(nonatomic, readonly) NSNumber *distanceFromPreviousJump;
 

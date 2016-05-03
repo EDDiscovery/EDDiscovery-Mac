@@ -327,4 +327,55 @@ NSString* locale=nil;
               multiparts:args];
 }
 
++(void)callApi:(NSString*)apiName withBody:(NSData*)aBody responseCallback:(void(^)(id response, NSError *error))callback {
+  NSMutableString* urlString;
+  if (apiName!=nil)
+  {
+    urlString=[NSMutableString stringWithFormat:@"%@/%@",
+               baseUrl,
+               apiName];
+  }
+  else
+  {
+    urlString=[NSMutableString stringWithFormat:@"%@",baseUrl];
+  }
+//#ifdef HTTP_API_MANAGER_DEBUG
+//  NSLog(@"---------- Request ----------");
+//  NSLog(@"%@",urlString);
+//  NSLog(@"---------- Parameters ----------");
+//  NSLog(@"%@",postDataString);
+//#endif
+  
+  dispatch_async(queue, ^{
+    NSMutableURLRequest *request;
+    request=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
+    [request setHTTPMethod:@"POST"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    [request setHTTPBody:aBody];
+    NSError* error=nil;
+    NSData *data=[NSURLConnection sendSynchronousRequest:request returningResponse:nil error:&error];
+    NSString *string=[[NSString alloc] initWithBytes: [data bytes] length:[data length] encoding: NSUTF8StringEncoding];
+    
+#ifdef HTTP_API_MANAGER_DEBUG
+    NSLog(@"---------- Request ----------");
+    NSLog(@"%@",urlString);
+    NSLog(@"---------- body ----------");
+    NSLog(@"%@",[[NSString alloc] initWithData:aBody encoding:NSUTF8StringEncoding]);
+    NSLog(@"---------- Response ----------");
+    NSLog(@"%@",string);
+#endif
+    
+    if (error!=nil)
+    {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        callback(nil,error);
+      });
+      return;
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+      callback(data,nil);
+    });
+  });
+}
+
 @end

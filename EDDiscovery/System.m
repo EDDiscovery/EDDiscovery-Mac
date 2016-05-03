@@ -6,6 +6,8 @@
 //  Copyright © 2016 Michele Noberasco. All rights reserved.
 //
 
+#import <objc/runtime.h>
+
 #import "System.h"
 #import "Image.h"
 #import "EDSMConnection.h"
@@ -15,18 +17,24 @@
 #import "Distance.h"
 #import "Note.h"
 #import "EDSM.h"
+#import "CoreDataManager.h"
+
+#import "SuggestedReferences.h"
+#import "Jump.h"
+#import "ReferenceSystem.h"
 
 @implementation System {
   NSArray *distanceSortDescriptors;
   NSArray *sortedDistances;
 }
 
-+ (NSArray *)allSystemsInContext:(NSManagedObjectContext *)context {
-  NSString            *className = NSStringFromClass([System class]);
-  NSFetchRequest      *request   = [[NSFetchRequest alloc] init];
-  NSEntityDescription *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
-  NSError             *error     = nil;
-  NSArray             *array     = nil;
++ (NSArray *)allSystems {
+  NSManagedObjectContext *context   = CoreDataManager.instance.managedObjectContext;
+  NSString               *className = NSStringFromClass([System class]);
+  NSFetchRequest         *request   = [[NSFetchRequest alloc] init];
+  NSEntityDescription    *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
+  NSError                *error     = nil;
+  NSArray                *array     = nil;
   
   request.entity                 = entity;
   request.returnsObjectsAsFaults = NO;
@@ -38,13 +46,14 @@
   return array;
 }
 
-+ (System *)systemWithName:(NSString *)name inContext:(NSManagedObjectContext *)context {
-  NSString            *className = NSStringFromClass([System class]);
-  NSFetchRequest      *request   = [[NSFetchRequest alloc] init];
-  NSEntityDescription *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
-  NSPredicate         *predicate = [NSPredicate predicateWithFormat:@"name == %@", name];
-  NSError             *error     = nil;
-  NSArray             *array     = nil;
++ (System *)systemWithName:(NSString *)name {
+  NSManagedObjectContext *context   = CoreDataManager.instance.managedObjectContext;
+  NSString               *className = NSStringFromClass([System class]);
+  NSFetchRequest         *request   = [[NSFetchRequest alloc] init];
+  NSEntityDescription    *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
+  NSPredicate            *predicate = [NSPredicate predicateWithFormat:@"name == %@", name];
+  NSError                *error     = nil;
+  NSArray                *array     = nil;
   
   request.entity                 = entity;
   request.predicate              = predicate;
@@ -100,7 +109,7 @@
       [EventLogger addLog:[NSString stringWithFormat:@"Received %ld new systems from EDSM", (long)response.count]];
       
       NSManagedObjectContext *context    = CoreDataManager.instance.managedObjectContext;
-      NSMutableArray         *systems    = [[self allSystemsInContext:context] mutableCopy];
+      NSMutableArray         *systems    = [[self allSystems] mutableCopy];
       NSMutableArray         *names      = [NSMutableArray arrayWithCapacity:systems.count];
       NSUInteger              numAdded   = 0;
       NSUInteger              numUpdated = 0;
@@ -323,6 +332,41 @@
   [self willChangeValueForKey:@"sortedDistances"];
   sortedDistances = [self.distances sortedArrayUsingDescriptors:self.distanceSortDescriptors];
   [self didChangeValueForKey:@"sortedDistances"];
+}
+
+- (NSArray <System *> *)suggestedReferences {
+  static char key;
+  
+  NSMutableArray <System *> *suggestedSystems = objc_getAssociatedObject(self, &key);
+  
+  if (suggestedSystems == nil) {
+    [self willChangeValueForKey:@"suggestedReferences"];
+  
+    Jump *jump = [Jump lastXYZJumpOfCommander:Commander.activeCommander];
+    SuggestedReferences *references = [[SuggestedReferences alloc] initWithLastKnownPosition:jump.system];
+    
+    suggestedSystems = [NSMutableArray array];
+    
+    int count = 16;
+    
+    for (int ii = 0; ii < count; ii++)
+    {
+      ReferenceSystem *rsys = [references getCandidate];
+      if (rsys == nil) break;
+      System *system = rsys.system;
+      [references addReferenceStar:system];
+      
+      NSLog(@"%@ Dist:%.2f x:%f y:%f z:%f", system.name, rsys.distance, system.x, system.y, system.z);
+
+      [suggestedSystems addObject:system];
+    }
+    
+    objc_setAssociatedObject(self, &key, suggestedSystems, OBJC_ASSOCIATION_RETAIN);
+    
+    [self didChangeValueForKey:@"suggestedReferences"];
+  }
+  
+  return suggestedSystems;
 }
 
 - (NSString *)note {

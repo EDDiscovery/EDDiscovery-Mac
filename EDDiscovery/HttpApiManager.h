@@ -41,7 +41,9 @@
 // });
 +(void)callApi:(NSString*)apiName withMethod:(NSString*)aMethod sendCredential:(BOOL)isLogin responseCallback:(void(^)(id response, NSError *error))callback parametersCount:(NSInteger)count parameters:(va_list)valist;
 +(void)callApi:(NSString*)apiName withMethod:(NSString*)aMethod sendCredential:(BOOL)isLogin responseCallback:(void(^)(id response, NSError *error))callback parameters:(NSInteger)count,...;
++(void)callApi:(NSString*)apiName withBody:(NSData*)aBody responseCallback:(void(^)(id response, NSError *error))callback;
 +(void)callApi:(NSString*)apiName responseCallback:(void(^)(id response, NSError *error))callback multipartsCount:(NSInteger)count multiparts:(va_list)valist;
 +(void)callApi:(NSString*)apiName responseCallback:(void(^)(id response, NSError *error))callback multiparts:(NSInteger)count,...;
+
 
 @end

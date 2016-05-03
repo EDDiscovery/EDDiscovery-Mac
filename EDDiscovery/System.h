@@ -18,18 +18,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface System : NSManagedObject
 
-+ (NSArray *)allSystemsInContext:(NSManagedObjectContext *)context;
-+ (System *)systemWithName:(NSString *)name inContext:(NSManagedObjectContext *)context;
++ (NSArray *)allSystems;
++ (System *)systemWithName:(NSString *)name;
 + (void)updateSystemsFromEDSM:(void(^)(void))response;
 
 - (NSUInteger)numVisits;
 - (BOOL)hasCoordinates;
 - (NSNumber *)distanceToSol;
 
+- (NSArray <System *> *)suggestedReferences;
+
 - (void)updateFromEDSM:(void(^__nullable)(void))response;
 
 @property(nonatomic, strong  ) NSArray  *distanceSortDescriptors;
 @property(nonatomic, readonly) NSArray  *sortedDistances;
+@property(nonatomic, readonly) NSArray  *suggestedReferences;
 @property(nonatomic, strong  ) NSString *note;
 
 @end

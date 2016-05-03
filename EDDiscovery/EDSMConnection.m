@@ -58,6 +58,46 @@ responseCallback:^(id data, NSError *error) {
    ];
 }
 
++ (void)getDistancesForSystem:(NSString *)systemName response:(void(^)(NSDictionary *response, NSError *error))response {
+  [self setup];
+  
+  [self callApi:@"api-v1/distances"
+     withMethod:@"POST"
+ sendCredential:NO
+responseCallback:^(id data, NSError *error) {
+  
+  if (error == nil) {
+    NSError      *error  = nil;
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+    
+    if (![result isKindOfClass:NSDictionary.class]) {
+      result = nil;
+    }
+    
+    response(result, error);
+  }
+  else {
+    response(nil, error);
+  }
+  
+}
+     parameters:4,
+   @"sysname",       systemName,
+   @"coords",        @"1",
+   @"distances",     @"1",
+   @"problems",      @"1"
+   //@"includeHidden", @"1"
+   ];
+}
+
++ (void)submitDistances:(NSData *)data response:(void(^)(NSDictionary *response, NSError *error))response {
+  [self callApi:@"api-v1/submit-distances"
+       withBody:data
+responseCallback:^(id data, NSError *error) {
+  response(data, error);
+}];  
+}
+
 + (void)getNightlyDumpWithResponse:(void(^)(NSArray *response, NSError *error))response {
   [self setup];
   

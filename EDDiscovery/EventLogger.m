@@ -10,6 +10,7 @@
 
 @implementation EventLogger {
   NSMutableString *currLine;
+  NSTextView      *textView;
 }
 
 #pragma mark -
@@ -45,6 +46,24 @@
 #pragma mark properties
 
 @synthesize currLine;
+
+- (NSTextView *)textView {
+  return textView;
+}
+
+- (void)setTextView:(NSTextView *)newTextView {
+  if (textView != newTextView) {
+    NSAttributedString *string = (textView != nil) ? self.textView.attributedString : nil;
+    
+    textView = newTextView;
+    
+    if (string != nil) {
+      textView.textStorage.attributedString = string;
+    
+      [self.textView scrollRangeToVisible:NSMakeRange(self.textView.string.length, 0)];
+    }
+  }
+}
 
 #pragma mark -
 #pragma mark user-visible debug logging
@@ -92,7 +111,9 @@
     formatter.dateFormat = @"HH:mm:ss - ";
   });
   
-  NSLog(@"%@", msg);
+  if (newline == YES) {
+    NSLog(@"%@", msg);
+  }
   
   if (self.textView.string.length > 0 && newline) {
     attr = [[NSAttributedString alloc] initWithString:@"\n" attributes:nil];

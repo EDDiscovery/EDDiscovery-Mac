@@ -19,6 +19,10 @@
 + (void)getSystemsInfoWithResponse:(void(^)(NSArray *response, NSError *error))response;
 + (void)getSystemInfo:(NSString *)systemName response:(void(^)(NSDictionary *response, NSError *error))response;
 
+//system distances
++ (void)getDistancesForSystem:(NSString *)systemName response:(void(^)(NSDictionary *response, NSError *error))response;
++ (void)submitDistances:(NSData *)data  response:(void(^)(NSDictionary *response, NSError *error))response;
+
 //commander travel logs
 + (void)getJumpsForCommander:(Commander *)commander response:(void(^)(NSArray *jumps, NSError *error))response;
 + (void)addJump:(Jump *)jump forCommander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(BOOL success, NSError *error))response;

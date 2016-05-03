@@ -182,7 +182,7 @@
       NSDate     *timestamp = [formatter dateFromString:jump[@"date"]];
       NSString   *className = NSStringFromClass(Jump.class);
       Jump       *jump      = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
-      System     *system    = [System systemWithName:name inContext:context];
+      System     *system    = [System systemWithName:name];
       NSUInteger  idx       = NSNotFound;
       
       NSLog(@"%@ - %@", timestamp, name);
@@ -321,7 +321,7 @@
                                      
                                      if (note == nil) {
                                        NSString *className = NSStringFromClass(Note.class);
-                                       System   *system    = [System systemWithName:name inContext:self.managedObjectContext];
+                                       System   *system    = [System systemWithName:name];
                                        
                                        if (system == nil) {
                                          NSString *className = NSStringFromClass(System.class);

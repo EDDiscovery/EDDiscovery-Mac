@@ -17,8 +17,9 @@
 #import "NetLogParser.h"
 #import "Distance.h"
 #import "Commander.h"
+#import "TrilaterationViewController.h"
 
-@interface TravelHistoryViewController() < NSTableViewDataSource, NSTabViewDelegate>
+@interface TravelHistoryViewController() <NSTableViewDataSource, NSTabViewDelegate, NSTabViewDelegate>
 @end
 
 @implementation TravelHistoryViewController {
@@ -52,6 +53,44 @@
     [self activeCommanderDidChange];
   });
 }
+
+- (void)viewWillAppear {
+  [super viewWillAppear];
+
+  EventLogger.instance.textView = textView;
+}
+
+//- (void)viewDidAppear {
+//  [super viewDidAppear];
+//  
+//  NSTabViewController *parent = (NSTabViewController *)self.parentViewController;
+//  
+//  if ([parent isKindOfClass:NSTabViewController.class]) {
+//    parent.tabView.delegate = self;
+//  }
+//}
+//
+//- (void)viewWillDisappear {
+//  [super viewDidDisappear];
+//  
+//  NSTabViewController *parent = (NSTabViewController *)self.parentViewController;
+//  
+//  if ([parent isKindOfClass:NSTabViewController.class]) {
+//    parent.tabView.delegate = nil;
+//  }
+//}
+//
+//#pragma mark -
+//#pragma mark NSTabView management
+//
+//- (void)tabView:(NSTabView *)tabView willSelectTabViewItem:(NSTabViewItem *)tabViewItem {
+//  if ([tabViewItem.viewController isKindOfClass:TrilaterationViewController.class]) {
+//    TrilaterationViewController *dest = (TrilaterationViewController *)tabViewItem.viewController;
+//    Jump                        *jump = [jumpsArrayController valueForKeyPath:@"selection.self"];
+//
+//    dest.system = jump.system;
+//  }
+//}
 
 #pragma mark -
 #pragma mark NSTableView management

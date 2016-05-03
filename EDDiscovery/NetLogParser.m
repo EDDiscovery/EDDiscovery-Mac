@@ -169,7 +169,7 @@ static NetLogParser *instance = nil;
     NSUInteger      numJumps  = 0;
     
     if (netLogs.count > 1) {
-      systems = [[System allSystemsInContext:context] mutableCopy];
+      systems = [[System allSystems] mutableCopy];
       names   = [NSMutableArray arrayWithCapacity:systems.count];
       jumps   = [[Jump allJumpsOfCommander:commander] mutableCopy];
       
@@ -407,7 +407,7 @@ static NetLogParser *instance = nil;
     System                 *system   = nil;
     
     if (systems == nil || names == nil) {
-      system = [System systemWithName:name inContext:context];
+      system = [System systemWithName:name];
     }
     else {
       NSUInteger idx = [names indexOfObject:name];
