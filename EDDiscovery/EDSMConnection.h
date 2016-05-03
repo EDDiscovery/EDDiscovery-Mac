@@ -20,7 +20,6 @@
 + (void)getSystemInfo:(NSString *)systemName response:(void(^)(NSDictionary *response, NSError *error))response;
 
 //system distances
-+ (void)getDistancesForSystem:(NSString *)systemName response:(void(^)(NSDictionary *response, NSError *error))response;
 + (void)submitDistances:(NSData *)data  response:(void(^)(NSDictionary *response, NSError *error))response;
 
 //commander travel logs

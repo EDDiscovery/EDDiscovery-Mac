@@ -32,7 +32,15 @@
     [self createSectors];
     [self addSystemsToSectors];
     
-    NSLog(@"FindCandidates time %.000f", [NSDate timeIntervalSinceReferenceDate] - ti);
+    NSLog(@"FindCandidates time %.3f", [NSDate timeIntervalSinceReferenceDate] - ti);
+    
+//    for (int i = 0; i < sections; i++)
+//    {
+//      for (int j = 0; j < sections/2; j++)
+//      {
+//        NSLog(@"%ld:%ld  %@  %ld", (long)i, (long)j, [sectors[i][j] name], (long)[sectors[i][j] candidatesCount]);
+//      }
+//    }
   }
   
   return self;
@@ -60,6 +68,15 @@
   int aznr, altnr;
   
   NSArray *globalSystems = [System allSystems];
+
+//  NSUInteger count =0;
+//  for (System *sys in globalSystems) {
+//    if (sys.hasCoordinates) {
+//      count++;
+//    }
+//  }
+//  
+//  NSLog(@"Have %ld systems (%ld with known coords)", globalSystems.count, count);
   
   for (System *sys in globalSystems) {
     if (sys.hasCoordinates) {

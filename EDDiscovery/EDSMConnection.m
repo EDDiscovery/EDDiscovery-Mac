@@ -58,38 +58,6 @@ responseCallback:^(id data, NSError *error) {
    ];
 }
 
-+ (void)getDistancesForSystem:(NSString *)systemName response:(void(^)(NSDictionary *response, NSError *error))response {
-  [self setup];
-  
-  [self callApi:@"api-v1/distances"
-     withMethod:@"POST"
- sendCredential:NO
-responseCallback:^(id data, NSError *error) {
-  
-  if (error == nil) {
-    NSError      *error  = nil;
-    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
-    
-    if (![result isKindOfClass:NSDictionary.class]) {
-      result = nil;
-    }
-    
-    response(result, error);
-  }
-  else {
-    response(nil, error);
-  }
-  
-}
-     parameters:4,
-   @"sysname",       systemName,
-   @"coords",        @"1",
-   @"distances",     @"1",
-   @"problems",      @"1"
-   //@"includeHidden", @"1"
-   ];
-}
-
 + (void)submitDistances:(NSData *)data response:(void(^)(NSDictionary *response, NSError *error))response {
   [self callApi:@"api-v1/submit-distances"
        withBody:data
@@ -125,6 +93,12 @@ responseCallback:^(id output, NSError *error) {
 }
 
 + (void)getSystemsInfoWithResponse:(void(^)(NSArray *response, NSError *error))response {
+//#warning forcing update of ALL systems!
+//  static dispatch_once_t onceToken;
+//  dispatch_once(&onceToken, ^{
+//    [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
+//  });
+  
   NSDate           *lastSyncDate = [NSUserDefaults.standardUserDefaults objectForKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
   NSDateComponents *dayComponent = [[NSDateComponents alloc] init];
   
@@ -134,6 +108,8 @@ responseCallback:^(id output, NSError *error) {
   NSDate     *minDate  = [calendar dateByAddingComponents:dayComponent toDate:NSDate.date options:0];
   
   if ([lastSyncDate earlierDate:minDate] == lastSyncDate) {
+    NSLog(@"Fetching nightly systems dump!");
+    
     [self getNightlyDumpWithResponse:^(NSArray *output, NSError *error) {
       //save sync date 1 day in the past as the nighly dumps are generated once per day
       
@@ -197,11 +173,11 @@ responseCallback:^(id output, NSError *error) {
       response(nil, error);
     }
   }
-     parameters:5,
+     parameters:4,
    @"startdatetime", from, // <-- return only systems updated after this date
    @"known",         @"1", // <-- return only systems with known coordinates
    @"coords",        @"1", // <-- include system coordinates
-   @"distances",     @"1", // <-- include distances from other susyems
+ //@"distances",     @"1", // <-- include distances from other susyems
    @"problems",      @"1"  // <-- include information about known errors
  //@"includeHidden", @"1"  // <-- include systems with wrong names or wrong distances
    ];

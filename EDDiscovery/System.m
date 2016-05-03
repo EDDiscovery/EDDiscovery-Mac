@@ -152,7 +152,7 @@
             numUpdated++;
           }
           
-          [system parseEDSMData:systemData parseDistances:YES save:NO];
+          [system parseEDSMData:systemData parseDistances:NO save:NO];
           
           if (((numAdded % 1000) == 0 && numAdded != 0) || ((numUpdated % 1000) == 0 && numUpdated != 0)) {
             NSLog(@"Added %ld, updated %ld systems", (long)numAdded, (long)numUpdated);
@@ -343,6 +343,9 @@
     [self willChangeValueForKey:@"suggestedReferences"];
   
     Jump *jump = [Jump lastXYZJumpOfCommander:Commander.activeCommander];
+    
+    NSLog(@"latest known system: %@", jump.system.name);
+    
     SuggestedReferences *references = [[SuggestedReferences alloc] initWithLastKnownPosition:jump.system];
     
     suggestedSystems = [NSMutableArray array];

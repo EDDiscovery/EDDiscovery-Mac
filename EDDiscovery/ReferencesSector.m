@@ -101,4 +101,8 @@
   [usedReferences addObject:refSys];
 }
 
+- (NSString *)name {
+  return [NSString stringWithFormat:@"Sector:%.0f:%.0f", (azimuthStartRad * 180 / M_PI), (latitudeStartRad * 180 / M_PI)];
+}
+
 @end

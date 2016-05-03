@@ -43,10 +43,10 @@
   //if (refSys.name.EndsWith("0"))  // Elite has a bug with selecting systems ending with 0.  Prefere others first.
   //    modifier += 50;
   
-  NSString    *someRegexp = @"\\s[A-Z][A-Z].[A-Z]\\s";
-  NSPredicate *myTest     = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", someRegexp];
+  NSError             *error = nil;
+  NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"\\s[A-Z][A-Z].[A-Z]\\s" options:0 error:&error];
   
-  if ([myTest evaluateWithObject:refSys.name]){
+  if ([regex numberOfMatchesInString:refSys.name options:0 range:NSMakeRange(0, refSys.name.length)] > 0) {
     modifier += 20;
   }
   
