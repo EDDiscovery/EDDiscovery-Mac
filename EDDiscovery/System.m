@@ -24,8 +24,8 @@
 #import "ReferenceSystem.h"
 
 @implementation System {
-  NSArray *distanceSortDescriptors;
-  NSArray *sortedDistances;
+  NSArray        *distanceSortDescriptors;
+  NSMutableArray *sortedDistances;
 }
 
 + (NSArray *)allSystems {
@@ -320,7 +320,7 @@
   [self updateSortedDistances];
 }
 
-- (NSArray *)sortedDistances {
+- (NSMutableArray <Distance *> *)sortedDistances {
   if (sortedDistances == nil && self.distances.count > 0) {
     [self updateSortedDistances];
   }
@@ -330,11 +330,11 @@
 
 - (void)updateSortedDistances {
   [self willChangeValueForKey:@"sortedDistances"];
-  sortedDistances = [self.distances sortedArrayUsingDescriptors:self.distanceSortDescriptors];
+  sortedDistances = [[self.distances sortedArrayUsingDescriptors:self.distanceSortDescriptors] mutableCopy];
   [self didChangeValueForKey:@"sortedDistances"];
 }
 
-- (NSArray <System *> *)suggestedReferences {
+- (NSMutableArray <System *> *)suggestedReferences {
   static char key;
   
   NSMutableArray <System *> *suggestedSystems = objc_getAssociatedObject(self, &key);
@@ -348,7 +348,7 @@
     
     SuggestedReferences *references = [[SuggestedReferences alloc] initWithLastKnownPosition:jump.system];
     
-    suggestedSystems = [NSMutableArray array];
+    suggestedSystems = [NSMutableArray <System *> array];
     
     int count = 16;
     

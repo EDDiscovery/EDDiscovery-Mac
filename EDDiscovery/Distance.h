@@ -17,6 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *)status;
 
+@property(nonatomic, assign) BOOL edited;
+
 @end
 
 NS_ASSUME_NONNULL_END

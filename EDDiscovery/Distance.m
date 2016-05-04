@@ -15,14 +15,27 @@
 
 @implementation Distance
 
+@synthesize edited;
+
 - (NSString *)status {
   NSString *status = NSLocalizedString(@"OK", @"");
   
+  if (self.distance == 0) {
+    status = @"";
+  }
   if (self.distance != self.calculatedDistance) {
     status = NSLocalizedString(@"Wrong distance?", @"");
   }
   
   return status;
+}
+
+- (void)setName:(NSString *)name {
+  if (self.name == nil && name.length > 0) {
+    [self willChangeValueForKey:@"name"];
+    [self setPrimitiveValue:name forKey:@"name"];
+    [self didChangeValueForKey:@"name"];
+  }
 }
 
 @end

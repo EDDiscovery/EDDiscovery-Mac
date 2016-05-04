@@ -26,14 +26,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)hasCoordinates;
 - (NSNumber *)distanceToSol;
 
-- (NSArray <System *> *)suggestedReferences;
-
 - (void)updateFromEDSM:(void(^__nullable)(void))response;
 
-@property(nonatomic, strong  ) NSArray  *distanceSortDescriptors;
-@property(nonatomic, readonly) NSArray  *sortedDistances;
-@property(nonatomic, readonly) NSArray  *suggestedReferences;
-@property(nonatomic, strong  ) NSString *note;
+@property(nonatomic, strong  ) NSArray                     *distanceSortDescriptors;
+@property(nonatomic, readonly) NSMutableArray <Distance *> *sortedDistances;
+@property(nonatomic, readonly) NSMutableArray <System   *> *suggestedReferences;
+@property(nonatomic, strong  ) NSString                     *note;
 
 @end
 
