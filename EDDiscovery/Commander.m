@@ -38,6 +38,15 @@ static Commander *activeCommander = nil;
 }
 
 + (void)setActiveCommander:(nullable Commander *)commander {
+  if (activeCommander != nil) {
+    if (activeCommander.netLogFilesDir.length > 0) {
+      NetLogParser *parser = [NetLogParser instanceWithCommander:activeCommander];
+      
+      [parser stopInstance];
+      parser = nil;
+    }
+  }
+  
   activeCommander = commander;
   
   if (commander.name.length > 0) {
