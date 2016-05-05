@@ -18,6 +18,7 @@
 		D92ED4601CD812D20087BC07 /* ReferencesSector.m in Sources */ = {isa = PBXBuildFile; fileRef = D92ED45F1CD812D20087BC07 /* ReferencesSector.m */; };
 		D92ED4631CD819890087BC07 /* ReferenceSystem.m in Sources */ = {isa = PBXBuildFile; fileRef = D92ED4621CD819890087BC07 /* ReferenceSystem.m */; };
 		D92ED4661CD81C820087BC07 /* SystemData.m in Sources */ = {isa = PBXBuildFile; fileRef = D92ED4651CD81C820087BC07 /* SystemData.m */; };
+		D931908C1CDB56E50087BC07 /* VDKQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = D931908B1CDB56E50087BC07 /* VDKQueue.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		D94DE2931CC4EA0E0087BC07 /* EDDiscovery.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2911CC4EA0E0087BC07 /* EDDiscovery.xcdatamodeld */; };
 		D94DE2B41CC4FF320087BC07 /* CoreDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2B31CC4FF320087BC07 /* CoreDataManager.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		D94DE2DF1CC5024D0087BC07 /* DBVersion+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2CE1CC5024D0087BC07 /* DBVersion+CoreDataProperties.m */; };
@@ -42,11 +43,6 @@
 		D9BAB5E31CC0F7D80087BC07 /* TravelHistoryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB5E21CC0F7D80087BC07 /* TravelHistoryViewController.m */; };
 		D9BAB5E51CC0F7D80087BC07 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D9BAB5E41CC0F7D80087BC07 /* Assets.xcassets */; };
 		D9BAB5E81CC0F7D80087BC07 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D9BAB5E61CC0F7D80087BC07 /* Main.storyboard */; };
-		D9BAB6351CC126470087BC07 /* UKFileWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB62D1CC126470087BC07 /* UKFileWatcher.m */; };
-		D9BAB6361CC126470087BC07 /* UKFNSubscribeFileWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB62F1CC126470087BC07 /* UKFNSubscribeFileWatcher.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		D9BAB6371CC126470087BC07 /* UKKQueue Readme.txt in Resources */ = {isa = PBXBuildFile; fileRef = D9BAB6301CC126470087BC07 /* UKKQueue Readme.txt */; };
-		D9BAB6381CC126470087BC07 /* UKKQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB6321CC126470087BC07 /* UKKQueue.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		D9BAB6391CC126470087BC07 /* UKMainThreadProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB6341CC126470087BC07 /* UKMainThreadProxy.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		D9D4DB011CD9042F0087BC07 /* Trilateration.m in Sources */ = {isa = PBXBuildFile; fileRef = D9D4DB001CD9042F0087BC07 /* Trilateration.m */; };
 /* End PBXBuildFile section */
 
@@ -73,6 +69,8 @@
 		D92ED4621CD819890087BC07 /* ReferenceSystem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReferenceSystem.m; sourceTree = "<group>"; };
 		D92ED4641CD81C820087BC07 /* SystemData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SystemData.h; sourceTree = "<group>"; };
 		D92ED4651CD81C820087BC07 /* SystemData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SystemData.m; sourceTree = "<group>"; };
+		D931908A1CDB56E50087BC07 /* VDKQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VDKQueue.h; sourceTree = "<group>"; };
+		D931908B1CDB56E50087BC07 /* VDKQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VDKQueue.m; sourceTree = "<group>"; };
 		D94DE2921CC4EA0E0087BC07 /* EDDiscovery.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = EDDiscovery.xcdatamodel; sourceTree = "<group>"; };
 		D94DE2B21CC4FF320087BC07 /* CoreDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreDataManager.h; sourceTree = "<group>"; };
 		D94DE2B31CC4FF320087BC07 /* CoreDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreDataManager.m; sourceTree = "<group>"; };
@@ -119,15 +117,6 @@
 		D9BAB5E41CC0F7D80087BC07 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D9BAB5E71CC0F7D80087BC07 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D9BAB5E91CC0F7D80087BC07 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D9BAB62C1CC126470087BC07 /* UKFileWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UKFileWatcher.h; sourceTree = "<group>"; };
-		D9BAB62D1CC126470087BC07 /* UKFileWatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UKFileWatcher.m; sourceTree = "<group>"; };
-		D9BAB62E1CC126470087BC07 /* UKFNSubscribeFileWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UKFNSubscribeFileWatcher.h; sourceTree = "<group>"; };
-		D9BAB62F1CC126470087BC07 /* UKFNSubscribeFileWatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UKFNSubscribeFileWatcher.m; sourceTree = "<group>"; };
-		D9BAB6301CC126470087BC07 /* UKKQueue Readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "UKKQueue Readme.txt"; sourceTree = "<group>"; };
-		D9BAB6311CC126470087BC07 /* UKKQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UKKQueue.h; sourceTree = "<group>"; };
-		D9BAB6321CC126470087BC07 /* UKKQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UKKQueue.m; sourceTree = "<group>"; };
-		D9BAB6331CC126470087BC07 /* UKMainThreadProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UKMainThreadProxy.h; sourceTree = "<group>"; };
-		D9BAB6341CC126470087BC07 /* UKMainThreadProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UKMainThreadProxy.m; sourceTree = "<group>"; };
 		D9D4DAFF1CD9042F0087BC07 /* Trilateration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Trilateration.h; sourceTree = "<group>"; };
 		D9D4DB001CD9042F0087BC07 /* Trilateration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Trilateration.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -224,15 +213,8 @@
 		D95E14EB1CC1AA090087BC07 /* File monitoring */ = {
 			isa = PBXGroup;
 			children = (
-				D9BAB62C1CC126470087BC07 /* UKFileWatcher.h */,
-				D9BAB62D1CC126470087BC07 /* UKFileWatcher.m */,
-				D9BAB62E1CC126470087BC07 /* UKFNSubscribeFileWatcher.h */,
-				D9BAB62F1CC126470087BC07 /* UKFNSubscribeFileWatcher.m */,
-				D9BAB6301CC126470087BC07 /* UKKQueue Readme.txt */,
-				D9BAB6311CC126470087BC07 /* UKKQueue.h */,
-				D9BAB6321CC126470087BC07 /* UKKQueue.m */,
-				D9BAB6331CC126470087BC07 /* UKMainThreadProxy.h */,
-				D9BAB6341CC126470087BC07 /* UKMainThreadProxy.m */,
+				D931908A1CDB56E50087BC07 /* VDKQueue.h */,
+				D931908B1CDB56E50087BC07 /* VDKQueue.m */,
 			);
 			name = "File monitoring";
 			sourceTree = "<group>";
@@ -398,7 +380,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D9BAB6371CC126470087BC07 /* UKKQueue Readme.txt in Resources */,
 				D9BAB5E51CC0F7D80087BC07 /* Assets.xcassets in Resources */,
 				D9BAB5E81CC0F7D80087BC07 /* Main.storyboard in Resources */,
 			);
@@ -413,7 +394,7 @@
 			files = (
 				D917A8E91CC672E20087BC07 /* EDSM.m in Sources */,
 				D95E150D1CC42DE40087BC07 /* HttpApiManager.m in Sources */,
-				D9BAB6381CC126470087BC07 /* UKKQueue.m in Sources */,
+				D931908C1CDB56E50087BC07 /* VDKQueue.m in Sources */,
 				D94DE2FD1CC5028B0087BC07 /* Jump+CoreDataProperties.m in Sources */,
 				D952CAB91CD371BF0087BC07 /* Commander.m in Sources */,
 				D94DE30A1CC509720087BC07 /* EventLogger.m in Sources */,
@@ -427,7 +408,6 @@
 				D94DE2E01CC5024D0087BC07 /* DBVersion.m in Sources */,
 				D94DE2FB1CC5028B0087BC07 /* Image+CoreDataProperties.m in Sources */,
 				D94DE3101CC510D00087BC07 /* NetLogFile.m in Sources */,
-				D9BAB6351CC126470087BC07 /* UKFileWatcher.m in Sources */,
 				D92ED4631CD819890087BC07 /* ReferenceSystem.m in Sources */,
 				D94DE30F1CC510D00087BC07 /* NetLogFile+CoreDataProperties.m in Sources */,
 				D94DE2931CC4EA0E0087BC07 /* EDDiscovery.xcdatamodeld in Sources */,
@@ -443,9 +423,7 @@
 				D952CAB81CD371BF0087BC07 /* Commander+CoreDataProperties.m in Sources */,
 				D92ED45D1CD811F00087BC07 /* SuggestedReferences.m in Sources */,
 				D92ED4601CD812D20087BC07 /* ReferencesSector.m in Sources */,
-				D9BAB6361CC126470087BC07 /* UKFNSubscribeFileWatcher.m in Sources */,
 				D920C9E71CCFA42D0087BC07 /* Distance+CoreDataProperties.m in Sources */,
-				D9BAB6391CC126470087BC07 /* UKMainThreadProxy.m in Sources */,
 				D94DE3001CC5028B0087BC07 /* System.m in Sources */,
 				D94DE2FC1CC5028B0087BC07 /* Image.m in Sources */,
 				D9BAB5DD1CC0F7D80087BC07 /* AppDelegate.m in Sources */,

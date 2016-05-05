@@ -8,7 +8,7 @@
 
 #import "NetLogParser.h"
 
-#import "UKKQueue.h"
+#import "VDKQueue.h"
 #import "EDSMConnection.h"
 #import "EDSM.h"
 #import "EventLogger.h"
@@ -18,11 +18,15 @@
 #import "Jump.h"
 #import "Commander.h"
 
+@interface NetLogParser () <VDKQueueDelegate>
+
+@end
+
 @implementation NetLogParser {
   Commander  *commander;
   NetLogFile *currNetLogFile;
   Jump       *lastJump;
-  UKKQueue   *queue;
+  VDKQueue   *queue;
   BOOL        firstRun;
 }
 
@@ -53,10 +57,10 @@ static NetLogParser *instance = nil;
     
     if ([self netlogDirIsValid:commander]) {
       firstRun = YES;
-      queue    = [UKKQueue sharedFileWatcher];
+      queue    = [[VDKQueue alloc] init];
       
       [queue setDelegate:self];
-      [queue addPathToQueue:aCommander.netLogFilesDir];
+      [queue addPath:aCommander.netLogFilesDir];
       
       [self scanLogFilesDir];
     }
@@ -74,11 +78,11 @@ static NetLogParser *instance = nil;
 
 - (void)dealloc {
   if (currNetLogFile.path.length > 0) {
-    [queue removePathFromQueue:currNetLogFile.path];
+    [queue removePath:currNetLogFile.path];
   }
   
   if (commander.netLogFilesDir.length > 0) {
-    [queue removePathFromQueue:commander.netLogFilesDir];
+    [queue removePath:commander.netLogFilesDir];
   }
   
   commander = nil;
@@ -100,9 +104,9 @@ static NetLogParser *instance = nil;
 }
 
 #pragma mark -
-#pragma mark UKKQueue delegate
+#pragma mark VDKQueueDelegate delegate
 
-- (void)watcher:(id<UKFileWatcher>)kq receivedNotification:(NSString *)nm forPath:(NSString *)path {
+- (void)VDKQueue:(VDKQueue *)queue receivedNotification:(NSString *)nm forPath:(NSString *)path {
   if ([path isEqualToString:commander.netLogFilesDir]) {
     NSLog(@"Log directory contents changed");
     
@@ -121,7 +125,7 @@ static NetLogParser *instance = nil;
 #define ATTR_KEY @"attr"
   
   if (currNetLogFile != nil) {
-    [queue removePathFromQueue:currNetLogFile.path];
+    [queue removePath:currNetLogFile.path];
   }
   
   NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:commander.netLogFilesDir error:nil];
@@ -217,7 +221,7 @@ static NetLogParser *instance = nil;
         
         currNetLogFile = netLogFile;
         
-        [queue addPathToQueue:currNetLogFile.path];
+        [queue addPath:currNetLogFile.path];
       }
     }
     
