@@ -2,7 +2,7 @@
 //  Commander.m
 //  EDDiscovery
 //
-//  Created by thorin on 29/04/16.
+//  Created by Michele Noberasco on 29/04/16.
 //  Copyright © 2016 Michele Noberasco. All rights reserved.
 //
 

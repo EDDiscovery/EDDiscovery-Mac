@@ -2,7 +2,7 @@
 //  TrilaterationViewController.h
 //  EDDiscovery
 //
-//  Created by thorin on 02/05/16.
+//  Created by Michele Noberasco on 02/05/16.
 //  Copyright © 2016 Michele Noberasco. All rights reserved.
 //
 

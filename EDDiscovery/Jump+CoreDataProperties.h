@@ -2,7 +2,7 @@
 //  Jump+CoreDataProperties.h
 //  EDDiscovery
 //
-//  Created by thorin on 30/04/16.
+//  Created by Michele Noberasco on 30/04/16.
 //  Copyright © 2016 Michele Noberasco. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu

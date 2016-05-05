@@ -2,7 +2,7 @@
 //  SystemData.m
 //  EDDiscovery
 //
-//  Created by thorin on 03/05/16.
+//  Created by Michele Noberasco on 03/05/16.
 //  Copyright © 2016 Michele Noberasco. All rights reserved.
 //
 

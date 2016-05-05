@@ -43,6 +43,7 @@
 		D9BAB5E31CC0F7D80087BC07 /* TravelHistoryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB5E21CC0F7D80087BC07 /* TravelHistoryViewController.m */; };
 		D9BAB5E51CC0F7D80087BC07 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D9BAB5E41CC0F7D80087BC07 /* Assets.xcassets */; };
 		D9BAB5E81CC0F7D80087BC07 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D9BAB5E61CC0F7D80087BC07 /* Main.storyboard */; };
+		D9CCCFA51CDBEB160087BC07 /* NumberFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = D9CCCFA41CDBEB160087BC07 /* NumberFormatter.m */; };
 		D9D4DB011CD9042F0087BC07 /* Trilateration.m in Sources */ = {isa = PBXBuildFile; fileRef = D9D4DB001CD9042F0087BC07 /* Trilateration.m */; };
 /* End PBXBuildFile section */
 
@@ -117,6 +118,8 @@
 		D9BAB5E41CC0F7D80087BC07 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D9BAB5E71CC0F7D80087BC07 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D9BAB5E91CC0F7D80087BC07 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D9CCCFA31CDBEB160087BC07 /* NumberFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NumberFormatter.h; sourceTree = "<group>"; };
+		D9CCCFA41CDBEB160087BC07 /* NumberFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NumberFormatter.m; sourceTree = "<group>"; };
 		D9D4DAFF1CD9042F0087BC07 /* Trilateration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Trilateration.h; sourceTree = "<group>"; };
 		D9D4DB001CD9042F0087BC07 /* Trilateration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Trilateration.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -202,6 +205,7 @@
 				D94DE2901CC4E9E50087BC07 /* Data management */,
 				D94DE3071CC5095C0087BC07 /* Event logging */,
 				D95E14EB1CC1AA090087BC07 /* File monitoring */,
+				D9CCCFA61CDBEE870087BC07 /* Input validation */,
 				D95E15171CC42F6B0087BC07 /* Keychain access */,
 				D94DE3031CC5067B0087BC07 /* Netlog parsing */,
 				D95E15061CC42C380087BC07 /* Networking */,
@@ -322,6 +326,15 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		D9CCCFA61CDBEE870087BC07 /* Input validation */ = {
+			isa = PBXGroup;
+			children = (
+				D9CCCFA31CDBEB160087BC07 /* NumberFormatter.h */,
+				D9CCCFA41CDBEB160087BC07 /* NumberFormatter.m */,
+			);
+			name = "Input validation";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -413,6 +426,7 @@
 				D94DE2931CC4EA0E0087BC07 /* EDDiscovery.xcdatamodeld in Sources */,
 				D9B5622B1CD787800087BC07 /* TrilaterationViewController.m in Sources */,
 				D95E15131CC42E620087BC07 /* EDSMConnection.m in Sources */,
+				D9CCCFA51CDBEB160087BC07 /* NumberFormatter.m in Sources */,
 				D91CAA731CD416F10087BC07 /* Note+CoreDataProperties.m in Sources */,
 				D94DE2DF1CC5024D0087BC07 /* DBVersion+CoreDataProperties.m in Sources */,
 				D917A8E81CC672E20087BC07 /* EDSM+CoreDataProperties.m in Sources */,

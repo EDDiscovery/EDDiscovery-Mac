@@ -1459,7 +1459,7 @@
                                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                                     </tableHeaderCell>
                                                                     <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" title="Text Cell" id="2wz-Xg-FqE">
-                                                                        <numberFormatter key="formatter" formatterBehavior="custom10_4" positiveFormat="#,##0.00" negativeFormat="-#,##0.00" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" minimumFractionDigits="2" maximumFractionDigits="2" decimalSeparator="," groupingSeparator="." id="CHi-SF-eMc"/>
+                                                                        <numberFormatter key="formatter" formatterBehavior="custom10_4" positiveFormat="#,##0.00" negativeFormat="-#,##0.00" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" minimumFractionDigits="2" maximumFractionDigits="2" decimalSeparator="," groupingSeparator="." id="AhR-yD-ofS" customClass="NumberFormatter"/>
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1467,7 +1467,7 @@
                                                                     <sortDescriptor key="sortDescriptorPrototype" selector="compare:" sortKey="distance"/>
                                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                     <connections>
-                                                                        <binding destination="76B-Qg-F90" name="value" keyPath="selection.system.sortedDistances.distance" id="GCR-UX-r40"/>
+                                                                        <binding destination="76B-Qg-F90" name="value" keyPath="selection.system.sortedDistances.distance" id="NWn-ze-nwr"/>
                                                                     </connections>
                                                                 </tableColumn>
                                                                 <tableColumn identifier="calculatedDistance" editable="NO" width="70" minWidth="70" maxWidth="3.4028234663852886e+38" id="8lJ-dA-Uus">
