@@ -14,11 +14,9 @@
 #import "Commander.h"
 #import "Jump.h"
 #import "System.h"
-
 #import "EDSMConnection.h"
 #import "CoreDataManager.h"
 #import "Commander.h"
-
 #import "Trilateration.h"
 
 #define PASTEBOARD_DATA_TYPE @"NSMutableDictionary"
@@ -27,11 +25,14 @@
 @end
 
 @implementation TrilaterationViewController {
-  IBOutlet NSTextView        *textView;
-  IBOutlet NSTableView       *distancesTableView;
-  IBOutlet NSTableView       *suggestedReferencesTableView;
-  IBOutlet NSArrayController *jumpsArrayController;
-  IBOutlet NSTextField       *resultTextField;
+  IBOutlet NSTextView          *textView;
+  IBOutlet NSTableView         *distancesTableView;
+  IBOutlet NSTableView         *suggestedReferencesTableView;
+  IBOutlet NSArrayController   *jumpsArrayController;
+  IBOutlet NSProgressIndicator *suggestedReferencesProgressIndicator;
+  IBOutlet NSTextField         *resultTextField;
+  IBOutlet NSButton            *submitButton;
+  IBOutlet NSButton            *resetButton;
   
   NSManagedObjectContext *context;
 }
@@ -48,6 +49,8 @@
   [jumpsArrayController setManagedObjectContext:context];
   
   [distancesTableView registerForDraggedTypes:@[PASTEBOARD_DATA_TYPE]];
+  
+  [suggestedReferencesProgressIndicator startAnimation:nil];
 }
 
 - (void)viewWillAppear {
@@ -71,33 +74,33 @@
   }
 }
 
-- (void)viewWillDisappear {
-  [super viewWillDisappear];
-  
-  Jump                        *jump       = [jumpsArrayController valueForKeyPath:@"selection.self"];
-  System                      *system     = jump.system;
-  NSMutableArray <Distance *> *distances  = system.sortedDistances;
-  NSMutableArray <System   *> *references = system.suggestedReferences;
-  NSMutableArray <Distance *> *restore    = [NSMutableArray array];
-  
-  for (Distance *distance in distances) {
-    if (distance.objectID.isTemporaryID == YES) {
-      [restore addObject:distance];
-    }
-  }
-  
-  for (Distance *distance in restore) {
-    [distance.managedObjectContext deleteObject:distance];
-    
-    [system willChangeValueForKey:@"sortedDistances"];
-    [distances removeObject:distance];
-    [system didChangeValueForKey:@"sortedDistances"];
-    
-    [system willChangeValueForKey:@"suggestedReferences"];
-    [references addObject:[System systemWithName:distance.name inContext:distance.managedObjectContext]];
-    [system didChangeValueForKey:@"suggestedReferences"];
-  }
-}
+//- (void)viewWillDisappear {
+//  [super viewWillDisappear];
+//  
+//  Jump                        *jump       = [jumpsArrayController valueForKeyPath:@"selection.self"];
+//  System                      *system     = jump.system;
+//  NSMutableArray <Distance *> *distances  = system.sortedDistances;
+//  NSMutableArray <System   *> *references = system.suggestedReferences;
+//  NSMutableArray <Distance *> *restore    = [NSMutableArray array];
+//  
+//  for (Distance *distance in distances) {
+//    if (distance.objectID.isTemporaryID == YES) {
+//      [restore addObject:distance];
+//    }
+//  }
+//  
+//  for (Distance *distance in restore) {
+//    [distance.managedObjectContext deleteObject:distance];
+//    
+//    [system willChangeValueForKey:@"sortedDistances"];
+//    [distances removeObject:distance];
+//    [system didChangeValueForKey:@"sortedDistances"];
+//    
+//    [system willChangeValueForKey:@"suggestedReferences"];
+//    [references addObject:[System systemWithName:distance.name inContext:distance.managedObjectContext]];
+//    [system didChangeValueForKey:@"suggestedReferences"];
+//  }
+//}
 
 //- (void)viewDidDisappear {
 //  [super viewDidDisappear];
@@ -239,10 +242,16 @@
       if (distance.distance.doubleValue == distance.calculatedDistance.doubleValue) {
         aCell.textColor = NSColor.blackColor;
       }
+      else if (ABS(distance.distance.doubleValue - distance.calculatedDistance.doubleValue) <= 0.01) {
+        aCell.textColor = NSColor.orangeColor;
+      }
       else {
         aCell.textColor = NSColor.redColor;
       }
     }
+  }
+  else if (aTableView == suggestedReferencesTableView) {
+    [suggestedReferencesProgressIndicator stopAnimation:nil];
   }
 }
 
@@ -280,6 +289,10 @@
       [distancesTableView editColumn:col row:row withEvent:nil select:YES];
       
       last = curr;
+      
+      if (references.count < 3) {
+        [system addSuggestedReferences];
+      }
     }
     
     return NO;
@@ -317,19 +330,13 @@
 - (void)tableView:(NSTableView *)aTableView setObjectValue:(id)anObject forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
   if (aTableView == distancesTableView) {
     if ([aTableColumn.identifier isEqualToString:@"distance"]) {
-      Jump                        *jump      = [jumpsArrayController valueForKeyPath:@"selection.self"];
-      System                      *system    = jump.system;
-      NSMutableArray <Distance *> *distances = system.sortedDistances;
-      Distance                    *distance  = distances[rowIndex];
-      
-      distance.edited = (distance.distance != 0);
-      
-      if (distance.edited) {
-        [self trilaterate];
-      }
+      [self trilaterate];
     }
   }
 }
+
+#pragma mark -
+#pragma mark actions
 
 - (void)trilaterate {
   Trilateration            *trilateration = [[Trilateration alloc] init];
@@ -436,7 +443,42 @@
   }
 }
 
-- (void)submitDistances {
+- (IBAction)resetDistances:(id)sender {
+  Jump                        *jump       = [jumpsArrayController valueForKeyPath:@"selection.self"];
+  System                      *system     = jump.system;
+  NSMutableArray <Distance *> *distances  = system.sortedDistances;
+  NSMutableArray <System   *> *references = system.suggestedReferences;
+  NSMutableArray <Distance *> *restore    = [NSMutableArray array];
+
+  for (Distance *distance in distances) {
+    if (distance.objectID.isTemporaryID == YES) {
+      [restore addObject:distance];
+    }
+    else {
+      [distance reset];
+    }
+  }
+
+  [system willChangeValueForKey:@"sortedDistances"];
+  [system willChangeValueForKey:@"suggestedReferences"];
+
+  for (Distance *distance in restore) {
+    [distance.managedObjectContext deleteObject:distance];
+
+    [distances removeObject:distance];
+
+    [references addObject:[System systemWithName:distance.name inContext:distance.managedObjectContext]];
+  }
+  
+  [system didChangeValueForKey:@"sortedDistances"];
+  [system didChangeValueForKey:@"suggestedReferences"];
+
+  if (system != nil) {
+    [self trilaterate];
+  }
+}
+
+- (IBAction)submitDistances:(id)sender {
   Jump           *jump   = [jumpsArrayController valueForKeyPath:@"selection.self"];
   System         *system = jump.system;
   NSMutableArray *refs   = [NSMutableArray array];
@@ -452,7 +494,8 @@
   
   NSDictionary *dict = @{
                          @"data":@{
-                             @"test":@1,
+                             //@"test":@1,
+                             @"ver":@2,
                              @"commander":Commander.activeCommander.name,
                              @"p0":@{
                                  @"name":system.name

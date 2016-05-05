@@ -101,6 +101,9 @@
     if (distance.distance.doubleValue == distance.calculatedDistance.doubleValue) {
       aCell.textColor = NSColor.blackColor;
     }
+    else if (ABS(distance.distance.doubleValue - distance.calculatedDistance.doubleValue) <= 0.01) {
+      aCell.textColor = NSColor.orangeColor;
+    }
     else {
       aCell.textColor = NSColor.redColor;
     }

@@ -15,6 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface Distance : NSManagedObject
 
+- (void)reset;
 - (NSString *)status;
 
 @property(nonatomic, assign) BOOL edited;

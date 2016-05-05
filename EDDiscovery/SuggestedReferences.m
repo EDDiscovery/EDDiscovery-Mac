@@ -136,10 +136,10 @@
   {
     if (self.nrOfRefenreceSystems == 0)
     {
-      System *sys = [System systemWithName:@"Sol"];
+      System *sys = [System systemWithName:@"Sol" inContext:lastKnownPosition.managedObjectContext];
       
       if (lastKnownPosition.x == 0 && lastKnownPosition.y == 0 && lastKnownPosition.z == 0)
-        sys = [System systemWithName:@"Sirius"];
+        sys = [System systemWithName:@"Sirius" inContext:lastKnownPosition.managedObjectContext];
       
       if (sys == nil)
         return nil;   // Should not happend

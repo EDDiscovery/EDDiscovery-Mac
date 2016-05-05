@@ -13,11 +13,18 @@
 #import "AppDelegate.h"
 #import "Jump.h"
 
-@implementation Distance
+@implementation Distance {
+  BOOL   firstSetDone;
+  double origDistance;
+}
 
 @synthesize edited;
 
 - (void)setDistance:(NSNumber *)distance {
+  [self willAccessValueForKey:@"distance"];
+  NSLog(@"%s: %@ ==> %@", __FUNCTION__, [self primitiveValueForKey:@"distance"], distance);
+  [self didAccessValueForKey:@"distance"];
+  
   [self willChangeValueForKey:@"distance"];
   [self willChangeValueForKey:@"status"];
   [self setPrimitiveValue:distance forKey:@"distance"];
@@ -26,6 +33,20 @@
   
   if (distance == nil) {
     self.calculatedDistance = nil;
+  }
+  
+  if (self.objectID.isTemporaryID == YES) {
+    self.edited = YES;
+  }
+  else if (firstSetDone == NO) {
+    origDistance = distance.doubleValue;
+    firstSetDone = YES;
+  }
+  else if (distance.doubleValue != origDistance) {
+    self.edited = YES;
+  }
+  else {
+    self.edited = NO;
   }
 }
 
@@ -44,7 +65,12 @@
     status = nil;
   }
   else if (self.distance.doubleValue != self.calculatedDistance.doubleValue) {
-    status = NSLocalizedString(@"Wrong distance?", @"");
+    if (ABS(self.distance.doubleValue - self.calculatedDistance.doubleValue) <= 0.01) {
+      status = NSLocalizedString(@"Rounding error?", @"");
+    }
+    else {
+      status = NSLocalizedString(@"Wrong distance?", @"");
+    }
   }
   
   return status;
@@ -55,6 +81,16 @@
     [self willChangeValueForKey:@"name"];
     [self setPrimitiveValue:name forKey:@"name"];
     [self didChangeValueForKey:@"name"];
+  }
+}
+
+- (void)reset {
+  [self willChangeValueForKey:@"status"];
+  [self.managedObjectContext refreshObject:self mergeChanges:NO];
+  [self didChangeValueForKey:@"status"];
+  
+  if (self.objectID.isTemporaryID == NO) {
+    self.edited = NO;
   }
 }
 

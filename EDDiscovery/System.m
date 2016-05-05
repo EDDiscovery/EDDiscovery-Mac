@@ -24,8 +24,10 @@
 #import "ReferenceSystem.h"
 
 @implementation System {
-  NSArray        *distanceSortDescriptors;
-  NSMutableArray *sortedDistances;
+  NSArray        <NSSortDescriptor *> *distanceSortDescriptors;
+  NSMutableArray <Distance         *> *sortedDistances;
+  NSMutableArray <System           *> *suggestedReferences;
+  NSManagedObjectContext              *bgContext;
 }
 
 + (void)printStats {
@@ -357,7 +359,9 @@
 
 - (void)setDistanceSortDescriptors:(NSArray *)newDistanceSortDescriptors {
   [self willChangeValueForKey:@"distanceSortDescriptors"];
+  
   distanceSortDescriptors = newDistanceSortDescriptors;
+  
   [self didChangeValueForKey:@"distanceSortDescriptors"];
   
   [self updateSortedDistances];
@@ -373,46 +377,79 @@
 
 - (void)updateSortedDistances {
   [self willChangeValueForKey:@"sortedDistances"];
+  
   sortedDistances = [[self.distances sortedArrayUsingDescriptors:self.distanceSortDescriptors] mutableCopy];
+  
   [self didChangeValueForKey:@"sortedDistances"];
 }
 
 - (NSMutableArray <System *> *)suggestedReferences {
-  static char key;
-  
-  NSMutableArray <System *> *suggestedSystems = objc_getAssociatedObject(self, &key);
-  
-  if (suggestedSystems == nil) {
-    [self willChangeValueForKey:@"suggestedReferences"];
-  
-    Jump *jump = [Jump lastXYZJumpOfCommander:Commander.activeCommander];
-    
-    NSLog(@"latest known system: %@", jump.system.name);
-    
-    SuggestedReferences *references = [[SuggestedReferences alloc] initWithLastKnownPosition:jump.system];
-    
-    suggestedSystems = [NSMutableArray <System *> array];
-    
-    int count = 16;
-    
-    for (int ii = 0; ii < count; ii++)
-    {
-      ReferenceSystem *rsys = [references getCandidate];
-      if (rsys == nil) break;
-      System *system = rsys.system;
-      [references addReferenceStar:system];
+  @synchronized (self) {
+    if (suggestedReferences == nil) {
+      suggestedReferences = [NSMutableArray <System *> array];
       
-      NSLog(@"%@ Dist:%.2f x:%f y:%f z:%f", system.name, rsys.distance, system.x, system.y, system.z);
-
-      [suggestedSystems addObject:system];
+      [self addSuggestedReferences];
     }
     
-    objc_setAssociatedObject(self, &key, suggestedSystems, OBJC_ASSOCIATION_RETAIN);
-    
-    [self didChangeValueForKey:@"suggestedReferences"];
+    return suggestedReferences;
+  }
+}
+
+- (void)addSuggestedReferences {
+  Jump              *jump     = [Jump lastXYZJumpOfCommander:Commander.activeCommander];
+  System            *system   = jump.system;
+  NSManagedObjectID *systemID = system.objectID;
+  
+  NSLog(@"Latest visited system with known coordinates: %@", jump.system.name);
+  
+  if (bgContext == nil) {
+    bgContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+  
+    [bgContext setParentContext:self.managedObjectContext];
   }
   
-  return suggestedSystems;
+  [bgContext performBlock:^{
+    static char referenceCalculatorKey;
+
+    SuggestedReferences *referencesCalculator = objc_getAssociatedObject(bgContext, &referenceCalculatorKey);
+    
+    if (referencesCalculator == nil) {
+      System *system = [bgContext existingObjectWithID:systemID error:nil];
+      
+      if (system != nil) {
+        referencesCalculator = [[SuggestedReferences alloc] initWithLastKnownPosition:system];
+        
+        objc_setAssociatedObject(bgContext, &referenceCalculatorKey, referencesCalculator, OBJC_ASSOCIATION_RETAIN);
+      }
+    }
+    
+    if (referencesCalculator != nil) {
+      int count = 16;
+      
+      for (int ii = 0; ii < count; ii++) {
+        ReferenceSystem *referenceSystem = [referencesCalculator getCandidate];
+        
+        if (referenceSystem == nil) {
+          break;
+        }
+        
+        System            *system   = referenceSystem.system;
+        NSManagedObjectID *systemID = system.objectID;
+        
+        NSLog(@"\tFound suggested reference system: %@ Dist:%.2f x:%f y:%f z:%f", system.name, referenceSystem.distance, system.x, system.y, system.z);
+        
+        [bgContext.parentContext performBlock:^{
+          System *system = [bgContext.parentContext existingObjectWithID:systemID error:nil];
+        
+          [self willChangeValueForKey:@"suggestedReferences"];
+          [suggestedReferences addObject:system];
+          [self didChangeValueForKey:@"suggestedReferences"];
+        }];
+        
+        [referencesCalculator addReferenceStar:system];
+      }
+    }
+  }];
 }
 
 - (NSString *)note {
