@@ -10,7 +10,7 @@
         <attribute name="dbVersion" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
     </entity>
     <entity name="Distance" representedClassName="Distance" syncable="YES">
-        <attribute name="calculatedDistance" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="calculatedDistance" optional="YES" attributeType="Double" syncable="YES"/>
         <attribute name="distance" attributeType="Double" syncable="YES"/>
         <attribute name="name" attributeType="String" syncable="YES"/>
         <relationship name="system" maxCount="1" deletionRule="Nullify" destinationEntity="System" inverseName="distances" inverseEntity="System" syncable="YES"/>
@@ -57,13 +57,13 @@
     </entity>
     <elements>
         <element name="Commander" positionX="-8235" positionY="-792" width="128" height="103"/>
-        <element name="Note" positionX="-7823" positionY="-673" width="128" height="88"/>
         <element name="DBVersion" positionX="-8136" positionY="-999" width="128" height="58"/>
         <element name="Distance" positionX="-7409" positionY="-787" width="128" height="103"/>
         <element name="EDSM" positionX="-8048" positionY="-892" width="128" height="118"/>
         <element name="Image" positionX="-7407" positionY="-658" width="128" height="73"/>
         <element name="Jump" positionX="-7787" positionY="-862" width="128" height="103"/>
         <element name="NetLogFile" positionX="-8048" positionY="-702" width="128" height="133"/>
+        <element name="Note" positionX="-7823" positionY="-673" width="128" height="88"/>
         <element name="System" positionX="-7598" positionY="-802" width="128" height="163"/>
     </elements>
 </model>

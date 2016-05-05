@@ -21,6 +21,8 @@
 
 #import "Trilateration.h"
 
+#define PASTEBOARD_DATA_TYPE @"NSMutableDictionary"
+
 @interface TrilaterationViewController() <NSTableViewDataSource, NSTabViewDelegate>
 @end
 
@@ -29,12 +31,23 @@
   IBOutlet NSTableView       *distancesTableView;
   IBOutlet NSTableView       *suggestedReferencesTableView;
   IBOutlet NSArrayController *jumpsArrayController;
+  IBOutlet NSTextField       *resultTextField;
+  
+  NSManagedObjectContext *context;
 }
 
 - (void)awakeFromNib {
   [super awakeFromNib];
   
-  jumpsArrayController.managedObjectContext = CoreDataManager.instance.managedObjectContext;
+  context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+  
+  [context commitEditing];
+  
+  context.parentContext = CoreDataManager.instance.managedObjectContext;
+  
+  [jumpsArrayController setManagedObjectContext:context];
+  
+  [distancesTableView registerForDraggedTypes:@[PASTEBOARD_DATA_TYPE]];
 }
 
 - (void)viewWillAppear {
@@ -50,8 +63,8 @@
 
   distancesTableView.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"distance" ascending:YES selector:@selector(compare:)]];
   
-  Jump     *jump      = [jumpsArrayController valueForKeyPath:@"selection.self"];
-  System   *system    = jump.system;
+  Jump   *jump   = [jumpsArrayController valueForKeyPath:@"selection.self"];
+  System *system = jump.system;
   
   if (system != nil) {
     [self trilaterate];
@@ -81,9 +94,67 @@
     [system didChangeValueForKey:@"sortedDistances"];
     
     [system willChangeValueForKey:@"suggestedReferences"];
-    [references addObject:[System systemWithName:distance.name]];
+    [references addObject:[System systemWithName:distance.name inContext:distance.managedObjectContext]];
     [system didChangeValueForKey:@"suggestedReferences"];
   }
+}
+
+//- (void)viewDidDisappear {
+//  [super viewDidDisappear];
+//  
+//  [context rollback];
+//  
+//  context = nil;
+//}
+
+#pragma mark -
+#pragma mark row reordering
+
+- (BOOL)tableView:(NSTableView *)aTableView writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard *)pboard {
+  if (aTableView == distancesTableView) {
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:rowIndexes];
+    
+    [pboard declareTypes:@[PASTEBOARD_DATA_TYPE] owner:jumpsArrayController];
+    [pboard setData:data forType:PASTEBOARD_DATA_TYPE];
+    
+    return YES;
+  }
+  
+  return NO;
+}
+
+- (NSDragOperation)tableView:(NSTableView *)aTableView validateDrop:(id<NSDraggingInfo>)info proposedRow:(NSInteger)row proposedDropOperation:(NSTableViewDropOperation)operation {
+  if (aTableView == distancesTableView) {
+    return NSDragOperationEvery;
+  }
+  
+  return NSDragOperationNone;
+}
+
+- (BOOL)tableView:(NSTableView *)aTableView acceptDrop:(id<NSDraggingInfo>)info row:(NSInteger)row dropOperation:(NSTableViewDropOperation)operation {
+  if (aTableView == distancesTableView) {
+    NSPasteboard                *pboard     = [info draggingPasteboard];
+    NSData                      *rowData    = [pboard dataForType:PASTEBOARD_DATA_TYPE];
+    NSIndexSet                  *rowIndexes = [NSKeyedUnarchiver unarchiveObjectWithData:rowData];
+    NSUInteger                   from       = rowIndexes.firstIndex;
+    Jump                        *jump       = [jumpsArrayController valueForKeyPath:@"selection.self"];
+    System                      *system     = jump.system;
+    NSMutableArray <Distance *> *distances  = system.sortedDistances;
+    Distance                    *distance   = [distances objectAtIndex:from];
+
+    if (from > row) {
+      [distances removeObjectAtIndex:from];
+      [distances insertObject:distance atIndex:row];
+    }
+    else{
+      [distances insertObject:distance atIndex:row];
+      [distances removeObjectAtIndex:from];
+    }
+    
+    return YES;
+  }
+  
+  return NO;
 }
 
 #pragma mark -
@@ -165,7 +236,7 @@
     Distance *distance  = distances[rowIndex];
     
     if ([aTableColumn.identifier isEqualToString:@"calculatedDistance"] || [aTableColumn.identifier isEqualToString:@"status"]) {
-      if (distance.distance == distance.calculatedDistance) {
+      if (distance.distance.doubleValue == distance.calculatedDistance.doubleValue) {
         aCell.textColor = NSColor.greenColor;
       }
       else {
@@ -177,25 +248,41 @@
 
 - (BOOL)tableView:(NSTableView *)aTableView shouldSelectRow:(NSInteger)rowIndex {
   if (aTableView == suggestedReferencesTableView) {
-    Jump                        *jump       = [jumpsArrayController valueForKeyPath:@"selection.self"];
-    System                      *system     = jump.system;
-    NSMutableArray <Distance *> *distances  = system.sortedDistances;
-    NSMutableArray <System   *> *references = system.suggestedReferences;
-    System                      *refSystem  = references[rowIndex];
+    static NSTimeInterval last = 0;
+    NSTimeInterval curr = [NSDate timeIntervalSinceReferenceDate];
     
-    NSString *className = NSStringFromClass(Distance.class);
-    Distance *distance  = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:system.managedObjectContext];
+    //prevent single clicks from being registered twice
+    //seems like an SDK bug...
     
-    distance.system = system;
-    distance.name   = refSystem.name;
+    if ((curr - last) > 0.1) {
+      Jump                        *jump       = [jumpsArrayController valueForKeyPath:@"selection.self"];
+      System                      *system     = jump.system;
+      NSMutableArray <Distance *> *distances  = system.sortedDistances;
+      NSMutableArray <System   *> *references = system.suggestedReferences;
+      System                      *refSystem  = references[rowIndex];
+      NSString                    *className  = NSStringFromClass(Distance.class);
+      Distance                    *distance   = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:system.managedObjectContext];
+      
+      distance.system = system;
+      distance.name   = refSystem.name;
+      
+      [system willChangeValueForKey:@"sortedDistances"];
+      [distances addObject:distance];
+      [system didChangeValueForKey:@"sortedDistances"];
+      
+      [system willChangeValueForKey:@"suggestedReferences"];
+      [references removeObject:refSystem];
+      [system didChangeValueForKey:@"suggestedReferences"];
+      
+      NSInteger col = [distancesTableView columnWithIdentifier:@"system"];
+      NSInteger row = [distances indexOfObject:distance];
+      
+      [distancesTableView editColumn:col row:row withEvent:nil select:YES];
+      
+      last = curr;
+    }
     
-    [system willChangeValueForKey:@"sortedDistances"];
-    [distances addObject:distance];
-    [system didChangeValueForKey:@"sortedDistances"];
-    
-    [system willChangeValueForKey:@"suggestedReferences"];
-    [references removeObject:refSystem];
-    [system didChangeValueForKey:@"suggestedReferences"];
+    return NO;
   }
   
   return YES;
@@ -208,6 +295,23 @@
   if (aTableView == distancesTableView) {
     system.distanceSortDescriptors = aTableView.sortDescriptors;
   }
+}
+
+- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
+  if (aTableView == distancesTableView) {
+    if ([aTableColumn.identifier isEqualToString:@"calculatedDistance"]) {
+      Jump                        *jump      = [jumpsArrayController valueForKeyPath:@"selection.self"];
+      System                      *system    = jump.system;
+      NSMutableArray <Distance *> *distances = system.sortedDistances;
+      Distance                    *distance  = distances[rowIndex];
+      
+      if (distance.calculatedDistance == 0) {
+        return @(12345);
+      }
+    }
+  }
+  
+  return nil;
 }
 
 - (void)tableView:(NSTableView *)aTableView setObjectValue:(id)anObject forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
@@ -227,6 +331,111 @@
   }
 }
 
+- (void)trilaterate {
+  Trilateration            *trilateration = [[Trilateration alloc] init];
+  Jump                     *jump          = [jumpsArrayController valueForKeyPath:@"selection.self"];
+  System                   *system        = jump.system;
+  NSMutableArray <Entry *> *entries       = [NSMutableArray <Entry *> array];
+
+//#warning testing trilateration with a system of known coords!
+//  system = [Jump lastXYZJumpOfCommander:Commander.activeCommander].system;
+  
+  for (Distance *distance in [system.sortedDistances reverseObjectEnumerator]) {
+    if (distance.distance != 0) {
+      System *system = [System systemWithName:distance.name inContext:distance.managedObjectContext];
+      
+      if (system.hasCoordinates) {
+        Entry *entry = [[Entry alloc] initWithSystem:system distance:distance.distance.doubleValue];
+        
+        [entries addObject:entry];
+        
+        if (entries.count == 24) {
+          break;
+        }
+      }
+    }
+  }
+  
+  if (entries.count < 3) {
+    resultTextField.stringValue     = NSLocalizedString(@"Enter distances", @"");
+    resultTextField.backgroundColor = NSColor.cyanColor;
+    
+    return;
+  }
+  
+  for (Entry *entry in [entries reverseObjectEnumerator]) {
+    [trilateration.entries addObject:entry];
+  }
+  
+  NSLog(@"Trilaterating system %@ against %ld distances", system.name, (long)trilateration.entries.count);
+  
+  Result *result = [trilateration run:RedWizzard_Native];
+  
+  NSString *resultState = @"";
+  
+  switch (result.state) {
+    case Exact:
+      resultState = @"Exact";
+      resultTextField.stringValue     = NSLocalizedString(@"Success, coordinates found!", @"");
+      resultTextField.backgroundColor = NSColor.greenColor;
+      break;
+    case MultipleSolutions:
+      resultState = @"Multiple solutions";
+      resultTextField.stringValue     = NSLocalizedString(@"Enter more distances", @"");
+      resultTextField.backgroundColor = NSColor.orangeColor;
+      break;
+    case NeedMoreDistances:
+      resultState = @"Need more distances";
+      resultTextField.stringValue     = NSLocalizedString(@"Enter more distances", @"");
+      resultTextField.backgroundColor = NSColor.orangeColor;
+      break;
+    case NotExact:
+      resultState = @"Not exact";
+      resultTextField.stringValue     = NSLocalizedString(@"Enter more distances", @"");
+      resultTextField.backgroundColor = NSColor.orangeColor;
+      break;
+    default:
+      NSAssert1(NO, @"unknown result %ld", (long)result.state);
+      break;
+  }
+  
+  NSLog(@"%s: result: %@", __FUNCTION__, resultState);
+  
+  if (result.coordinate != nil) {
+    NSLog(@"Trilaterated coords ==> x:%.5f y:%.5f z:%.5f", result.coordinate.x, result.coordinate.y, result.coordinate.z);
+    
+    if (result.state == Exact) {
+      system.x = result.coordinate.x;
+      system.y = result.coordinate.y;
+      system.z = result.coordinate.z;
+    }
+  }
+  
+  if (result.entries.count > 0) {
+    NSLog(@"entries");
+    
+    for (Distance *distance in system.sortedDistances) {
+      distance.calculatedDistance = nil;
+    }
+
+    for (Entry *entry in result.entries) {
+      double dist = entry.correctedDistance;
+      
+      NSLog(@"\tentry for %@: %.5f <==> %@", entry.system.name, entry.distance, (dist != 0) ? [NSString stringWithFormat:@"%.5f", dist] : @"NULL");
+
+      for (Distance *distance in system.sortedDistances) {
+        if ([distance.name isEqualToString:entry.system.name]) {
+          if (dist != 0) {
+            distance.calculatedDistance = @(dist);
+          }
+          
+          break;
+        }
+      }
+    }
+  }
+}
+
 - (void)submitDistances {
   Jump           *jump   = [jumpsArrayController valueForKeyPath:@"selection.self"];
   System         *system = jump.system;
@@ -236,7 +445,7 @@
     if (distance.distance != 0 && distance.edited == YES) {
       [refs addObject:@{
                         @"name":distance.name,
-                        @"dist":@(distance.distance)
+                        @"dist":distance.distance
                         }];
     }
   }
@@ -258,79 +467,6 @@
                          response:^(NSDictionary *response, NSError *error) {
                            
                          }];
-}
-
-- (void)trilaterate {
-  Trilateration *trilateration = [[Trilateration alloc] init];
-  Jump          *jump          = [jumpsArrayController valueForKeyPath:@"selection.self"];
-  System        *system        = jump.system;
-
-  NSLog(@"%s", __FUNCTION__);
-  
-#warning XXX
-  system = [Jump lastXYZJumpOfCommander:Commander.activeCommander].system;
-  
-  for (Distance *distance in [system.sortedDistances reverseObjectEnumerator]) {
-    if (distance.distance != 0) {
-      System *system = [System systemWithName:distance.name];
-      
-      if (system.hasCoordinates) {
-        Coordinate *coordinate = [[Coordinate alloc] initWithX:system.x y:system.y z:system.z];
-        Entry      *entry      = [[Entry alloc] initWithCoordinate:coordinate distance:distance.distance];
-        
-        [trilateration.entries addObject:entry];
-        
-        NSLog(@"\t%@: x:%.2f y:%.2f z:%.2f dist:%.2f", system.name, entry.coordinate.x, entry.coordinate.y, entry.coordinate.z, entry.distance);
-        
-        if (trilateration.entries.count == 24) {
-          break;
-        }
-      }
-    }
-  }
-  
-  NSLog(@"Trilaterating system %@ against %ld distances", system.name, (long)trilateration.entries.count);
-  
-  Result *result = [trilateration run:RedWizzard_Native];
-  
-  NSString *resultState = @"";
-  
-  switch (result.state) {
-    case Exact:
-      resultState = @"Exact";
-      break;
-    case MultipleSolutions:
-      resultState = @"MultipleSolutions";
-      break;
-    case NeedMoreDistances:
-      resultState = @"NeedMoreDistances";
-      break;
-    case NotExact:
-      resultState = @"NotExact";
-      break;
-    default:
-      NSAssert1(NO, @"unknown result %ld", (long)result.state);
-      break;
-  }
-  
-  NSLog(@"%s: result: %@", __FUNCTION__, resultState);
-  
-  if (result.coordinate != nil) {
-    NSLog(@"Trilaterated coords ==> x:%.2f y:%.2f z:%.2f", result.coordinate.x, result.coordinate.y, result.coordinate.z);
-  }
-  
-  if (result.entriesDistances.count > 0) {
-    NSLog(@"entries");
-    
-    NSArray <Entry *> *entries = result.entriesDistances.allKeys;
-    
-    for (Entry *entry in entries) {
-      NSNumber *distance = [result.entriesDistances objectForKey:entry];
-      double    dist     = [distance doubleValue];
-      
-      NSLog(@"\tentry x:%.2f y:%.2f z:%.2f dist:%.2f <==> %.2f", entry.coordinate.x, entry.coordinate.y, entry.coordinate.z, entry.distance, dist);
-    }
-  }
 }
 
 @end

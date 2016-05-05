@@ -20,6 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSArray *)allSystems;
 + (System *)systemWithName:(NSString *)name;
++ (System *)systemWithName:(NSString *)name inContext:(NSManagedObjectContext *)context;
 + (void)updateSystemsFromEDSM:(void(^)(void))response;
 
 - (NSUInteger)numVisits;

@@ -8,6 +8,8 @@
 
 #import "Trilateration.h"
 
+#import "System.h"
+
 #pragma mark -
 #pragma mark Coordinate class
 
@@ -27,9 +29,9 @@
 
 - (double)distanceToCoordinate:(Coordinate *)coordinate {
   double output_d = sqrt(pow(self.x - coordinate.x, 2) + pow(self.y - coordinate.y, 2) + pow(self.z - coordinate.z, 2));
-  long   output_l = output_d * 100;
+  double rounded = round(output_d * 100.0) / 100.0;
   
-  return (double)output_l / (double)100.0;
+  return rounded;
 }
 
 @end
@@ -68,7 +70,10 @@
 #pragma mark -
 #pragma mark Candidate class
 
-@interface Entry () <NSCopying>
+@interface Entry ()
+
+@property(nonatomic, strong) System *system;
+@property(nonatomic, assign) double  correctedDistance;
 
 @end
 
@@ -93,8 +98,14 @@
   return self;
 }
 
-- (id)copyWithZone:(NSZone *)zone {
-  return [[self.class alloc] initWithCoordinate:self.coordinate distance:self.distance];
+- (id)initWithSystem:(System *)system distance:(double)distance {
+  self = [self initWithX:system.x y:system.y z:system.z distance:distance];
+  
+  if (self != nil) {
+    self.system = system;
+  }
+  
+  return self;
 }
 
 @end
@@ -138,11 +149,11 @@
   return self;
 }
 
-- (id)initWithState:(ResultState)state coordinate:(Coordinate *)coordinate entriesDistances:(NSDictionary <Entry *, NSNumber *> *)entriesDistances {
+- (id)initWithState:(ResultState)state coordinate:(Coordinate *)coordinate entries:(NSArray <Entry *> *)entries {
   self = [self initWithState:state coordinate:coordinate];
   
   if (self != nil) {
-    _entriesDistances = entriesDistances;
+    _entries = entries;
   }
   
   return self;
@@ -489,15 +500,15 @@
     
     if (self.bestCount >= 5 && (self.bestCount - self.nextBest) >= 2)
     {
-      Result *res = [[Result alloc] initWithState:Exact coordinate:self.best[0] entriesDistances:[self calculateCSharpResultEntries:self.entries :self.best[0]]];
+      Result *res = [[Result alloc] initWithState:Exact coordinate:self.best[0] entries:[self calculateCSharpResultEntries:self.entries :self.best[0]]];
       return res;
     }
     else if ((self.bestCount - self.nextBest) >= 1)
     {
-      return [[Result alloc] initWithState:NotExact coordinate:self.best[0] entriesDistances:[self calculateCSharpResultEntries:self.entries :self.best[0]]];
+      return [[Result alloc] initWithState:NotExact coordinate:self.best[0] entries:[self calculateCSharpResultEntries:self.entries :self.best[0]]];
     }
     else if (self.best != nil && self.best.count > 1)
-      return [[Result alloc] initWithState:MultipleSolutions coordinate:self.best[0] entriesDistances:[self calculateCSharpResultEntries:self.entries :self.best[0]]]; // Trilatation.best.Count  shows how many solutions
+      return [[Result alloc] initWithState:MultipleSolutions coordinate:self.best[0] entries:[self calculateCSharpResultEntries:self.entries :self.best[0]]]; // Trilatation.best.Count  shows how many solutions
     else
       return [[Result alloc] initWithState:NeedMoreDistances];
     
@@ -507,13 +518,14 @@
   return [[Result alloc] initWithState:NeedMoreDistances];
 }
 
-- (NSDictionary <Entry *, NSNumber *> *)calculateCSharpResultEntries:(NSArray <Entry *> *)entries :(Coordinate *)coordinate {
-  NSMutableDictionary <Entry *, NSNumber *> *correctedEntries = [[NSMutableDictionary <Entry *, NSNumber *> alloc] init];
+- (NSArray <Entry *> *)calculateCSharpResultEntries:(NSArray <Entry *> *)entries :(Coordinate *)coordinate {
+  NSMutableArray <Entry *> *correctedEntries = [[NSMutableArray <Entry *> alloc] init];
   
   for (Entry *entry in entries)
   {
-    [correctedEntries setObject:@([entry.coordinate distanceToCoordinate:coordinate])
-                         forKey:entry];
+    entry.correctedDistance = [entry.coordinate distanceToCoordinate:coordinate];
+    
+    [correctedEntries addObject:entry];
   }
   
   return correctedEntries;

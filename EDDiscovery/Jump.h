@@ -13,7 +13,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#define CMDR_PREDICATE [NSPredicate predicateWithFormat:@"edsm.commander == %@ OR netLogFile.commander == %@", commander, commander]
+#define CMDR_PREDICATE [NSPredicate predicateWithFormat:@"edsm.commander.name == %@ OR netLogFile.commander.name == %@", commander.name, commander.name]
 
 @interface Jump : NSManagedObject
 

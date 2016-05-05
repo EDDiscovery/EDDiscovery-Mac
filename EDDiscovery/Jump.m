@@ -165,7 +165,7 @@
     
     for (Distance *aDistance in self.system.distances) {
       if (aDistance.distance == aDistance.calculatedDistance && [aDistance.name isEqualToString:name]) {
-        distance = @(aDistance.distance);
+        distance = aDistance.distance;
         
         break;
       }
@@ -174,7 +174,7 @@
     if (distance == nil) {
       for (Distance *aDistance in jump.system.distances) {
         if (aDistance.distance == aDistance.calculatedDistance && [aDistance.name isEqualToString:name]) {
-          distance = @(aDistance.distance);
+          distance = aDistance.distance;
           
           break;
         }

@@ -47,7 +47,10 @@
 }
 
 + (System *)systemWithName:(NSString *)name {
-  NSManagedObjectContext *context   = CoreDataManager.instance.managedObjectContext;
+  return [self systemWithName:name inContext:CoreDataManager.instance.managedObjectContext];
+}
+
++ (System *)systemWithName:(NSString *)name inContext:(NSManagedObjectContext *)context {
   NSString               *className = NSStringFromClass([System class]);
   NSFetchRequest         *request   = [[NSFetchRequest alloc] init];
   NSEntityDescription    *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
@@ -248,7 +251,7 @@
         
         for (NSDictionary *distanceData in distances) {
           NSString *name = distanceData[@"name"];
-          double    dist = [distanceData[@"distance"] doubleValue];
+          NSNumber *dist = distanceData[@"distance"];
           
           if (name.length > 0 && dist > 0 && (prevDistance == nil || ![prevDistance.name isEqualToString:name] || prevDistance.distance != dist)) {
             NSString *className = NSStringFromClass(Distance.class);
@@ -264,7 +267,7 @@
                 NSString *probName = problem[@"refsys"];
                 
                 if ([probName isEqualToString:name]) {
-                  double calculated = [problem[@"calculated"] doubleValue];
+                  NSNumber *calculated = problem[@"calculated"];
                   
                   if (dist > 0) {
                     distance.calculatedDistance = calculated;

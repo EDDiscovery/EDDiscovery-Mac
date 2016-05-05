@@ -17,13 +17,33 @@
 
 @synthesize edited;
 
+- (void)setDistance:(NSNumber *)distance {
+  [self willChangeValueForKey:@"distance"];
+  [self willChangeValueForKey:@"status"];
+  [self setPrimitiveValue:distance forKey:@"distance"];
+  [self didChangeValueForKey:@"distance"];
+  [self didChangeValueForKey:@"status"];
+  
+  if (distance == nil) {
+    self.calculatedDistance = nil;
+  }
+}
+
+- (void)setCalculatedDistance:(NSNumber *)calculatedDistance {
+  [self willChangeValueForKey:@"calculatedDistance"];
+  [self willChangeValueForKey:@"status"];
+  [self setPrimitiveValue:calculatedDistance forKey:@"calculatedDistance"];
+  [self didChangeValueForKey:@"calculatedDistance"];
+  [self didChangeValueForKey:@"status"];
+}
+
 - (NSString *)status {
   NSString *status = NSLocalizedString(@"OK", @"");
   
-  if (self.distance == 0) {
-    status = @"";
+  if (self.distance == nil || self.calculatedDistance == nil) {
+    status = nil;
   }
-  if (self.distance != self.calculatedDistance) {
+  else if (self.distance.doubleValue != self.calculatedDistance.doubleValue) {
     status = NSLocalizedString(@"Wrong distance?", @"");
   }
   
