@@ -98,7 +98,7 @@
     NSArray  *distances = system.sortedDistances;
     Distance *distance  = distances[rowIndex];
     
-    if (distance.distance == distance.calculatedDistance) {
+    if (distance.distance.doubleValue == distance.calculatedDistance.doubleValue) {
       aCell.textColor = NSColor.blackColor;
     }
     else {

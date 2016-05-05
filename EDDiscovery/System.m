@@ -28,6 +28,39 @@
   NSMutableArray *sortedDistances;
 }
 
++ (void)printStats {
+  NSManagedObjectContext *context     = CoreDataManager.instance.managedObjectContext;
+  NSString               *className   = NSStringFromClass([System class]);
+  NSFetchRequest         *request     = [[NSFetchRequest alloc] init];
+  NSEntityDescription    *entity      = [NSEntityDescription entityForName:className inManagedObjectContext:context];
+  NSError                *error       = nil;
+  NSUInteger              countTot    = 0;
+  NSUInteger              countCoords = 0;
+  
+  request.entity                 = entity;
+  request.returnsObjectsAsFaults = YES;
+  request.includesPendingChanges = YES;
+  
+  countTot = [context countForFetchRequest:request error:&error];
+  
+  NSAssert1(error == nil, @"could not execute fetch request: %@", error);
+  
+  request.predicate = [NSPredicate predicateWithFormat:@"name == %@ || x != 0 || y != 0 || z != 0", @"Sol"];
+  
+  countCoords = [context countForFetchRequest:request error:&error];
+  
+  NSAssert1(error == nil, @"could not execute fetch request: %@", error);
+  
+  NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
+  
+  numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
+  numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
+  
+  NSString *msg = [NSString stringWithFormat:@"DB contains %@ systems (%@ with known coords)", [numberFormatter stringFromNumber:@(countTot)], [numberFormatter stringFromNumber:@(countCoords)]];
+  
+  [EventLogger addLog:msg];
+}
+
 + (NSArray *)allSystems {
   NSManagedObjectContext *context   = CoreDataManager.instance.managedObjectContext;
   NSString               *className = NSStringFromClass([System class]);
@@ -109,7 +142,12 @@
   
   [EDSMConnection getSystemsInfoWithResponse:^(NSArray *response, NSError *error) {
     if (response != nil) {
-      [EventLogger addLog:[NSString stringWithFormat:@"Received %ld new systems from EDSM", (long)response.count]];
+      NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
+      
+      numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
+      numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
+
+      [EventLogger addLog:[NSString stringWithFormat:@"Received %@ new systems from EDSM", [numberFormatter stringFromNumber:@(response.count)]]];
       
       NSManagedObjectContext *context    = CoreDataManager.instance.managedObjectContext;
       NSMutableArray         *systems    = [[self allSystems] mutableCopy];
@@ -178,6 +216,8 @@
       ti = [NSDate timeIntervalSinceReferenceDate] - ti;
       
       NSLog(@"Added %ld, updated %ld systems in %.1f seconds", (long)numAdded, (long)numUpdated, ti);
+      
+      [self printStats];
     }
     else if (error != nil) {
       NSLog(@"%s: ERROR: %@", __FUNCTION__, error.localizedDescription);

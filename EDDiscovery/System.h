@@ -18,6 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface System : NSManagedObject
 
++ (void)printStats;
 + (NSArray *)allSystems;
 + (System *)systemWithName:(NSString *)name;
 + (System *)systemWithName:(NSString *)name inContext:(NSManagedObjectContext *)context;

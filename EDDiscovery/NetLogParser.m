@@ -127,7 +127,12 @@ static NetLogParser *instance = nil;
   NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:commander.netLogFilesDir error:nil];
   
   if (firstRun) {
-    [EventLogger addLog:[NSString stringWithFormat:@"Have %ld files in log directory", files.count]];
+    NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
+    
+    numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
+    numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
+    
+    [EventLogger addLog:[NSString stringWithFormat:@"Have %@ files in log directory", [numberFormatter stringFromNumber:@(files.count)]]];
   }
   
   NSMutableArray *netLogFiles = [NSMutableArray array];
@@ -139,7 +144,12 @@ static NetLogParser *instance = nil;
   }
   
   if (firstRun) {
-    [EventLogger addLog:[NSString stringWithFormat:@"Have %ld netLog files in log directory", netLogFiles.count]];
+    NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
+    
+    numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
+    numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
+    
+    [EventLogger addLog:[NSString stringWithFormat:@"Have %@ netLog files in log directory", [numberFormatter stringFromNumber:@(netLogFiles.count)]]];
   }
   
   NSMutableArray *netLogs = [NSMutableArray arrayWithCapacity:netLogFiles.count];
@@ -215,7 +225,12 @@ static NetLogParser *instance = nil;
       if (numParsed > 1) {
         ti = [NSDate timeIntervalSinceReferenceDate] - ti;
       
-        [EventLogger addLog:[NSString stringWithFormat:@"Parsed %ld jumps from %ld netLog files in %.1f seconds", (long)numJumps, (long)numParsed, ti]];
+        NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
+        
+        numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
+        numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
+        
+        [EventLogger addLog:[NSString stringWithFormat:@"Parsed %@ jumps from %@ netLog files in %.1f seconds", [numberFormatter stringFromNumber:@(numJumps)], [numberFormatter stringFromNumber:@(numParsed)], ti]];
       }
       
       if (commander.edsmAccount != nil) {

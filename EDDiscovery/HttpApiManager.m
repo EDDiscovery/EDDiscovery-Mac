@@ -13,21 +13,9 @@ dispatch_once_t onceToken;
 
 NSString* keychainPrefix;
 NSString* baseUrl=nil;
-NSString* email=nil;
-NSString* password=nil;
 NSString* locale=nil;
 
 @implementation HttpApiManager
-
-+(NSString*)email
-{
- return email;
-}
-
-+(NSString*)password
-{
- return password;
-}
 
 +(void)setBaseUrl:(NSString*)aBaseUrl andKeychainPrefix:(NSString*)aKeychainPrefix
 {
@@ -38,91 +26,7 @@ NSString* locale=nil;
  keychainPrefix=aKeychainPrefix;
 }
 
-+(void)setEmail:(NSString*)newEmail andPassword:(NSString*)newPassword
-{
- email=newEmail;
- password=newPassword;
- locale=[[[NSLocale currentLocale] localeIdentifier] stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
- 
- [HttpApiManager saveCredential];
-}
-
-+(BOOL)loadCredential
-{
-#warning TODO
-  return NO;
-// NSString* appID = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
-// NSString* accessGroup=[NSString stringWithFormat:@"%@.%@",keychainPrefix,appID];
-// NSLog(@"Loading HttpApi data to keychain with ID: %@ and Group: %@",HTTP_API_MANAGER_IDENTIFIER,accessGroup);
-// 
-// KeychainItemWrapper* aKeychainWrapper=[[KeychainItemWrapper alloc] initWithIdentifier:HTTP_API_MANAGER_IDENTIFIER accessGroup:accessGroup];
-// 
-// // [aKeychainWrapper setObject:HTTP_API_MANAGER_IDENTIFIER forKey:HTTP_API_MANAGER_SERVICE_KEY];
-// email=[aKeychainWrapper objectForKey:HTTP_API_MANAGER_EMAIL_KEY];
-// password=[aKeychainWrapper objectForKey:HTTP_API_MANAGER_PASSWORD_KEY];
-// locale=[[[NSLocale currentLocale] localeIdentifier] stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
-// 
-// return email!=nil && ![email isEqualToString:@""] && password!=nil && ![password isEqualToString:@""];
-}
-
-+(void)saveCredential
-{
-#warning TODO
-//NSString* appID = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
-// NSString* accessGroup=[NSString stringWithFormat:@"%@.%@",keychainPrefix,appID];
-// NSLog(@"Saving HttpApi data to keychain with ID: %@ and Group: %@",HTTP_API_MANAGER_IDENTIFIER,accessGroup);
-// 
-// KeychainItemWrapper* aKeychainWrapper=[[KeychainItemWrapper alloc] initWithIdentifier:HTTP_API_MANAGER_IDENTIFIER accessGroup:accessGroup];
-// 
-// // [aKeychainWrapper setObject:HTTP_API_MANAGER_IDENTIFIER forKey:HTTP_API_MANAGER_SERVICE_KEY];
-// [aKeychainWrapper setObject:email forKey:HTTP_API_MANAGER_EMAIL_KEY];
-// [aKeychainWrapper setObject:password forKey:HTTP_API_MANAGER_PASSWORD_KEY];
-}
-
-+(void)resetCredential
-{
-#warning TODO
-// NSString* appID = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
-// NSString* accessGroup=[NSString stringWithFormat:@"%@.%@",keychainPrefix,appID];
-// NSLog(@"Resetting HttpApi data for keychain with ID: %@ and Group: %@",HTTP_API_MANAGER_IDENTIFIER,accessGroup);
-// 
-// KeychainItemWrapper* aKeychainWrapper=[[KeychainItemWrapper alloc] initWithIdentifier:appID accessGroup:accessGroup];
-// 
-// // [aKeychainWrapper setObject:HTTP_API_MANAGER_IDENTIFIER forKey:HTTP_API_MANAGER_SERVICE_KEY];
-// [aKeychainWrapper resetKeychainItem];
-}
-
-+(NSMutableString*)constructBaseParameterWithCredential:(BOOL)sendUsernameAndPassword
-{
- NSMutableString* baseParameter=[NSMutableString string];
- if (email!=nil)
- {
-  [baseParameter appendFormat:@"userLocale=%@",locale];
-#ifdef HTTP_API_MANAGER_DEBUG
-  [baseParameter appendFormat:@"&debug=1"];
-#endif
-  if (sendUsernameAndPassword)
-  {
-   [baseParameter appendFormat:@"&userEmail=%@",[email stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding]];
-   [baseParameter appendFormat:@"&userPassword=%@",[password stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding]];
-  }
- }
- return baseParameter;
-}
-
-+(void)willCallApi
-{
-// [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
-// [UIApplication sharedApplication].networkActivityIndicatorVisible=YES;
-}
-
-+(void)didCallApi
-{
-// [UIApplication sharedApplication].networkActivityIndicatorVisible=NO;
-// [[UIApplication sharedApplication] endIgnoringInteractionEvents];
-}
-
-+(void)callApi:(NSString*)apiName withMethod:(NSString*)aMethod sendCredential:(BOOL)sendUsernameAndPassword responseCallback:(void(^)(id response, NSError *error))callback parametersCount:(NSInteger)count parameters:(va_list)valist
++(void)callApi:(NSString*)apiName withMethod:(NSString*)aMethod responseCallback:(void(^)(id response, NSError *error))callback parametersCount:(NSInteger)count parameters:(va_list)valist
 {
  NSString* value1;
  NSString* value2;
@@ -137,7 +41,7 @@ NSString* locale=nil;
  {
   urlString=[NSMutableString stringWithFormat:@"%@",baseUrl];
  }
- NSMutableString* parameter=[HttpApiManager constructBaseParameterWithCredential:sendUsernameAndPassword];
+ NSMutableString* parameter=[NSMutableString string];
  for (int i=0; i<count; i++)
  {
   value1=va_arg(valist, NSString*);
@@ -145,7 +49,7 @@ NSString* locale=nil;
   value2=(NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(NULL,
                                                                                (CFStringRef)value2,
                                                                                NULL,
-                                                                               (CFStringRef)@"!*'();:@&=+$/?%#[]",//(CFStringRef)@"!*'();:@&=+$,/?%#[]",
+                                                                               (CFStringRef)@"!*'();:@&=+$/?%#[]",
                                                                                kCFStringEncodingUTF8 ));
    [parameter appendFormat:@"%@%@=%@", (parameter.length == 0) ? @"" : @"&", value1, value2!=nil?value2:@""];
  }
@@ -192,13 +96,12 @@ NSString* locale=nil;
  });
 }
 
-+(void)callApi:(NSString*)apiName withMethod:(NSString*)aMethod sendCredential:(BOOL)sendUsernameAndPassword responseCallback:(void(^)(id response, NSError *error))callback parameters:(NSInteger)count,...
++(void)callApi:(NSString*)apiName withMethod:(NSString*)aMethod responseCallback:(void(^)(id response, NSError *error))callback parameters:(NSInteger)count,...
 {
  va_list args;
  va_start(args, count);
  [HttpApiManager callApi:apiName
               withMethod:aMethod
-          sendCredential:sendUsernameAndPassword
         responseCallback:callback
          parametersCount:count
               parameters:args];

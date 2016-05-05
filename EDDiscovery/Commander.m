@@ -170,7 +170,12 @@ static Commander *activeCommander = nil;
         exit(-1);
       }
       
-      [EventLogger addLog:[NSString stringWithFormat:@"Deleted %ld jumps from travel history", (long)numJumps]];
+      NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
+      
+      numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
+      numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
+
+      [EventLogger addLog:[NSString stringWithFormat:@"Deleted %@ jumps from travel history", [numberFormatter stringFromNumber:@(numJumps)]]];
       
       NSLog(@"Deleted %ld netlog file records", (long)netLogFiles.count);
     }

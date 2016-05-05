@@ -237,7 +237,7 @@
     
     if ([aTableColumn.identifier isEqualToString:@"calculatedDistance"] || [aTableColumn.identifier isEqualToString:@"status"]) {
       if (distance.distance.doubleValue == distance.calculatedDistance.doubleValue) {
-        aCell.textColor = NSColor.greenColor;
+        aCell.textColor = NSColor.blackColor;
       }
       else {
         aCell.textColor = NSColor.redColor;

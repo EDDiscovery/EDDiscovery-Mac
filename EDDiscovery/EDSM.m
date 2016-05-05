@@ -218,7 +218,12 @@
       exit(-1);
     }
     
-    [EventLogger addLog:[NSString stringWithFormat:@"Received %ld new jumps from EDSM", (long)jumps.count]];
+    NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
+    
+    numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
+    numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
+    
+    [EventLogger addLog:[NSString stringWithFormat:@"Received %@ new jumps from EDSM", [numberFormatter stringFromNumber:@(jumps.count)]]];
   }
 }
 
@@ -282,7 +287,7 @@
                  }];
 }
 
-#warning FIXME: workaround for a known SDK bug (http://stackoverflow.com/questions/7385439/exception-thrown-in-nsorderedset-generated-accessors)
+//FIXME workaround for a known SDK bug (http://stackoverflow.com/questions/7385439/exception-thrown-in-nsorderedset-generated-accessors)
 - (void)insertObject:(Jump *)value inJumpsAtIndex:(NSUInteger)idx {
   NSMutableOrderedSet *tempSet = [NSMutableOrderedSet orderedSetWithOrderedSet:self.jumps];
   

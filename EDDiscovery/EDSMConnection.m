@@ -31,7 +31,6 @@
   
   [self callApi:@"api-v1/system"
      withMethod:@"POST"
- sendCredential:NO
 responseCallback:^(id data, NSError *error) {
   
   if (error == nil) {
@@ -71,7 +70,6 @@ responseCallback:^(id data, NSError *error) {
   
   [self callApi:@"dump/systemsWithCoordinates.json"
      withMethod:@"GET"
- sendCredential:NO
 responseCallback:^(id output, NSError *error) {
 
   if (error == nil) {
@@ -149,7 +147,6 @@ responseCallback:^(id output, NSError *error) {
     
     [self callApi:@"api-v1/systems"
        withMethod:@"GET"
-   sendCredential:NO
   responseCallback:^(id output, NSError *error) {
     
     //  NSLog(@"ERR: %@", error);
@@ -202,7 +199,6 @@ responseCallback:^(id output, NSError *error) {
   
   [self callApi:@"api-logs-v1/get-logs"
      withMethod:@"POST"
- sendCredential:NO
 responseCallback:^(id output, NSError *error) {
   
   if (error == nil) {
@@ -265,7 +261,6 @@ responseCallback:^(id output, NSError *error) {
   
   [self callApi:@"api-logs-v1/set-log"
      withMethod:@"POST"
- sendCredential:NO
 responseCallback:^(id output, NSError *error) {
   
   if (error == nil) {
@@ -320,7 +315,6 @@ responseCallback:^(id output, NSError *error) {
   
   [self callApi:@"api-logs-v1/get-comments"
      withMethod:@"POST"
- sendCredential:NO
 responseCallback:^(id output, NSError *error) {
   
   if (error == nil) {
@@ -374,7 +368,6 @@ responseCallback:^(id output, NSError *error) {
   
   [self callApi:@"api-logs-v1/set-comment"
      withMethod:@"POST"
- sendCredential:NO
 responseCallback:^(id output, NSError *error) {
   
   if (error == nil) {
