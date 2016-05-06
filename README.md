@@ -40,8 +40,9 @@ UI side, at present you can:
 - select single jumps and see system information
 - add / edit / removed comments (changes will be synced to EDSM)
 - see submitted distances from other systems (suspicious distances will be marked in red)
+- trilaterate systems by adding distances to system with known coordinates
+- submit trilaterations to EDSM
 
 TODO:
-- add a trilateration screen like the one on EDDiscovery for Windows and integrate it with EDSM
 - screenshots management
 - ...
