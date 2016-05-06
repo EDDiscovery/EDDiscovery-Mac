@@ -37,6 +37,8 @@
 		D952CAB91CD371BF0087BC07 /* Commander.m in Sources */ = {isa = PBXBuildFile; fileRef = D952CAB71CD371BF0087BC07 /* Commander.m */; };
 		D95E150D1CC42DE40087BC07 /* HttpApiManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D95E150C1CC42DE40087BC07 /* HttpApiManager.m */; };
 		D95E15131CC42E620087BC07 /* EDSMConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = D95E15121CC42E620087BC07 /* EDSMConnection.m */; };
+		D971F72A1CDCDF030087BC07 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D971F7281CDCDF030087BC07 /* Fabric.framework */; };
+		D971F72B1CDCDF030087BC07 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D971F7291CDCDF030087BC07 /* Crashlytics.framework */; };
 		D9B5622B1CD787800087BC07 /* TrilaterationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D9B5622A1CD787800087BC07 /* TrilaterationViewController.m */; };
 		D9BAB5DD1CC0F7D80087BC07 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB5DC1CC0F7D80087BC07 /* AppDelegate.m */; };
 		D9BAB5E01CC0F7D80087BC07 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB5DF1CC0F7D80087BC07 /* main.m */; };
@@ -107,6 +109,9 @@
 		D95E150C1CC42DE40087BC07 /* HttpApiManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HttpApiManager.m; sourceTree = "<group>"; };
 		D95E15111CC42E620087BC07 /* EDSMConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EDSMConnection.h; sourceTree = "<group>"; };
 		D95E15121CC42E620087BC07 /* EDSMConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EDSMConnection.m; sourceTree = "<group>"; };
+		D971F7261CDCD6B70087BC07 /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
+		D971F7281CDCDF030087BC07 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
+		D971F7291CDCDF030087BC07 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		D9B562291CD787800087BC07 /* TrilaterationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrilaterationViewController.h; sourceTree = "<group>"; };
 		D9B5622A1CD787800087BC07 /* TrilaterationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TrilaterationViewController.m; sourceTree = "<group>"; };
 		D9BAB5D81CC0F7D80087BC07 /* EDDiscovery.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EDDiscovery.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -129,6 +134,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D971F72B1CDCDF030087BC07 /* Crashlytics.framework in Frameworks */,
+				D971F72A1CDCDF030087BC07 /* Fabric.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -202,6 +209,8 @@
 		D95E14EA1CC1AA030087BC07 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				D971F7081CDCCEB30087BC07 /* Application delegate */,
+				D971F72C1CDCDF710087BC07 /* Crashlytics */,
 				D94DE2901CC4E9E50087BC07 /* Data management */,
 				D94DE3071CC5095C0087BC07 /* Event logging */,
 				D95E14EB1CC1AA090087BC07 /* File monitoring */,
@@ -226,13 +235,11 @@
 		D95E14EC1CC1AA180087BC07 /* GUI */ = {
 			isa = PBXGroup;
 			children = (
-				D9BAB5DB1CC0F7D80087BC07 /* AppDelegate.h */,
-				D9BAB5DC1CC0F7D80087BC07 /* AppDelegate.m */,
+				D9BAB5E61CC0F7D80087BC07 /* Main.storyboard */,
 				D9BAB5E11CC0F7D80087BC07 /* TravelHistoryViewController.h */,
 				D9BAB5E21CC0F7D80087BC07 /* TravelHistoryViewController.m */,
 				D9B562291CD787800087BC07 /* TrilaterationViewController.h */,
 				D9B5622A1CD787800087BC07 /* TrilaterationViewController.m */,
-				D9BAB5E61CC0F7D80087BC07 /* Main.storyboard */,
 			);
 			name = GUI;
 			sourceTree = "<group>";
@@ -271,6 +278,24 @@
 				D91CAA311CD3F8920087BC07 /* SSKeychain.m */,
 			);
 			name = "Keychain access";
+			sourceTree = "<group>";
+		};
+		D971F7081CDCCEB30087BC07 /* Application delegate */ = {
+			isa = PBXGroup;
+			children = (
+				D9BAB5DB1CC0F7D80087BC07 /* AppDelegate.h */,
+				D9BAB5DC1CC0F7D80087BC07 /* AppDelegate.m */,
+			);
+			name = "Application delegate";
+			sourceTree = "<group>";
+		};
+		D971F72C1CDCDF710087BC07 /* Crashlytics */ = {
+			isa = PBXGroup;
+			children = (
+				D971F7281CDCDF030087BC07 /* Fabric.framework */,
+				D971F7291CDCDF030087BC07 /* Crashlytics.framework */,
+			);
+			name = Crashlytics;
 			sourceTree = "<group>";
 		};
 		D9B5622C1CD7B1150087BC07 /* Trilateration */ = {
@@ -312,7 +337,6 @@
 				D95E14EA1CC1AA030087BC07 /* Core */,
 				D95E14EC1CC1AA180087BC07 /* GUI */,
 				D95E14ED1CC1AA2B0087BC07 /* Resources */,
-				D9BAB5E91CC0F7D80087BC07 /* Info.plist */,
 				D9BAB5DE1CC0F7D80087BC07 /* Supporting Files */,
 			);
 			path = EDDiscovery;
@@ -321,7 +345,9 @@
 		D9BAB5DE1CC0F7D80087BC07 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				D9BAB5E91CC0F7D80087BC07 /* Info.plist */,
 				D9BAB5DF1CC0F7D80087BC07 /* main.m */,
+				D971F7261CDCD6B70087BC07 /* PrefixHeader.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -345,6 +371,7 @@
 				D9BAB5D41CC0F7D80087BC07 /* Sources */,
 				D9BAB5D51CC0F7D80087BC07 /* Frameworks */,
 				D9BAB5D61CC0F7D80087BC07 /* Resources */,
+				D971F7271CDCDECA0087BC07 /* Crashlytics */,
 			);
 			buildRules = (
 			);
@@ -399,6 +426,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		D971F7271CDCDECA0087BC07 /* Crashlytics */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = Crashlytics;
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "releaseConfig=\"Release\"\n\nif [ \"$releaseConfig\" == \"${CONFIGURATION}\" ]; then\n\necho \"Running Crashlytics\"\n\n./Fabric.framework/run fb0f49032da5c23b0f2555fbbba77dabb3c9c4ef 2025998717fd3c438feafab764b0b2aaf89472986448635c23582a24c1c406fc\n\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		D9BAB5D41CC0F7D80087BC07 /* Sources */ = {
@@ -547,10 +591,15 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/EDDiscovery",
+				);
+				GCC_PREFIX_HEADER = EDDiscovery/PrefixHeader.pch;
 				INFOPLIST_FILE = EDDiscovery/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				PRODUCT_BUNDLE_IDENTIFIER = it.michelenoberasco.EDDiscovery;
+				PRODUCT_BUNDLE_IDENTIFIER = EDDiscovery;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 			};
@@ -564,10 +613,15 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/EDDiscovery",
+				);
+				GCC_PREFIX_HEADER = EDDiscovery/PrefixHeader.pch;
 				INFOPLIST_FILE = EDDiscovery/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				PRODUCT_BUNDLE_IDENTIFIER = it.michelenoberasco.EDDiscovery;
+				PRODUCT_BUNDLE_IDENTIFIER = EDDiscovery;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 			};

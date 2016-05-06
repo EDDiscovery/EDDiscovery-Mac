@@ -15,7 +15,6 @@
 #import "Distance.h"
 
 #define BASE_URL @"http://www.edsm.net"
-#define KEYCHAIN_PREFIX nil
 
 @implementation EDSMConnection
 
@@ -23,7 +22,7 @@
   static dispatch_once_t onceToken;
   
   dispatch_once(&onceToken, ^{
-    [self setBaseUrl:BASE_URL andKeychainPrefix:KEYCHAIN_PREFIX];
+    [self setBaseUrl:BASE_URL];
   });
 }
 
@@ -33,6 +32,8 @@
   [self callApi:@"api-v1/system"
      withMethod:@"POST"
 responseCallback:^(id data, NSError *error) {
+  
+  [Answers logCustomEventWithName:@"EDSM API call" customAttributes:@{@"API":@"api-v1/system"}];
   
   if (error == nil) {
     NSError      *error  = nil;
@@ -93,6 +94,9 @@ responseCallback:^(id data, NSError *error) {
   [self callApi:@"api-v1/submit-distances"
        withBody:data
 responseCallback:^(id output, NSError *error) {
+  
+  [Answers logCustomEventWithName:@"EDSM API call" customAttributes:@{@"API":@"api-v1/submit-distances"}];
+  
   if (error == nil) {
     NSError      *error        = nil;
     NSDictionary *data         = [NSJSONSerialization JSONObjectWithData:output options:0 error:&error];
@@ -156,6 +160,8 @@ responseCallback:^(id output, NSError *error) {
      withMethod:@"GET"
 responseCallback:^(id output, NSError *error) {
 
+  [Answers logCustomEventWithName:@"EDSM API call" customAttributes:@{@"API":@"dump/systemsWithCoordinates.json"}];
+  
   if (error == nil) {
     NSError *error   = nil;
     NSArray *systems = [NSJSONSerialization JSONObjectWithData:output options:0 error:&error];
@@ -233,6 +239,8 @@ responseCallback:^(id output, NSError *error) {
        withMethod:@"GET"
   responseCallback:^(id output, NSError *error) {
     
+    [Answers logCustomEventWithName:@"EDSM API call" customAttributes:@{@"API":@"api-v1/systems"}];
+    
     //  NSLog(@"ERR: %@", error);
     //  NSLog(@"RES: %@", response);
     
@@ -284,6 +292,8 @@ responseCallback:^(id output, NSError *error) {
   [self callApi:@"api-logs-v1/get-logs"
      withMethod:@"POST"
 responseCallback:^(id output, NSError *error) {
+  
+  [Answers logCustomEventWithName:@"EDSM API call" customAttributes:@{@"API":@"api-v1/get-logs"}];
   
   if (error == nil) {
     NSArray      *jumps = nil;
@@ -347,6 +357,8 @@ responseCallback:^(id output, NSError *error) {
      withMethod:@"POST"
 responseCallback:^(id output, NSError *error) {
   
+  [Answers logCustomEventWithName:@"EDSM API call" customAttributes:@{@"API":@"api-v1/set-log"}];
+  
   if (error == nil) {
     NSError      *error = nil;
     NSDictionary *data  = [NSJSONSerialization JSONObjectWithData:output options:0 error:&error];
@@ -401,6 +413,8 @@ responseCallback:^(id output, NSError *error) {
      withMethod:@"POST"
 responseCallback:^(id output, NSError *error) {
   
+  [Answers logCustomEventWithName:@"EDSM API call" customAttributes:@{@"API":@"api-v1/get-comments"}];
+  
   if (error == nil) {
     NSArray      *comments = nil;
     NSError      *error    = nil;
@@ -453,6 +467,8 @@ responseCallback:^(id output, NSError *error) {
   [self callApi:@"api-logs-v1/set-comment"
      withMethod:@"POST"
 responseCallback:^(id output, NSError *error) {
+  
+  [Answers logCustomEventWithName:@"EDSM API call" customAttributes:@{@"API":@"api-v1/set-comment"}];
   
   if (error == nil) {
     NSError      *error   = nil;

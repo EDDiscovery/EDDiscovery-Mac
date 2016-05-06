@@ -10,11 +10,6 @@
 
 @class System;
 
-typedef NS_ENUM(NSInteger, Algorithm) {
-  RedWizzard_Emulated,
-  RedWizzard_Native
-};
-
 typedef NS_ENUM(NSInteger, ResultState) {
   Exact,
   NotExact,
@@ -61,7 +56,7 @@ typedef NS_ENUM(NSInteger, ResultState) {
 @interface Trilateration : NSObject
 
 - (id)init;
-- (Result *)run:(Algorithm)algorithm;
+- (Result *)run;
 
 @property(nonatomic, readonly) NSMutableArray <Entry *> *entries;
 

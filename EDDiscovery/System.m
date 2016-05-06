@@ -480,6 +480,8 @@
         
         [referencesCalculator addReferenceStar:system];
       }
+      
+      [Answers logCustomEventWithName:@"Suggested reference systems" customAttributes:nil];
     }
   }];
 }

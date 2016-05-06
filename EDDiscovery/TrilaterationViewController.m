@@ -74,6 +74,12 @@
   }
 }
 
+- (void)viewDidAppear {
+  [super viewDidAppear];
+  
+  [Answers logCustomEventWithName:@"Screen view" customAttributes:@{@"screen":NSStringFromClass(self.class)}];
+}
+
 #pragma mark -
 #pragma mark row reordering
 
@@ -339,7 +345,7 @@
   
   NSLog(@"Trilaterating system %@ against %ld distances", system.name, (long)trilateration.entries.count);
   
-  Result *result = [trilateration run:RedWizzard_Native];
+  Result *result = [trilateration run];
   
   NSString *resultState = @"";
   
@@ -370,6 +376,8 @@
   }
   
   NSLog(@"%s: result: %@", __FUNCTION__, resultState);
+  
+  [Answers logCustomEventWithName:@"Trilateration" customAttributes:@{@"result":resultState}];
   
   if (result.coordinate != nil) {
     NSLog(@"Trilaterated coords ==> x:%.5f y:%.5f z:%.5f", result.coordinate.x, result.coordinate.y, result.coordinate.z);

@@ -11,19 +11,17 @@
 dispatch_queue_t queue;
 dispatch_once_t onceToken;
 
-NSString* keychainPrefix;
 NSString* baseUrl=nil;
 NSString* locale=nil;
 
 @implementation HttpApiManager
 
-+(void)setBaseUrl:(NSString*)aBaseUrl andKeychainPrefix:(NSString*)aKeychainPrefix
++(void)setBaseUrl:(NSString*)aBaseUrl
 {
  dispatch_once(&onceToken, ^{
   queue = dispatch_queue_create(NULL, DISPATCH_QUEUE_CONCURRENT);
  });
  baseUrl=aBaseUrl;
- keychainPrefix=aKeychainPrefix;
 }
 
 +(void)callApi:(NSString*)apiName withMethod:(NSString*)aMethod responseCallback:(void(^)(id response, NSError *error))callback parametersCount:(NSInteger)count parameters:(va_list)valist
@@ -69,9 +67,9 @@ NSString* locale=nil;
   NSError* error=nil;
 
   NSData *data=[NSURLConnection sendSynchronousRequest:request returningResponse:nil error:&error];
-  NSString *string=[[NSString alloc] initWithBytes: [data bytes] length:[data length] encoding: NSUTF8StringEncoding];
-  
  #ifdef HTTP_API_MANAGER_DEBUG
+   NSString *string=[[NSString alloc] initWithBytes: [data bytes] length:[data length] encoding: NSUTF8StringEncoding];
+   
    NSString *msg = [NSString stringWithFormat:@"\n%@\n%@\n%@\n%@\n%@\n%@\n\n",
                     @"---------- Request ----------",
                     [NSString stringWithFormat:@"%@ %@", aMethod, urlString],
@@ -143,11 +141,6 @@ NSString* locale=nil;
    fileData=va_arg(valist, NSData*);
   }
   
-  //  value2=(NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(NULL,
-  //                                                                               (CFStringRef)value2,
-  //                                                                               NULL,
-  //                                                                               (CFStringRef)@"!*'();:@&=+$,/?%#[]",
-  //                                                                               kCFStringEncodingUTF8 ));
 #ifdef HTTP_API_MANAGER_DEBUG
   [postDataString appendFormat:@"--%@\n",BOUNDARY_TAG];
 #endif
@@ -200,9 +193,10 @@ NSString* locale=nil;
   [request setHTTPBody:postData];
   NSError* error=nil;
   NSData *data=[NSURLConnection sendSynchronousRequest:request returningResponse:nil error:&error];
-  NSString *string=[[NSString alloc] initWithBytes: [data bytes] length:[data length] encoding: NSUTF8StringEncoding];
-  
+   
  #ifdef HTTP_API_MANAGER_DEBUG
+   NSString *string=[[NSString alloc] initWithBytes: [data bytes] length:[data length] encoding: NSUTF8StringEncoding];
+   
   NSLog(@"---------- Response ----------");
   NSLog(@"%@",string);
  #endif
@@ -242,12 +236,6 @@ NSString* locale=nil;
   {
     urlString=[NSMutableString stringWithFormat:@"%@",baseUrl];
   }
-//#ifdef HTTP_API_MANAGER_DEBUG
-//  NSLog(@"---------- Request ----------");
-//  NSLog(@"%@",urlString);
-//  NSLog(@"---------- Parameters ----------");
-//  NSLog(@"%@",postDataString);
-//#endif
   
   dispatch_async(queue, ^{
     NSMutableURLRequest *request;
@@ -257,9 +245,10 @@ NSString* locale=nil;
     [request setHTTPBody:aBody];
     NSError* error=nil;
     NSData *data=[NSURLConnection sendSynchronousRequest:request returningResponse:nil error:&error];
+
+#ifdef HTTP_API_MANAGER_DEBUG
     NSString *string=[[NSString alloc] initWithBytes: [data bytes] length:[data length] encoding: NSUTF8StringEncoding];
     
-#ifdef HTTP_API_MANAGER_DEBUG
     NSLog(@"---------- Request ----------");
     NSLog(@"%@",urlString);
     NSLog(@"---------- body ----------");

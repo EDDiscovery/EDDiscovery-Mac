@@ -747,7 +747,7 @@
 /// Executes trilateration based on given distances.
 /// </summary>
 /// <returns>Result information, including coordinate and corrected Entry distances if found.</returns>
-- (Result *)run:(Algorithm)algorithm {
+- (Result *)run {
   return [self runCSharp];
 }
 

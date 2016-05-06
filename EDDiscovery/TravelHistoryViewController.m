@@ -60,6 +60,12 @@
   EventLogger.instance.textView = textView;
 }
 
+- (void)viewDidAppear {
+  [super viewDidAppear];
+  
+  [Answers logCustomEventWithName:@"Screen view" customAttributes:@{@"screen":NSStringFromClass(self.class)}];
+}
+
 #pragma mark -
 #pragma mark NSTableView management
 
@@ -207,6 +213,8 @@
       
       if (goOn == YES) {
         Commander.activeCommander.netLogFilesDir = path;
+        
+        [Answers logCustomEventWithName:@"NETLOG configure path" customAttributes:@{@"path":path}];
       }
     }
     else {
@@ -233,6 +241,8 @@
   
   if (cmdrName.length > 0 && apiKey.length > 0) {
     [Commander.activeCommander.edsmAccount syncJumpsWithEDSM];
+    
+    [Answers logCustomEventWithName:@"EDSM configure account" customAttributes:nil];
   }
 }
 
@@ -246,6 +256,8 @@
     Commander.activeCommander = commander;
     
     [self activeCommanderDidChange];
+    
+    [Answers logCustomEventWithName:@"CMDR change" customAttributes:nil];
   }
 }
 
@@ -272,6 +284,8 @@
     
     if (commander != nil) {
       [self activeCommanderDidChange];
+      
+      [Answers logCustomEventWithName:@"CMDR create" customAttributes:nil];
     }
   }
 }
@@ -293,6 +307,8 @@
     [Commander setActiveCommander:nil];
     
     [self activeCommanderDidChange];
+    
+    [Answers logCustomEventWithName:@"CMDR delete" customAttributes:nil];
   }
 }
 

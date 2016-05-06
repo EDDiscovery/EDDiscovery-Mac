@@ -240,6 +240,8 @@ static NetLogParser *instance = nil;
         numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
         
         [EventLogger addLog:[NSString stringWithFormat:@"Parsed %@ jumps from %@ netLog files in %.1f seconds", [numberFormatter stringFromNumber:@(numJumps)], [numberFormatter stringFromNumber:@(numParsed)], ti]];
+        
+        [Answers logCustomEventWithName:@"NETLOG parse" customAttributes:@{@"jumps":@(numJumps),@"files":@(numParsed)}];
       }
       
       if (commander.edsmAccount != nil) {
@@ -303,10 +305,12 @@ static NetLogParser *instance = nil;
         if (netLogFile.complete == NO) {
           NSString *msg = [NSString stringWithFormat:@"Jump to %@ (num visits: %ld)", jump.system.name, (long)jump.system.jumps.count];
           
+          [Answers logCustomEventWithName:@"NETLOG parse" customAttributes:@{@"jumps":@1,@"files":@1}];
+          
           if (jump.system.hasCoordinates == NO) {
             [jump.system updateFromEDSM:nil];
           }
-          
+
           if (commander.edsmAccount != nil) {
             [commander.edsmAccount sendJumpToEDSM:jump];
           }

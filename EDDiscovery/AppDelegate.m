@@ -12,6 +12,10 @@
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+  [[NSUserDefaults standardUserDefaults] registerDefaults:@{ @"NSApplicationCrashOnExceptions": @YES }];
+  
+  [Fabric with:@[[Crashlytics class]]];
+
   [self initializeApplication];
 }
 
