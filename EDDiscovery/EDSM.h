@@ -20,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface EDSM : NSManagedObject
 
++ (void)sendDistancesToEDSM:(System *)system response:(void(^)(BOOL distancesSubmitted, BOOL systemTrilaterated))response;
+
 - (void)syncJumpsWithEDSM;
 - (void)sendJumpToEDSM:(Jump *)jump;
 - (void)sendNoteToEDSM:(NSString *)note forSystem:(NSString *)system;

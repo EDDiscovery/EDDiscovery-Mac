@@ -419,6 +419,14 @@
       if (system != nil) {
         referencesCalculator = [[SuggestedReferences alloc] initWithLastKnownPosition:system];
         
+        for (Distance *distance in system.distances) {
+          System *system = [System systemWithName:distance.name inContext:bgContext];
+          
+          if (system.hasCoordinates == YES) {
+            [referencesCalculator addReferenceStar:system];
+          }
+        }
+        
         objc_setAssociatedObject(bgContext, &referenceCalculatorKey, referencesCalculator, OBJC_ASSOCIATION_RETAIN);
       }
     }
@@ -459,7 +467,17 @@
   NSSet       *notes     = [self.notes filteredSetUsingPredicate:predicate];
   Note        *note      = notes.anyObject;
   
-  NSAssert(notes.count < 2, @"Cannot have more than 1 note");
+  if (notes.count > 1) {
+    NSArray *array = [notes allObjects];
+    
+    for (NSUInteger i=0; i<(array.count - 1); i++) {
+      Note *note = array[i];
+      
+      [note.managedObjectContext deleteObject:note];
+    }
+    
+    note = array.lastObject;
+  }
   
   return note.note;
 }

@@ -20,7 +20,7 @@
 + (void)getSystemInfo:(NSString *)systemName response:(void(^)(NSDictionary *response, NSError *error))response;
 
 //system distances
-+ (void)submitDistances:(NSData *)data  response:(void(^)(NSDictionary *response, NSError *error))response;
++ (void)submitDistances:(NSData *)data response:(void(^)(BOOL distancesSubmitted, BOOL systemTrilaterated, NSError *error))response;
 
 //commander travel logs
 + (void)getJumpsForCommander:(Commander *)commander response:(void(^)(NSArray *jumps, NSError *error))response;

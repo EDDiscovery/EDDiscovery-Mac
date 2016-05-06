@@ -21,9 +21,9 @@
 @synthesize edited;
 
 - (void)setDistance:(NSNumber *)distance {
-  [self willAccessValueForKey:@"distance"];
-  NSLog(@"%s: %@ ==> %@", __FUNCTION__, [self primitiveValueForKey:@"distance"], distance);
-  [self didAccessValueForKey:@"distance"];
+//  [self willAccessValueForKey:@"distance"];
+//  NSLog(@"%s: %@ ==> %@", __FUNCTION__, [self primitiveValueForKey:@"distance"], distance);
+//  [self didAccessValueForKey:@"distance"];
   
   [self willChangeValueForKey:@"distance"];
   [self willChangeValueForKey:@"status"];

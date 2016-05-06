@@ -16,6 +16,7 @@
 #import "System.h"
 #import "Commander.h"
 #import "Note.h"
+#import "Distance.h"
 
 
 @implementation EDSM {
@@ -322,7 +323,17 @@
                                      NSSet       *notes     = [self.notes filteredSetUsingPredicate:predicate];
                                      Note        *note      = notes.anyObject;
                                      
-                                     NSAssert(notes.count < 2, @"Cannot have more than 1 note");
+                                     if (notes.count > 1) {
+                                       NSArray *array = [notes allObjects];
+                                       
+                                       for (NSUInteger i=0; i<(array.count - 1); i++) {
+                                         Note *note = array[i];
+                                         
+                                         [context deleteObject:note];
+                                       }
+                                       
+                                       note = array.lastObject;
+                                     }
                                      
                                      if (note == nil) {
                                        NSString *className = NSStringFromClass(Note.class);
@@ -341,7 +352,6 @@
                                        note.edsm   = self;
                                        note.system = system;
                                      }
-                                     
                                      
                                      note.note = txt;
                                    }
@@ -382,6 +392,55 @@
                    }
                    
                  }];
+}
+
+#pragma mark -
+#pragma mark distances management
+
++ (void)sendDistancesToEDSM:(System *)system response:(void(^)(BOOL distancesSubmitted, BOOL systemTrilaterated))response {
+  NSMutableArray *refs = [NSMutableArray array];
+  
+  for (Distance *distance in system.sortedDistances) {
+    if (distance.distance != 0 && distance.edited == YES) {
+      [refs addObject:@{
+                        @"name":distance.name,
+                        @"dist":distance.distance
+                        }];
+    }
+  }
+  
+  NSDictionary *dict = @{
+                         @"data":@{
+                             //@"test":@1,
+                             @"ver":@2,
+                             @"commander":Commander.activeCommander.name,
+                             @"p0":@{
+                                 @"name":system.name
+                                 },
+                             @"refs":refs
+                             }
+                         };
+  
+  NSData *data = [NSJSONSerialization dataWithJSONObject:dict options:0 error:nil];
+  
+  [EventLogger addLog:[NSString stringWithFormat:@"Submitting %ld distances to EDSM", (long)refs.count]];
+  
+  [EDSMConnection submitDistances:data
+                         response:^(BOOL distancesSubmitted, BOOL systemTrilaterated, NSError *error) {
+                           
+                           if (distancesSubmitted && systemTrilaterated) {
+                             [EventLogger addLog:@"EDSM submission succeeded, trilateration successful"];
+                           }
+                           else if (distancesSubmitted) {
+                             [EventLogger addWarning:@"EDSM submission succeeded, but trilateration failed: try adding more distances"];
+                           }
+                           else {
+                             [EventLogger addError:[NSString stringWithFormat:@"EDSM submission failed: %@", error.localizedDescription]];
+                           }
+                           
+                           response(distancesSubmitted, systemTrilaterated);
+                           
+                         }];
 }
 
 @end

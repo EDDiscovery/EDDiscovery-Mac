@@ -57,12 +57,64 @@ responseCallback:^(id data, NSError *error) {
    ];
 }
 
-+ (void)submitDistances:(NSData *)data response:(void(^)(NSDictionary *response, NSError *error))response {
++ (void)submitDistances:(NSData *)data response:(void(^)(BOOL distancesSubmitted, BOOL systemTrilaterated, NSError *error))response {
   [self callApi:@"api-v1/submit-distances"
        withBody:data
-responseCallback:^(id data, NSError *error) {
-  response(data, error);
-}];  
+responseCallback:^(id output, NSError *error) {
+  if (error == nil) {
+    NSError      *error        = nil;
+    NSDictionary *data         = [NSJSONSerialization JSONObjectWithData:output options:0 error:&error];
+    BOOL          submitted    = YES;
+    BOOL          trilaterated = NO;
+    
+    if ([data isKindOfClass:NSDictionary.class]) {
+      NSDictionary *baseSystem = data[@"basesystem"];
+      NSArray      *distances  = data[@"distances"];
+      
+      if ([distances isKindOfClass:NSArray.class]) {
+        for (NSDictionary *distance in distances) {
+          NSInteger result = [distance[@"msgnum"] integerValue];
+        
+          if (result == 201) {
+            submitted = NO;
+            
+            error = [NSError errorWithDomain:@"EDDiscovery"
+                                        code:result
+                                    userInfo:@{NSLocalizedDescriptionKey:distance[@"msg"]}];
+          }
+        }
+      }
+      
+      if ([baseSystem isKindOfClass:NSDictionary.class]) {
+        NSInteger result = [baseSystem[@"msgnum"] integerValue];
+        
+        if (result == 101) {
+          submitted = NO;
+          
+          error = [NSError errorWithDomain:@"EDDiscovery"
+                                      code:result
+                                  userInfo:@{NSLocalizedDescriptionKey:baseSystem[@"msg"]}];
+        }
+        else if (result == 102 || result == 104) {
+          trilaterated = YES;
+        }
+      }
+      
+      response(submitted, trilaterated, error);
+    }
+    else {
+      error = [NSError errorWithDomain:@"EDDiscovery"
+                                  code:999
+                              userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Error in server response", @"")}];
+      
+      response(NO, NO, error);
+    }
+  }
+  else {
+    response(NO, NO, error);
+  }
+
+}];
 }
 
 + (void)getNightlyDumpWithResponse:(void(^)(NSArray *response, NSError *error))response {

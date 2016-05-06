@@ -86,6 +86,12 @@
   [self.instance addLog:msg timestamp:YES newline:YES attributes:attrs];
 }
 
++ (void)addWarning:(NSString *)msg {
+  NSDictionary *attrs = @{NSForegroundColorAttributeName:NSColor.orangeColor};
+  
+  [self.instance addLog:msg timestamp:YES newline:YES attributes:attrs];
+}
+
 + (void)addLog:(NSString *)msg {
   [self addLog:msg timestamp:YES newline:YES];
 }

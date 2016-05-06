@@ -14,7 +14,7 @@
 #import "Commander.h"
 #import "Jump.h"
 #import "System.h"
-#import "EDSMConnection.h"
+#import "EDSM.h"
 #import "CoreDataManager.h"
 #import "Commander.h"
 #import "Trilateration.h"
@@ -40,21 +40,21 @@
 - (void)awakeFromNib {
   [super awakeFromNib];
   
-  context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-  
-  [context commitEditing];
-  
-  context.parentContext = CoreDataManager.instance.managedObjectContext;
-  
-  [jumpsArrayController setManagedObjectContext:context];
-  
   [distancesTableView registerForDraggedTypes:@[PASTEBOARD_DATA_TYPE]];
-  
-  [suggestedReferencesProgressIndicator startAnimation:nil];
 }
 
 - (void)viewWillAppear {
   [super viewWillAppear];
+  
+  if (context == nil) {
+    context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+    
+    context.parentContext = CoreDataManager.instance.managedObjectContext;
+    
+    [jumpsArrayController setManagedObjectContext:context];
+    
+    [suggestedReferencesProgressIndicator startAnimation:nil];
+  }
   
   Commander *commander = Commander.activeCommander;
   
@@ -73,42 +73,6 @@
     [self trilaterate];
   }
 }
-
-//- (void)viewWillDisappear {
-//  [super viewWillDisappear];
-//  
-//  Jump                        *jump       = [jumpsArrayController valueForKeyPath:@"selection.self"];
-//  System                      *system     = jump.system;
-//  NSMutableArray <Distance *> *distances  = system.sortedDistances;
-//  NSMutableArray <System   *> *references = system.suggestedReferences;
-//  NSMutableArray <Distance *> *restore    = [NSMutableArray array];
-//  
-//  for (Distance *distance in distances) {
-//    if (distance.objectID.isTemporaryID == YES) {
-//      [restore addObject:distance];
-//    }
-//  }
-//  
-//  for (Distance *distance in restore) {
-//    [distance.managedObjectContext deleteObject:distance];
-//    
-//    [system willChangeValueForKey:@"sortedDistances"];
-//    [distances removeObject:distance];
-//    [system didChangeValueForKey:@"sortedDistances"];
-//    
-//    [system willChangeValueForKey:@"suggestedReferences"];
-//    [references addObject:[System systemWithName:distance.name inContext:distance.managedObjectContext]];
-//    [system didChangeValueForKey:@"suggestedReferences"];
-//  }
-//}
-
-//- (void)viewDidDisappear {
-//  [super viewDidDisappear];
-//  
-//  [context rollback];
-//  
-//  context = nil;
-//}
 
 #pragma mark -
 #pragma mark row reordering
@@ -260,8 +224,7 @@
     static NSTimeInterval last = 0;
     NSTimeInterval curr = [NSDate timeIntervalSinceReferenceDate];
     
-    //prevent single clicks from being registered twice
-    //seems like an SDK bug...
+    //FIXME: prevent single clicks from being registered twice. Seems like an SDK bug...
     
     if ((curr - last) > 0.1) {
       Jump                        *jump       = [jumpsArrayController valueForKeyPath:@"selection.self"];
@@ -479,37 +442,27 @@
 }
 
 - (IBAction)submitDistances:(id)sender {
-  Jump           *jump   = [jumpsArrayController valueForKeyPath:@"selection.self"];
-  System         *system = jump.system;
-  NSMutableArray *refs   = [NSMutableArray array];
+  Jump   *jump   = [jumpsArrayController valueForKeyPath:@"selection.self"];
+  System *system = jump.system;
   
-  for (Distance *distance in system.sortedDistances) {
-    if (distance.distance != 0 && distance.edited == YES) {
-      [refs addObject:@{
-                        @"name":distance.name,
-                        @"dist":distance.distance
-                        }];
+  [EDSM sendDistancesToEDSM:system response:^(BOOL distancesSubmitted, BOOL systemTrilaterated) {
+    
+    if (distancesSubmitted == YES) {
+      NSManagedObjectID      *systemID    = system.objectID;
+      NSManagedObjectContext *mainContext = CoreDataManager.instance.managedObjectContext;
+      System                 *system      = [mainContext existingObjectWithID:systemID error:nil];
+      
+      [system updateFromEDSM:^{
+        
+        [context rollback];
+        context = nil;
+        
+        [self viewWillAppear];
+        
+      }];
     }
-  }
-  
-  NSDictionary *dict = @{
-                         @"data":@{
-                             //@"test":@1,
-                             @"ver":@2,
-                             @"commander":Commander.activeCommander.name,
-                             @"p0":@{
-                                 @"name":system.name
-                                 },
-                             @"refs":refs
-                             }
-                         };
-  
-  NSData *data = [NSJSONSerialization dataWithJSONObject:dict options:0 error:nil];
-  
-  [EDSMConnection submitDistances:data
-                         response:^(NSDictionary *response, NSError *error) {
-                           
-                         }];
+    
+  }];
 }
 
 @end

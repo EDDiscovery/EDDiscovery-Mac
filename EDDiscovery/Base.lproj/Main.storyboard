@@ -1047,9 +1047,9 @@
                                                     <binding destination="8om-YV-xhG" name="value" keyPath="selection.system.note" id="yAf-wh-uoe"/>
                                                 </connections>
                                             </textField>
-                                            <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Nd0-YB-u9M">
+                                            <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Nd0-YB-u9M">
                                                 <rect key="frame" x="0.0" y="0.0" width="388" height="177"/>
-                                                <clipView key="contentView" ambiguous="YES" id="38J-VL-0Ea">
+                                                <clipView key="contentView" id="38J-VL-0Ea">
                                                     <rect key="frame" x="1" y="0.0" width="386" height="176"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <subviews>
@@ -1226,7 +1226,11 @@
                                             </textField>
                                         </subviews>
                                         <constraints>
+                                            <constraint firstItem="Nd0-YB-u9M" firstAttribute="top" secondItem="v9z-do-dIz" secondAttribute="top" constant="407" id="gjH-JI-KTu"/>
                                             <constraint firstAttribute="width" constant="388" id="mIB-GG-mhr"/>
+                                            <constraint firstAttribute="trailing" secondItem="Nd0-YB-u9M" secondAttribute="trailing" id="mIT-gY-0qV"/>
+                                            <constraint firstAttribute="bottom" secondItem="Nd0-YB-u9M" secondAttribute="bottom" id="v3J-na-ois"/>
+                                            <constraint firstItem="Nd0-YB-u9M" firstAttribute="leading" secondItem="v9z-do-dIz" secondAttribute="leading" id="yfH-fs-ekL"/>
                                         </constraints>
                                     </customView>
                                 </subviews>
@@ -1588,8 +1592,8 @@
                                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="95J-o6-gKX">
                                                 <rect key="frame" x="0.0" y="484" width="301" height="100"/>
                                                 <subviews>
-                                                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gpt-Hk-DY9">
-                                                        <rect key="frame" x="175" y="72" width="132" height="32"/>
+                                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gpt-Hk-DY9">
+                                                        <rect key="frame" x="168" y="72" width="139" height="32"/>
                                                         <buttonCell key="cell" type="push" title="Submit to EDSM" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ckW-Ti-Oov">
                                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                             <font key="font" metaFont="system"/>
@@ -1606,8 +1610,8 @@
                                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                         </textFieldCell>
                                                     </textField>
-                                                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PvH-Tj-4HA">
-                                                        <rect key="frame" x="175" y="33" width="132" height="32"/>
+                                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="PvH-Tj-4HA">
+                                                        <rect key="frame" x="170" y="33" width="137" height="32"/>
                                                         <buttonCell key="cell" type="push" title="Reset distances" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="a1C-m7-zTz">
                                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                             <font key="font" metaFont="system"/>
@@ -1618,7 +1622,11 @@
                                                     </button>
                                                 </subviews>
                                                 <constraints>
+                                                    <constraint firstAttribute="trailing" secondItem="PvH-Tj-4HA" secondAttribute="trailing" id="BlO-C9-TOO"/>
                                                     <constraint firstAttribute="height" constant="100" id="LU9-4e-piC"/>
+                                                    <constraint firstAttribute="trailing" secondItem="gpt-Hk-DY9" secondAttribute="trailing" id="Ob3-Ez-rEY"/>
+                                                    <constraint firstItem="gpt-Hk-DY9" firstAttribute="top" secondItem="95J-o6-gKX" secondAttribute="top" id="gTf-v5-vIQ"/>
+                                                    <constraint firstItem="PvH-Tj-4HA" firstAttribute="top" secondItem="gpt-Hk-DY9" secondAttribute="bottom" constant="18" id="zVt-VJ-84j"/>
                                                 </constraints>
                                             </customView>
                                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="VKI-fW-5v0">
