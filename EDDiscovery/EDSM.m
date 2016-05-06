@@ -398,34 +398,18 @@
 #pragma mark distances management
 
 + (void)sendDistancesToEDSM:(System *)system response:(void(^)(BOOL distancesSubmitted, BOOL systemTrilaterated))response {
-  NSMutableArray *refs = [NSMutableArray array];
+  NSMutableArray <Distance *> *distances = [NSMutableArray array];
   
   for (Distance *distance in system.sortedDistances) {
     if (distance.distance != 0 && distance.edited == YES) {
-      [refs addObject:@{
-                        @"name":distance.name,
-                        @"dist":distance.distance
-                        }];
+      [distances addObject:distance];
     }
   }
   
-  NSDictionary *dict = @{
-                         @"data":@{
-                             //@"test":@1,
-                             @"ver":@2,
-                             @"commander":Commander.activeCommander.name,
-                             @"p0":@{
-                                 @"name":system.name
-                                 },
-                             @"refs":refs
-                             }
-                         };
+  [EventLogger addLog:[NSString stringWithFormat:@"Submitting %ld distances to EDSM", (long)distances.count]];
   
-  NSData *data = [NSJSONSerialization dataWithJSONObject:dict options:0 error:nil];
-  
-  [EventLogger addLog:[NSString stringWithFormat:@"Submitting %ld distances to EDSM", (long)refs.count]];
-  
-  [EDSMConnection submitDistances:data
+  [EDSMConnection submitDistances:distances
+                        forSystem:system.name
                          response:^(BOOL distancesSubmitted, BOOL systemTrilaterated, NSError *error) {
                            
                            if (distancesSubmitted && systemTrilaterated) {

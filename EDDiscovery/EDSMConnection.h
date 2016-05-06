@@ -12,6 +12,7 @@
 #define EDSM_SYSTEM_UPDATE_TIMESTAMP @"edsmSystemUpdateTimestamp"
 
 @class Commander;
+@class System;
 
 @interface EDSMConnection : HttpApiManager
 
@@ -20,7 +21,7 @@
 + (void)getSystemInfo:(NSString *)systemName response:(void(^)(NSDictionary *response, NSError *error))response;
 
 //system distances
-+ (void)submitDistances:(NSData *)data response:(void(^)(BOOL distancesSubmitted, BOOL systemTrilaterated, NSError *error))response;
++ (void)submitDistances:(NSArray <Distance *> *)distances forSystem:(NSString *)systemName response:(void(^)(BOOL distancesSubmitted, BOOL systemTrilaterated, NSError *error))response;
 
 //commander travel logs
 + (void)getJumpsForCommander:(Commander *)commander response:(void(^)(NSArray *jumps, NSError *error))response;

@@ -12,6 +12,7 @@
 #import "Note.h"
 #import "Commander.h"
 #import "EDSM.h"
+#import "Distance.h"
 
 #define BASE_URL @"http://www.edsm.net"
 #define KEYCHAIN_PREFIX nil
@@ -57,7 +58,38 @@ responseCallback:^(id data, NSError *error) {
    ];
 }
 
-+ (void)submitDistances:(NSData *)data response:(void(^)(BOOL distancesSubmitted, BOOL systemTrilaterated, NSError *error))response {
++ (void)submitDistances:(NSArray <Distance *> *)distances forSystem:(NSString *)systemName response:(void(^)(BOOL distancesSubmitted, BOOL systemTrilaterated, NSError *error))response {
+  Commander      *commander  = Commander.activeCommander;
+  NSString       *cmdrName   = (commander == nil) ? @"" : commander.name;
+  NSMutableArray *refs       = [NSMutableArray array];
+  NSString       *appName    = [NSBundle.mainBundle objectForInfoDictionaryKey:(NSString *)kCFBundleNameKey];
+  NSString       *appVersion = [NSString stringWithFormat:@"%@", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
+  
+  appName = [appName stringByAppendingString:@"-Mac"];
+  
+  for (Distance *distance in distances) {
+    [refs addObject:@{
+                      @"name":distance.name,
+                      @"dist":distance.distance
+                      }];
+  }
+  
+  NSDictionary *dict = @{
+                         @"data":@{
+                             //@"test":@1, // <-- dry run... API will answer normally but won't store anything to the data base
+                             @"ver":@2,
+                             @"commander":cmdrName,
+                             @"fromSoftware":appName,
+                             @"fromSoftwareVersion":appVersion,
+                             @"p0":@{
+                                 @"name":systemName
+                                 },
+                             @"refs":refs
+                             }
+                         };
+  
+  NSData *data = [NSJSONSerialization dataWithJSONObject:dict options:0 error:nil];
+  
   [self callApi:@"api-v1/submit-distances"
        withBody:data
 responseCallback:^(id output, NSError *error) {

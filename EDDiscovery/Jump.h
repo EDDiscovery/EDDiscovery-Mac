@@ -19,6 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)printStatsOfCommander:(Commander *)commander;
 + (NSArray *)allJumpsOfCommander:(Commander *)commander;
++ (NSArray *)last:(NSUInteger)count jumpsOfCommander:(Commander *)commander;
 + (Jump *)lastJumpOfCommander:(Commander *)commander;
 + (Jump *)lastXYZJumpOfCommander:(Commander *)commander;
 

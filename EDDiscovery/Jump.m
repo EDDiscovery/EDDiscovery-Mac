@@ -90,6 +90,28 @@
   return array;
 }
 
++ (NSArray *)last:(NSUInteger)count jumpsOfCommander:(Commander *)commander {
+  NSManagedObjectContext *context   = commander.managedObjectContext;
+  NSString               *className = NSStringFromClass([Jump class]);
+  NSFetchRequest         *request   = [[NSFetchRequest alloc] init];
+  NSEntityDescription    *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
+  NSError                *error     = nil;
+  NSArray                *array     = nil;
+  
+  request.entity                 = entity;
+  request.predicate              = CMDR_PREDICATE;
+  request.returnsObjectsAsFaults = NO;
+  request.includesPendingChanges = YES;
+  request.sortDescriptors        = @[[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:NO]];
+  request.fetchLimit             = count;
+  
+  array = [context executeFetchRequest:request error:&error];
+  
+  NSAssert1(error == nil, @"could not execute fetch request: %@", error);
+  
+  return array;
+}
+
 + (Jump *)lastJumpOfCommander:(Commander *)commander {
   NSManagedObjectContext *context   = commander.managedObjectContext;
   NSString               *className = NSStringFromClass([Jump class]);
@@ -161,15 +183,14 @@
   array = [self.managedObjectContext executeFetchRequest:request error:&error];
   
   NSAssert1(error == nil, @"could not execute fetch request: %@", error);
-  NSAssert1(array.count <= 2, @"this query should return at maximum 1 element: got %lu instead", (unsigned long)array.count);
+  NSAssert1(array.count <= 2, @"this query should return at maximum 2 elements: got %lu instead", (unsigned long)array.count);
   
   if (array.count == 2) {
     Jump     *jump     = array.lastObject;
     NSString *name     = jump.system.name;
     
-    
     for (Distance *aDistance in self.system.distances) {
-      if (aDistance.distance == aDistance.calculatedDistance && [aDistance.name isEqualToString:name]) {
+      if (ABS(aDistance.distance.doubleValue - aDistance.calculatedDistance.doubleValue) <= 0.01 && [aDistance.name isEqualToString:name]) {
         distance = aDistance.distance;
         
         break;
@@ -178,7 +199,7 @@
     
     if (distance == nil) {
       for (Distance *aDistance in jump.system.distances) {
-        if (aDistance.distance == aDistance.calculatedDistance && [aDistance.name isEqualToString:name]) {
+        if (ABS(aDistance.distance.doubleValue - aDistance.calculatedDistance.doubleValue) <= 0.01 && [aDistance.name isEqualToString:name]) {
           distance = aDistance.distance;
           
           break;

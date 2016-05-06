@@ -396,9 +396,11 @@
 }
 
 - (void)addSuggestedReferences {
-  Jump              *jump     = [Jump lastXYZJumpOfCommander:Commander.activeCommander];
-  System            *system   = jump.system;
-  NSManagedObjectID *systemID = system.objectID;
+  Commander         *commander   = Commander.activeCommander;
+  Jump              *jump        = [Jump lastXYZJumpOfCommander:commander];
+  System            *system      = jump.system;
+  NSManagedObjectID *systemID    = system.objectID;
+  NSManagedObjectID *commanderID = commander.objectID;
   
   NSLog(@"Latest visited system with known coordinates: %@", jump.system.name);
   
@@ -414,16 +416,38 @@
     SuggestedReferences *referencesCalculator = objc_getAssociatedObject(bgContext, &referenceCalculatorKey);
     
     if (referencesCalculator == nil) {
-      System *system = [bgContext existingObjectWithID:systemID error:nil];
+      System    *system    = [bgContext existingObjectWithID:systemID    error:nil];
+      Commander *commander = [bgContext existingObjectWithID:commanderID error:nil];
       
       if (system != nil) {
         referencesCalculator = [[SuggestedReferences alloc] initWithLastKnownPosition:system];
+        
+        //feed already-known distances to calculator
         
         for (Distance *distance in system.distances) {
           System *system = [System systemWithName:distance.name inContext:bgContext];
           
           if (system.hasCoordinates == YES) {
             [referencesCalculator addReferenceStar:system];
+          }
+        }
+        
+        //add previous jump to results, if system has known coords and it has not been added already
+        
+        NSArray *jumps    = [Jump last:2 jumpsOfCommander:commander];
+        Jump    *prevJump = (jumps.count > 1) ? jumps[1] : nil;
+        
+        if (prevJump != nil) {
+          System *prevSystem = prevJump.system;
+          
+          if (prevSystem.hasCoordinates) {
+            NSSet <Distance *> *filteredDistances = [system.distances filteredSetUsingPredicate:[NSPredicate predicateWithFormat:@"name == %@", prevSystem.name]];
+            
+            if (filteredDistances.count == 0) {
+              [referencesCalculator addReferenceStar:prevSystem];
+              
+              [suggestedReferences addObject:prevSystem];
+            }
           }
         }
         
