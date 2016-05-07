@@ -2,7 +2,7 @@
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"  xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
     <title>EDDiscovery</title>
-    <link>http://sparkle-project.org/files/sparkletestcast.xml</link>
+    <link>https://raw.githubusercontent.com/EDDiscovery/EDDiscovery-Mac/appcast/EDDiscoveryAppcast.xml</link>
     <description>Most recent updates to EDDiscovery</description>
     <language>en</language>
     <!--
