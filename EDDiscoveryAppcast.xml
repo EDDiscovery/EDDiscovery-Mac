@@ -5,7 +5,7 @@
     <link>https://raw.githubusercontent.com/EDDiscovery/EDDiscovery-Mac/appcast/EDDiscoveryAppcast.xml</link>
     <description>Most recent updates to EDDiscovery</description>
     <language>en</language>
-    <!--
+    
       <item>
         <title>Version 2.0</title>
         <description>
@@ -18,9 +18,9 @@
             </ul>
           ]]>
         </description>
-        <pubDate>Sat, 26 Jul 2014 15:20:11 +0000</pubDate>
+        <pubDate>Sat, 07 May 2016 15:20:11 +0000</pubDate>
         <enclosure url="https://sparkle-project.org/files/Sparkle%20Test%20App.zip" sparkle:version="2.0" length="107758" type="application/octet-stream" sparkle:dsaSignature="MCwCFCdoW13VBGJWIfIklKxQVyetgxE7AhQTVuY9uQT0KOV1UEk21epBsGZMPg==" />
       </item>
-      -->
+      
   </channel>
 </rss>
