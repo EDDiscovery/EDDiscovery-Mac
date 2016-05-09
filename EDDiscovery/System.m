@@ -137,7 +137,7 @@
 + (void)updateSystemsFromEDSM:(void(^)(void))resultBlock {
   NSLog(@"%s", __FUNCTION__);
   
-  LoadingViewController.loadingViewController.textField.stringValue = NSLocalizedString(@"Syncing systems with EDSM", @"");
+  LoadingViewController.loadingViewController.textField.stringValue = NSLocalizedString(@"Receiving systems from EDSM", @"");
   
   [EDSMConnection getSystemsInfoWithResponse:^(NSArray *response, NSError *error) {
     if (response != nil) {

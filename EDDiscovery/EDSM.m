@@ -206,12 +206,12 @@
     formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
     formatter.timeZone   = [NSTimeZone timeZoneWithName:@"UTC"];
     
-    NSProgressIndicator *progress      = LoadingViewController.loadingViewController.progressIndicator;
-    double               progressValue = 0;
+    NSProgressIndicator *progress = LoadingViewController.loadingViewController.progressIndicator;
     
     [CoreDataManager.instance.mainContext performBlockAndWait:^{
       progress.indeterminate = NO;
       progress.maxValue      = jumps.count;
+      progress.doubleValue   = 0;
     }];
 
     for (NSDictionary *jump in jumps) {
@@ -231,13 +231,9 @@
         system.name = name;
       }
       
-      progressValue++;
-      
-      if (((NSInteger)progressValue % 10) == 0) {
-        [CoreDataManager.instance.mainContext performBlockAndWait:^{
-          progress.doubleValue = progressValue;
-        }];
-      }
+      [CoreDataManager.instance.mainContext performBlockAndWait:^{
+        progress.doubleValue++;
+      }];
       
       jump.system    = system;
       jump.timestamp = [timestamp timeIntervalSinceReferenceDate];
