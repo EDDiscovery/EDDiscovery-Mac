@@ -15,4 +15,7 @@
 #import <Fabric/Fabric.h>
 #import <Crashlytics/Crashlytics.h>
 
+#import "EventLogger.h"
+#import "LoadingViewController.h"
+
 #endif /* PrefixHeader_pch */

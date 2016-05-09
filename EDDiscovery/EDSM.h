@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)sendDistancesToEDSM:(System *)system response:(void(^)(BOOL distancesSubmitted, BOOL systemTrilaterated))response;
 
-- (void)syncJumpsWithEDSM;
+- (void)syncJumpsWithEDSM:(void(^)(void))response;
 - (void)sendJumpToEDSM:(Jump *)jump;
 - (void)sendNoteToEDSM:(NSString *)note forSystem:(NSString *)system;
 

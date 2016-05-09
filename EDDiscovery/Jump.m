@@ -18,7 +18,7 @@
 @implementation Jump
 
 + (void)printStatsOfCommander:(Commander *)commander {
-  NSManagedObjectContext *context   = CoreDataManager.instance.managedObjectContext;
+  NSManagedObjectContext *context   = commander.managedObjectContext;
   NSString               *className = NSStringFromClass([Jump class]);
   NSFetchRequest         *request   = [[NSFetchRequest alloc] init];
   NSEntityDescription    *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
@@ -159,54 +159,57 @@
 }
 
 - (NSNumber *)distanceFromPreviousJump {
-  NSString            *className = NSStringFromClass([Jump class]);
-  NSFetchRequest      *request   = [[NSFetchRequest alloc] init];
-  NSEntityDescription *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:self.managedObjectContext];
-  NSError             *error     = nil;
-  NSArray             *array     = nil;
-  NSNumber            *distance  = nil;
-  Commander           *commander = self.edsm.commander;
+  __block NSNumber *distance = nil;
   
-  if (commander == nil) {
-    commander = self.netLogFile.commander;
-  }
-  
-  NSAssert(commander != nil, @"Current jump must have a commander!");
-  
-  request.entity                 = entity;
-  request.returnsObjectsAsFaults = NO;
-  request.includesPendingChanges = YES;
-  request.predicate              = [NSCompoundPredicate andPredicateWithSubpredicates:@[CMDR_PREDICATE, [NSPredicate predicateWithFormat:@"timestamp <= %@", [NSDate dateWithTimeIntervalSinceReferenceDate:self.timestamp]]]];
-  request.sortDescriptors        = @[[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:NO]];
-  request.fetchLimit             = 2;
-  
-  array = [self.managedObjectContext executeFetchRequest:request error:&error];
-  
-  NSAssert1(error == nil, @"could not execute fetch request: %@", error);
-  NSAssert1(array.count <= 2, @"this query should return at maximum 2 elements: got %lu instead", (unsigned long)array.count);
-  
-  if (array.count == 2) {
-    Jump     *jump     = array.lastObject;
-    NSString *name     = jump.system.name;
+  [self.managedObjectContext performBlockAndWait:^{
+    NSString            *className = NSStringFromClass([Jump class]);
+    NSFetchRequest      *request   = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:self.managedObjectContext];
+    NSError             *error     = nil;
+    NSArray             *array     = nil;
+    Commander           *commander = self.edsm.commander;
     
-    for (Distance *aDistance in self.system.distances) {
-      if (ABS(aDistance.distance.doubleValue - aDistance.calculatedDistance.doubleValue) <= 0.01 && [aDistance.name isEqualToString:name]) {
-        distance = aDistance.distance;
-        
-        break;
-      }
+    if (commander == nil) {
+      commander = self.netLogFile.commander;
     }
     
-    if (distance == nil) {
-      for (Distance *aDistance in jump.system.distances) {
+    NSAssert(commander != nil, @"Current jump must have a commander!");
+    
+    request.entity                 = entity;
+    request.returnsObjectsAsFaults = NO;
+    request.includesPendingChanges = YES;
+    request.predicate              = [NSCompoundPredicate andPredicateWithSubpredicates:@[CMDR_PREDICATE, [NSPredicate predicateWithFormat:@"timestamp <= %@", [NSDate dateWithTimeIntervalSinceReferenceDate:self.timestamp]]]];
+    request.sortDescriptors        = @[[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:NO]];
+    request.fetchLimit             = 2;
+    
+    array = [self.managedObjectContext executeFetchRequest:request error:&error];
+    
+    NSAssert1(error == nil, @"could not execute fetch request: %@", error);
+    NSAssert1(array.count <= 2, @"this query should return at maximum 2 elements: got %lu instead", (unsigned long)array.count);
+    
+    if (array.count == 2) {
+      Jump     *jump     = array.lastObject;
+      NSString *name     = jump.system.name;
+      
+      for (Distance *aDistance in self.system.distances) {
         if (ABS(aDistance.distance.doubleValue - aDistance.calculatedDistance.doubleValue) <= 0.01 && [aDistance.name isEqualToString:name]) {
           distance = aDistance.distance;
           
           break;
         }
       }
+      
+      if (distance == nil) {
+        for (Distance *aDistance in jump.system.distances) {
+          if (ABS(aDistance.distance.doubleValue - aDistance.calculatedDistance.doubleValue) <= 0.01 && [aDistance.name isEqualToString:name]) {
+            distance = aDistance.distance;
+            
+            break;
+          }
+        }
+      }
     }
-  }
+  }];
   
   return distance;
 }

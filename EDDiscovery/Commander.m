@@ -40,10 +40,10 @@ static Commander *activeCommander = nil;
 + (void)setActiveCommander:(nullable Commander *)commander {
   if (activeCommander != nil) {
     if (activeCommander.netLogFilesDir.length > 0) {
-      NetLogParser *parser = [NetLogParser instanceWithCommander:activeCommander];
-      
-      [parser stopInstance];
-      parser = nil;
+      [NetLogParser instanceWithCommander:activeCommander response:^(NetLogParser *netLogParser) {
+        [netLogParser stopInstance];
+        netLogParser = nil;
+      }];
     }
   }
   
@@ -73,7 +73,7 @@ static Commander *activeCommander = nil;
     commander = nil;
   }
   else {
-    NSManagedObjectContext *context     = CoreDataManager.instance.managedObjectContext;;
+    NSManagedObjectContext *context     = CoreDataManager.instance.mainContext;;
     NSString               *className   = NSStringFromClass(EDSM.class);
     EDSM                   *edsmAccount = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
     NSError                *error       = nil;
@@ -102,7 +102,7 @@ static Commander *activeCommander = nil;
 #pragma mark active fetch commanders
 
 + (Commander *)commanderWithName:(NSString *)name {
-  NSManagedObjectContext *context   = CoreDataManager.instance.managedObjectContext;;
+  NSManagedObjectContext *context   = CoreDataManager.instance.mainContext;;
   NSString               *className = NSStringFromClass([Commander class]);
   NSFetchRequest         *request   = [[NSFetchRequest alloc] init];
   NSEntityDescription    *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
@@ -123,7 +123,7 @@ static Commander *activeCommander = nil;
 }
 
 + (NSArray *)commanders {
-  NSManagedObjectContext *context   = CoreDataManager.instance.managedObjectContext;;
+  NSManagedObjectContext *context   = CoreDataManager.instance.mainContext;;
   NSString               *className = NSStringFromClass([Commander class]);
   NSFetchRequest         *request   = [[NSFetchRequest alloc] init];
   NSEntityDescription    *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
@@ -145,56 +145,59 @@ static Commander *activeCommander = nil;
 #pragma mark -
 #pragma mark netlog dir changing
 
-- (void)setNetLogFilesDir:(NSString *)newNetLogFilesDir {
-  if ([newNetLogFilesDir isEqualToString:self.netLogFilesDir] == NO) {
-    if (self.netLogFilesDir.length > 0) {
-      NetLogParser *parser = [NetLogParser instanceWithCommander:self];
+- (void)setNetLogFilesDir:(NSString *)newNetLogFilesDir completion:(void(^)(void))completionBlock {
+  if ([newNetLogFilesDir isEqualToString:self.netLogFilesDir] == YES) {
+    completionBlock();
+  }
+  else if (self.netLogFilesDir.length > 0) {
+    [NetLogParser instanceWithCommander:self response:^(NetLogParser *netLogParser) {
+      [netLogParser stopInstance];
+      netLogParser = nil;
+    }];
     
-      [parser stopInstance];
-      parser = nil;
-      
-      //wipe all NetLogFile entities for this commander
-      
-      NSArray    *netLogFiles = [NetLogFile netLogFilesForCommander:self];
-      NSUInteger  numJumps    = 0;
-      
-      for (NetLogFile *netLogFile in netLogFiles) {
-        for (Jump *jump in netLogFile.jumps) {
-          if (jump.edsm == nil) {
-            [jump.managedObjectContext deleteObject:jump];
-            
-            numJumps++;
-          }
+    //wipe all NetLogFile entities for this commander
+    
+    NSArray    *netLogFiles = [NetLogFile netLogFilesForCommander:self];
+    NSUInteger  numJumps    = 0;
+    
+    for (NetLogFile *netLogFile in netLogFiles) {
+      for (Jump *jump in netLogFile.jumps) {
+        if (jump.edsm == nil) {
+          [jump.managedObjectContext deleteObject:jump];
+          
+          numJumps++;
         }
-        
-        [netLogFile.managedObjectContext deleteObject:netLogFile];
       }
       
-      NSError *error = nil;
-      
-      [self.managedObjectContext save:&error];
-      
-      if (error != nil) {
-        NSLog(@"%s: ERROR: cannot save context: %@", __FUNCTION__, error);
-        exit(-1);
-      }
-      
-      NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
-      
-      numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
-      numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
-
-      [EventLogger addLog:[NSString stringWithFormat:@"Deleted %@ jumps from travel history", [numberFormatter stringFromNumber:@(numJumps)]]];
-      
-      NSLog(@"Deleted %ld netlog file records", (long)netLogFiles.count);
+      [netLogFile.managedObjectContext deleteObject:netLogFile];
     }
     
-    [self willChangeValueForKey:@"netLogFilesDir"];
-    [self setPrimitiveValue:newNetLogFilesDir forKey:@"netLogFilesDir"];
-    [self didChangeValueForKey:@"netLogFilesDir"];
+    NSError *error = nil;
     
-    [NetLogParser instanceWithCommander:Commander.activeCommander];
+    [self.managedObjectContext save:&error];
+    
+    if (error != nil) {
+      NSLog(@"%s: ERROR: cannot save context: %@", __FUNCTION__, error);
+      exit(-1);
+    }
+    
+    NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
+    
+    numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
+    numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
+
+    [EventLogger addLog:[NSString stringWithFormat:@"Deleted %@ jumps from travel history", [numberFormatter stringFromNumber:@(numJumps)]]];
+    
+    NSLog(@"Deleted %ld netlog file records", (long)netLogFiles.count);
   }
+    
+  [self willChangeValueForKey:@"netLogFilesDir"];
+  [self setPrimitiveValue:newNetLogFilesDir forKey:@"netLogFilesDir"];
+  [self didChangeValueForKey:@"netLogFilesDir"];
+  
+  [NetLogParser instanceWithCommander:Commander.activeCommander response:^(NetLogParser *netLogParser) {
+    completionBlock();
+  }];
 }
 
 #pragma mark -
@@ -202,10 +205,10 @@ static Commander *activeCommander = nil;
 
 - (void)deleteCommander {
   if (self.netLogFilesDir.length > 0) {
-    NetLogParser *parser = [NetLogParser instanceWithCommander:self];
-    
-    [parser stopInstance];
-    parser = nil;
+    [NetLogParser instanceWithCommander:self response:^(NetLogParser *netLogParser) {
+      [netLogParser stopInstance];
+      netLogParser = nil;
+    }];
   }
 
   NSArray *jumps = [Jump allJumpsOfCommander:self];

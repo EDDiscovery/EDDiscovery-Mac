@@ -8,16 +8,14 @@
 
 #import "TravelHistoryViewController.h"
 
-#import "EventLogger.h"
 #import "CoreDataManager.h"
 #import "Jump.h"
 #import "System.h"
 #import "EDSM.h"
-#import "AppDelegate.h"
 #import "NetLogParser.h"
 #import "Distance.h"
 #import "Commander.h"
-#import "TrilaterationViewController.h"
+#import "LoadingViewController.h"
 
 @interface TravelHistoryViewController() <NSTableViewDataSource, NSTabViewDelegate>
 @end
@@ -30,6 +28,7 @@
   IBOutlet NSTableView       *jumpsTableView;
   IBOutlet NSTableView       *distancesTableView;
   IBOutlet NSButton          *deleteCommanderButton;
+  IBOutlet NSButton          *setNetlogDirButton;
 }
 
 #pragma mark -
@@ -40,8 +39,8 @@
   
   EventLogger.instance.textView = textView;
   
-  cmdrArrayController.managedObjectContext = CoreDataManager.instance.managedObjectContext;
-  jumpsArrayController.managedObjectContext = CoreDataManager.instance.managedObjectContext;
+  cmdrArrayController.managedObjectContext = CoreDataManager.instance.mainContext;
+  jumpsArrayController.managedObjectContext = CoreDataManager.instance.mainContext;
   
   cmdrArrayController.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"name"      ascending:YES selector:@selector(caseInsensitiveCompare:)]];
   jumpsTableView.sortDescriptors      = @[[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:NO  selector:@selector(compare:)]];
@@ -50,7 +49,6 @@
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     [cmdrArrayController fetchWithRequest:nil merge:NO error:nil];
-    [self activeCommanderDidChange];
   });
 }
 
@@ -58,12 +56,25 @@
   [super viewWillAppear];
 
   EventLogger.instance.textView = textView;
+  
+  NSRect frame = self.view.window.frame;
+  
+  NSLog(@"FRAME: %@", NSStringFromRect(frame));
+  
+  frame.size = CGSizeMake(1024, 600);
+  
+  [self.view.window setFrame: frame display:YES animate:NO];
 }
 
 - (void)viewDidAppear {
   [super viewDidAppear];
   
   [Answers logCustomEventWithName:@"Screen view" customAttributes:@{@"screen":NSStringFromClass(self.class)}];
+  
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    [self activeCommanderDidChange];
+  });
 }
 
 #pragma mark -
@@ -212,7 +223,11 @@
       }
       
       if (goOn == YES) {
-        Commander.activeCommander.netLogFilesDir = path;
+        LoadingViewController *loadingVC = [LoadingViewController loadingViewControllerInWindow:self.view.window];
+        
+        [Commander.activeCommander setNetLogFilesDir:path completion:^{
+          [loadingVC dismiss];
+        }];
         
         [Answers logCustomEventWithName:@"NETLOG configure path" customAttributes:@{@"path":path}];
       }
@@ -239,10 +254,17 @@
 
   NSLog(@"%s: %@ - %@", __FUNCTION__, cmdrName, apiKey);
   
+  LoadingViewController *loadingVC = [LoadingViewController loadingViewControllerInWindow:self.view.window];
+  
   if (cmdrName.length > 0 && apiKey.length > 0) {
-    [Commander.activeCommander.edsmAccount syncJumpsWithEDSM];
+    [Commander.activeCommander.edsmAccount syncJumpsWithEDSM:^{
+      [loadingVC dismiss];
+    }];
     
     [Answers logCustomEventWithName:@"EDSM configure account" customAttributes:nil];
+  }
+  else {
+    [loadingVC dismiss];
   }
 }
 
@@ -338,16 +360,28 @@
     [jumpsArrayController fetchWithRequest:nil merge:NO error:nil];
     
     deleteCommanderButton.enabled = YES;
+    setNetlogDirButton.enabled    = YES;
   }
   else {
     deleteCommanderButton.enabled = NO;
+    setNetlogDirButton.enabled    = NO;
   }
   
+  LoadingViewController *loadingVC = [LoadingViewController loadingViewControllerInWindow:self.view.window];
+  
   [System updateSystemsFromEDSM:^{
-    if (name.length > 0) {
-      if ([NetLogParser instanceWithCommander:Commander.activeCommander] == nil) {
-        [self ESDMAccountChanged:nil];
-      }
+    if (name.length == 0) {
+      [loadingVC dismiss];
+    }
+    else {
+      [NetLogParser instanceWithCommander:Commander.activeCommander response:^(NetLogParser *netLogParser) {
+        if (netLogParser == nil) {
+          [self ESDMAccountChanged:nil];
+        }
+        else {
+          [loadingVC dismiss];
+        }
+      }];
     }
   }];
 }

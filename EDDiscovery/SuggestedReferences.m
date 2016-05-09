@@ -67,7 +67,7 @@
 - (void)addSystemsToSectors {
   int aznr, altnr;
   
-  NSArray *globalSystems = [System allSystems];
+  NSArray *globalSystems = [System allSystemsInContext:lastKnownPosition.managedObjectContext];
 
 //  NSUInteger count =0;
 //  for (System *sys in globalSystems) {

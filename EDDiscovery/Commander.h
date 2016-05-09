@@ -18,10 +18,10 @@ NS_ASSUME_NONNULL_BEGIN
 + (Commander *)activeCommander;
 + (void)setActiveCommander:(nullable Commander *)commander;
 + (Commander *)createCommanderWithName:(NSString *)name;
-
 + (Commander *)commanderWithName:(NSString *)name;
 + (NSArray *)commanders;
 
+- (void)setNetLogFilesDir:(NSString *)newNetLogFilesDir completion:(void(^)(void))completionBlock;
 - (void)deleteCommander;
 
 @end

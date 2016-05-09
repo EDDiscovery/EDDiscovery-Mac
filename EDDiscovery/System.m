@@ -31,7 +31,7 @@
 }
 
 + (void)printStats {
-  NSManagedObjectContext *context     = CoreDataManager.instance.managedObjectContext;
+  NSManagedObjectContext *context     = CoreDataManager.instance.mainContext;
   NSString               *className   = NSStringFromClass([System class]);
   NSFetchRequest         *request     = [[NSFetchRequest alloc] init];
   NSEntityDescription    *entity      = [NSEntityDescription entityForName:className inManagedObjectContext:context];
@@ -63,13 +63,12 @@
   [EventLogger addLog:msg];
 }
 
-+ (NSArray *)allSystems {
-  NSManagedObjectContext *context   = CoreDataManager.instance.managedObjectContext;
-  NSString               *className = NSStringFromClass([System class]);
-  NSFetchRequest         *request   = [[NSFetchRequest alloc] init];
-  NSEntityDescription    *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
-  NSError                *error     = nil;
-  NSArray                *array     = nil;
++ (NSArray *)allSystemsInContext:(NSManagedObjectContext *)context {
+  NSString            *className = NSStringFromClass([System class]);
+  NSFetchRequest      *request   = [[NSFetchRequest alloc] init];
+  NSEntityDescription *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
+  NSError             *error     = nil;
+  NSArray             *array     = nil;
   
   request.entity                 = entity;
   request.returnsObjectsAsFaults = NO;
@@ -79,10 +78,6 @@
   array = [context executeFetchRequest:request error:&error];
   
   return array;
-}
-
-+ (System *)systemWithName:(NSString *)name {
-  return [self systemWithName:name inContext:CoreDataManager.instance.managedObjectContext];
 }
 
 + (System *)systemWithName:(NSString *)name inContext:(NSManagedObjectContext *)context {
@@ -142,6 +137,8 @@
 + (void)updateSystemsFromEDSM:(void(^)(void))resultBlock {
   NSLog(@"%s", __FUNCTION__);
   
+  LoadingViewController.loadingViewController.textField.stringValue = NSLocalizedString(@"Syncing systems with EDSM", @"");
+  
   [EDSMConnection getSystemsInfoWithResponse:^(NSArray *response, NSError *error) {
     if (response != nil) {
       NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
@@ -151,81 +148,82 @@
 
       [EventLogger addLog:[NSString stringWithFormat:@"Received %@ new systems from EDSM", [numberFormatter stringFromNumber:@(response.count)]]];
       
-      NSManagedObjectContext *context    = CoreDataManager.instance.managedObjectContext;
-      NSMutableArray         *systems    = [[self allSystems] mutableCopy];
-      NSMutableArray         *names      = [NSMutableArray arrayWithCapacity:systems.count];
-      NSUInteger              numAdded   = 0;
-      NSUInteger              numUpdated = 0;
-      NSTimeInterval          ti         = [NSDate timeIntervalSinceReferenceDate];
-      NSString               *prevName   = 0;
-      
-      NSLog(@"Have %ld systems in local DB", (long)systems.count);
-      
-      for (System *aSystem in systems) {
-        [names addObject:aSystem.name];
-      }
-      
-      response = [response sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
-      
-      for (NSDictionary *systemData in response) {
-        NSString *name = systemData[@"name"];
+      [CoreDataManager.instance.mainContext performBlock:^{
+        NSMutableArray         *systems    = [[self allSystemsInContext:CoreDataManager.instance.mainContext] mutableCopy];
+        NSMutableArray         *names      = [NSMutableArray arrayWithCapacity:systems.count];
+        NSUInteger              numAdded   = 0;
+        NSUInteger              numUpdated = 0;
+        NSTimeInterval          ti         = [NSDate timeIntervalSinceReferenceDate];
+        NSString               *prevName   = 0;
         
-        if (name.length > 0 && ![prevName isEqualToString:name]) {
-          System *system = nil;
-          
-          NSUInteger idx = [names indexOfObject:name];
-          
-          if (idx != NSNotFound) {
-            system = systems[idx];
-            
-            [systems removeObjectAtIndex:idx];
-            [names removeObjectAtIndex:idx];
-          }
-          
-          if (system == nil) {
-            NSString *className = NSStringFromClass(System.class);
-            
-            system = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
-            
-            system.name = name;
-            
-            numAdded++;
-          }
-          else {
-            numUpdated++;
-          }
-          
-          [system parseEDSMData:systemData parseDistances:NO save:NO];
-          
-          if (((numAdded % 1000) == 0 && numAdded != 0) || ((numUpdated % 1000) == 0 && numUpdated != 0)) {
-            NSLog(@"Added %ld, updated %ld systems", (long)numAdded, (long)numUpdated);
-          }
-          
-          prevName = name;
+        NSLog(@"Have %ld systems in local DB", (long)systems.count);
+        
+        for (System *aSystem in systems) {
+          [names addObject:aSystem.name];
         }
-      }
-      
-      NSError *error = nil;
-      
-      [context save:&error];
-      
-      if (error != nil) {
-        NSLog(@"ERROR saving context: %@", error);
         
-        exit(-1);
-      }
-      
-      ti = [NSDate timeIntervalSinceReferenceDate] - ti;
-      
-      NSLog(@"Added %ld, updated %ld systems in %.1f seconds", (long)numAdded, (long)numUpdated, ti);
-      
-      [self printStats];
+        NSArray *responseSystems = [response sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
+        
+        for (NSDictionary *systemData in responseSystems) {
+          NSString *name = systemData[@"name"];
+          
+          if (name.length > 0 && ![prevName isEqualToString:name]) {
+            System *system = nil;
+            
+            NSUInteger idx = [names indexOfObject:name];
+            
+            if (idx != NSNotFound) {
+              system = systems[idx];
+              
+              [systems removeObjectAtIndex:idx];
+              [names removeObjectAtIndex:idx];
+            }
+            
+            if (system == nil) {
+              NSString *className = NSStringFromClass(System.class);
+              
+              system = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:CoreDataManager.instance.mainContext];
+              
+              system.name = name;
+              
+              numAdded++;
+            }
+            else {
+              numUpdated++;
+            }
+            
+            [system parseEDSMData:systemData parseDistances:NO save:NO];
+            
+            if (((numAdded % 1000) == 0 && numAdded != 0) || ((numUpdated % 1000) == 0 && numUpdated != 0)) {
+              NSLog(@"Added %ld, updated %ld systems", (long)numAdded, (long)numUpdated);
+            }
+            
+            prevName = name;
+          }
+        }
+        
+        NSError *error = nil;
+        
+        [CoreDataManager.instance.mainContext save:&error];
+        
+        if (error != nil) {
+          NSLog(@"ERROR saving context: %@", error);
+          
+          exit(-1);
+        }
+        
+        NSLog(@"Added %ld, updated %ld systems in %.1f seconds", (long)numAdded, (long)numUpdated, ([NSDate timeIntervalSinceReferenceDate] - ti));
+        
+        [self printStats];
+        
+        resultBlock();
+      }];
     }
     else if (error != nil) {
       NSLog(@"%s: ERROR: %@", __FUNCTION__, error.localizedDescription);
+      
+      resultBlock();
     }
-    
-    resultBlock();
   }];
 }
 
@@ -262,95 +260,97 @@
 - (void)parseEDSMData:(NSDictionary *)data parseDistances:(BOOL)parseDistances save:(BOOL)saveContext {
 //  NSLog(@"%s: %@", __FUNCTION__, data);
   
-  NSDictionary *coords = data[@"coords"];
-  
-  if ([coords isKindOfClass:NSDictionary.class]) {
-    self.x = [coords[@"x"] doubleValue];
-    self.y = [coords[@"y"] doubleValue];
-    self.z = [coords[@"z"] doubleValue];
+  [self.managedObjectContext performBlockAndWait:^{
+    NSDictionary *coords = data[@"coords"];
     
-    if (saveContext) {
-      NSLog(@"%@ has known coords: x=%f, y=%f, z=%f", self.name, self.x, self.y, self.z);
-    }
-  }
-  
-  if (parseDistances == YES) {
-    NSArray *distances     = data[@"distances"];
-    NSArray *problems      = data[@"problems"];
-    NSSet   *currDistances = self.distances;
-    
-    for (Distance *distance in currDistances) {
-      [self.managedObjectContext deleteObject:distance];
-    }
-    
-    if ([distances isKindOfClass:NSArray.class]) {
-      if (distances.count > 0) {
-        Distance *prevDistance = nil;
-        
-        NSLog(@"Got %ld distances from EDSM", (long)distances.count);
-        
-        distances = [distances sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
-        
-        for (NSDictionary *distanceData in distances) {
-          NSString *name = distanceData[@"name"];
-          NSNumber *dist = distanceData[@"distance"];
-          
-          if (name.length > 0 && dist > 0 && (prevDistance == nil || ![prevDistance.name isEqualToString:name] || prevDistance.distance != dist)) {
-            NSString *className = NSStringFromClass(Distance.class);
-            Distance *distance  = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:self.managedObjectContext];
-            
-            distance.distance           = dist;
-            distance.calculatedDistance = dist;
-            distance.name               = name;
-            distance.system             = self;
-            
-            for (NSDictionary *problem in problems) {
-              if ([problem isKindOfClass:NSDictionary.class]) {
-                NSString *probName = problem[@"refsys"];
-                
-                if ([probName isEqualToString:name]) {
-                  NSNumber *calculated = problem[@"calculated"];
-                  
-                  if (dist > 0) {
-                    distance.calculatedDistance = calculated;
-                  }
-                }
-              }
-            }
-            
-            //filter out known bad distances if a good alternative is available
-            
-            if ([prevDistance.name isEqualToString:name]) {
-              if (prevDistance.distance != prevDistance.calculatedDistance && distance.distance == distance.calculatedDistance) {
-                [self.managedObjectContext deleteObject:prevDistance];
-              }
-              else if (prevDistance.distance == prevDistance.calculatedDistance && distance.distance != distance.calculatedDistance) {
-                [self.managedObjectContext deleteObject:distance];
-                
-                continue;
-              }
-            }
-            
-            prevDistance = distance;
-          }
-        }
+    if ([coords isKindOfClass:NSDictionary.class]) {
+      self.x = [coords[@"x"] doubleValue];
+      self.y = [coords[@"y"] doubleValue];
+      self.z = [coords[@"z"] doubleValue];
+      
+      if (saveContext) {
+        NSLog(@"%@ has known coords: x=%f, y=%f, z=%f", self.name, self.x, self.y, self.z);
       }
     }
     
-    [self updateSortedDistances];
-  }
-  
-  if (saveContext) {
-    NSError *error = nil;
-    
-    [self.managedObjectContext save:&error];
-  
-    if (error != nil) {
-      NSLog(@"ERROR saving context: %@", error);
-    
-      exit(-1);
+    if (parseDistances == YES) {
+      NSArray *distances     = data[@"distances"];
+      NSArray *problems      = data[@"problems"];
+      NSSet   *currDistances = self.distances;
+      
+      for (Distance *distance in currDistances) {
+        [self.managedObjectContext deleteObject:distance];
+      }
+      
+      if ([distances isKindOfClass:NSArray.class]) {
+        if (distances.count > 0) {
+          Distance *prevDistance = nil;
+          
+          NSLog(@"Got %ld distances from EDSM", (long)distances.count);
+          
+          distances = [distances sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
+          
+          for (NSDictionary *distanceData in distances) {
+            NSString *name = distanceData[@"name"];
+            NSNumber *dist = distanceData[@"distance"];
+            
+            if (name.length > 0 && dist > 0 && (prevDistance == nil || ![prevDistance.name isEqualToString:name] || prevDistance.distance != dist)) {
+              NSString *className = NSStringFromClass(Distance.class);
+              Distance *distance  = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:self.managedObjectContext];
+              
+              distance.distance           = dist;
+              distance.calculatedDistance = dist;
+              distance.name               = name;
+              distance.system             = self;
+              
+              for (NSDictionary *problem in problems) {
+                if ([problem isKindOfClass:NSDictionary.class]) {
+                  NSString *probName = problem[@"refsys"];
+                  
+                  if ([probName isEqualToString:name]) {
+                    NSNumber *calculated = problem[@"calculated"];
+                    
+                    if (dist > 0) {
+                      distance.calculatedDistance = calculated;
+                    }
+                  }
+                }
+              }
+              
+              //filter out known bad distances if a good alternative is available
+              
+              if ([prevDistance.name isEqualToString:name]) {
+                if (prevDistance.distance != prevDistance.calculatedDistance && distance.distance == distance.calculatedDistance) {
+                  [self.managedObjectContext deleteObject:prevDistance];
+                }
+                else if (prevDistance.distance == prevDistance.calculatedDistance && distance.distance != distance.calculatedDistance) {
+                  [self.managedObjectContext deleteObject:distance];
+                  
+                  continue;
+                }
+              }
+              
+              prevDistance = distance;
+            }
+          }
+        }
+      }
+      
+      [self updateSortedDistances];
     }
-  }
+    
+    if (saveContext) {
+      NSError *error = nil;
+      
+      [self.managedObjectContext save:&error];
+      
+      if (error != nil) {
+        NSLog(@"ERROR saving context: %@", error);
+        
+        exit(-1);
+      }
+    }
+  }];
 }
 
 - (NSArray *)distanceSortDescriptors {

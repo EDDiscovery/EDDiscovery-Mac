@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface NetLogFile : NSManagedObject
 
 + (NSArray *)netLogFilesForCommander:(Commander *)commander;
-+ (NetLogFile *)netLogFileWithPath:(NSString *)path;
++ (NetLogFile *)netLogFileWithPath:(NSString *)path inContext:(NSManagedObjectContext *)context;
 
 @end
 

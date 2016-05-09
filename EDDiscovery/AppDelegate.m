@@ -9,7 +9,9 @@
 #import "AppDelegate.h"
 #import "CoreDataManager.h"
 
-@implementation AppDelegate
+@implementation AppDelegate {
+  NSWindow *keyWindow;
+}
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
   [[NSUserDefaults standardUserDefaults] registerDefaults:@{ @"NSApplicationCrashOnExceptions": @YES }];
@@ -48,7 +50,12 @@
 }
 
 - (void)finishInitialization {
-  //nothing to do
+  NSStoryboard       *storyboard       = [NSStoryboard storyboardWithName:@"Main" bundle:nil];
+  NSWindowController *windowController = [storyboard instantiateControllerWithIdentifier:@"XXX"];
+  
+  keyWindow = windowController.window;
+  
+  [keyWindow makeKeyAndOrderFront:NSApp];
 }
 
 @end

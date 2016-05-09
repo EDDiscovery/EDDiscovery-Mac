@@ -9,11 +9,12 @@
 #import "NetLogFile.h"
 #import "Jump.h"
 #import "CoreDataManager.h"
+#import "Commander.h"
 
 @implementation NetLogFile
 
 + (NSArray *)netLogFilesForCommander:(Commander *)commander {
-  NSManagedObjectContext *context   = CoreDataManager.instance.managedObjectContext;
+  NSManagedObjectContext *context   = commander.managedObjectContext;
   NSString               *className = NSStringFromClass(NetLogFile.class);
   NSFetchRequest         *request   = [[NSFetchRequest alloc] init];
   NSEntityDescription    *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
@@ -31,8 +32,7 @@
   return array;
 }
 
-+ (NetLogFile *)netLogFileWithPath:(NSString *)path {
-  NSManagedObjectContext *context   = CoreDataManager.instance.managedObjectContext;
++ (NetLogFile *)netLogFileWithPath:(NSString *)path inContext:(NSManagedObjectContext *)context {
   NSString               *className = NSStringFromClass(NetLogFile.class);
   NSFetchRequest         *request   = [[NSFetchRequest alloc] init];
   NSEntityDescription    *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];

@@ -9,7 +9,9 @@
 #import <Cocoa/Cocoa.h>
 #import "SSKeychain.h"
 
-//#define HTTP_API_MANAGER_DEBUG
+#ifdef DEBUG
+#define HTTP_API_MANAGER_DEBUG
+#endif
 
 #define BOUNDARY_TAG (@"WebKitFormBoundaryHttpApiManager")
 

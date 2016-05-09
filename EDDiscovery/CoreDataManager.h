@@ -22,6 +22,7 @@
 - (BOOL)needDataMigration;
 - (void)initializeDatabaseContents;
 
--(NSManagedObjectContext *)managedObjectContext;
+-(NSManagedObjectContext *)mainContext;
+-(NSManagedObjectContext *)bgContext;
 
 @end

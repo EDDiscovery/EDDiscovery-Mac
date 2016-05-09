@@ -144,20 +144,32 @@
 }
 
 // Returns a new instance of the managed object context for the application.
-- (NSManagedObjectContext *) managedObjectContext {
-	static NSManagedObjectContext *managedObjectContext = nil;
+- (NSManagedObjectContext *)mainContext {
+	static NSManagedObjectContext *mainContext = nil;
   
-  if (managedObjectContext == nil) {
+  if (mainContext == nil) {
     NSPersistentStoreCoordinator *coordinator = self.persistentStoreCoordinator;
       
     if (coordinator != nil) {
-      managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+      mainContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
       
-      [managedObjectContext setPersistentStoreCoordinator:coordinator];
+      [mainContext setPersistentStoreCoordinator:coordinator];
     }
   }
 	
-	return managedObjectContext;
+	return mainContext;
+}
+
+-(NSManagedObjectContext *)bgContext {
+  static NSManagedObjectContext *bgContext = nil;
+  
+  if (bgContext == nil) {
+    bgContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    
+    bgContext.parentContext = self.mainContext;
+  }
+  
+  return bgContext;
 }
 
 // Returns the managed object model for the application.
@@ -228,7 +240,7 @@
   NSError   *error     = nil;
 	
 	if (dbVersion == nil) {
-    NSManagedObjectContext *context = self.managedObjectContext;
+    NSManagedObjectContext *context = self.mainContext;
     
 		dbVersion = [NSEntityDescription insertNewObjectForEntityForName:@"DBVersion" inManagedObjectContext:context];
   }
@@ -244,7 +256,7 @@
 }
 
 - (DBVersion *)dbVersionInstance {
-  NSManagedObjectContext *context   = self.managedObjectContext;
+  NSManagedObjectContext *context   = self.mainContext;
 	NSFetchRequest         *request   = [[[NSFetchRequest alloc] init] autorelease];
 	NSEntityDescription    *entity    = [NSEntityDescription entityForName:@"DBVersion" inManagedObjectContext:context];
 	NSError                *error     = nil;

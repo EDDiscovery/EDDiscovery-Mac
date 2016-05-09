@@ -64,7 +64,9 @@
 #pragma mark -
 #pragma mark jumps management
 
-- (void)syncJumpsWithEDSM {
+- (void)syncJumpsWithEDSM:(void(^)(void))response {
+  LoadingViewController.loadingViewController.textField.stringValue = NSLocalizedString(@"Syncing jumps with EDSM", @"");
+  
   [EDSMConnection getJumpsForCommander:self.commander
                               response:^(NSArray *travelLogs, NSError *connectionError) {
                                 
@@ -72,105 +74,131 @@
                                   [EventLogger addError:[NSString stringWithFormat:@"ERROR from EDSM: %ld - %@", (long)connectionError.code, connectionError.localizedDescription]];
                                         
                                   [Jump printStatsOfCommander:self.commander];
+                                  
+                                  response();
                                         
                                   return;
                                 }
     
-                                NSArray         *allJumps         = [Jump allJumpsOfCommander:self.commander];
-                                NSMutableArray  *jumps            = [allJumps mutableCopy];
-                                NSString        *prevSystem       = nil;
-                                NSTimeInterval   prevTimestamp    = 0;
-                                NSMutableArray  *newJumpsFromEDSM = [NSMutableArray array];
-                                NSDateFormatter *formatter        = [[NSDateFormatter alloc] init];
+                                NSManagedObjectID *edsmID = self.objectID;
                                 
-                                formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
-                                formatter.timeZone   = [NSTimeZone timeZoneWithName:@"UTC"];
-                                
-                                //try to match netLog entries with EDSM entries
-                                
-                                for (NSDictionary *log in [travelLogs reverseObjectEnumerator]) {
-                                  NSString       *system    = log[@"system"];
-                                  NSTimeInterval  timestamp = [[formatter dateFromString:log[@"date"]] timeIntervalSinceReferenceDate];
-                                  BOOL            found     = NO;
+                                [CoreDataManager.instance.bgContext performBlock:^{
+                                  EDSM            *edsm             = [CoreDataManager.instance.bgContext existingObjectWithID:edsmID error:nil];
+                                  NSArray         *allJumps         = [Jump allJumpsOfCommander:edsm.commander];
+                                  NSMutableArray  *jumps            = [allJumps mutableCopy];
+                                  NSString        *prevSystem       = nil;
+                                  NSTimeInterval   prevTimestamp    = 0;
+                                  NSMutableArray  *newJumpsFromEDSM = [NSMutableArray array];
+                                  NSDateFormatter *formatter        = [[NSDateFormatter alloc] init];
                                   
-                                  //NSLog(@"EDSM jump: %@ - %@", system, [NSDate dateWithTimeIntervalSinceReferenceDate:timestamp]);
+                                  formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
+                                  formatter.timeZone   = [NSTimeZone timeZoneWithName:@"UTC"];
                                   
-                                  if ([system isEqualToString:prevSystem] && timestamp == prevTimestamp) {
-                                    //duplicate records on EDSM are a thing, apparently
+                                  //try to match netLog entries with EDSM entries
+                                  
+                                  for (NSDictionary *log in [travelLogs reverseObjectEnumerator]) {
+                                    NSString       *system    = log[@"system"];
+                                    NSTimeInterval  timestamp = [[formatter dateFromString:log[@"date"]] timeIntervalSinceReferenceDate];
+                                    BOOL            found     = NO;
                                     
-                                    [EventLogger addLog:[NSString stringWithFormat:@"Duplicate system found on EDSM: %@ - %@", [NSDate dateWithTimeIntervalSinceReferenceDate:timestamp], system]];
+                                    //NSLog(@"EDSM jump: %@ - %@", system, [NSDate dateWithTimeIntervalSinceReferenceDate:timestamp]);
                                     
-                                    continue;
+                                    if ([system isEqualToString:prevSystem] && timestamp == prevTimestamp) {
+                                      //duplicate records on EDSM are a thing, apparently
+                                      
+                                      [EventLogger addLog:[NSString stringWithFormat:@"Duplicate system found on EDSM: %@ - %@", [NSDate dateWithTimeIntervalSinceReferenceDate:timestamp], system]];
+                                      
+                                      continue;
+                                    }
+                                    
+                                    //find a match in netLogs for current EDSM record
+                                    
+                                    for (NSUInteger i=0; i<jumps.count; i++) {
+                                      Jump *jump = jumps[i];
+                                      
+                                      if (jump.timestamp < timestamp) {
+                                        [jumps removeObjectAtIndex:i];
+                                        
+                                        i--;
+                                      }
+                                      else if (jump.timestamp == timestamp) {
+                                        found = YES;
+                                        
+                                        jump.edsm = edsm;
+                                        
+                                        [jumps removeObjectAtIndex:i];
+                                        
+                                        i--;
+                                        
+                                        break;
+                                      }
+                                      else {
+                                        break;
+                                      }
+                                    }
+                                    
+                                    if (found == NO) {
+                                      [newJumpsFromEDSM addObject:log];
+                                    }
+                                    
+                                    prevSystem    = system;
+                                    prevTimestamp = timestamp;
                                   }
                                   
-                                  //find a match in netLogs for current EDSM record
+                                  NSError *error = nil;
                                   
-                                  for (NSUInteger i=0; i<jumps.count; i++) {
-                                    Jump *jump = jumps[i];
+                                  [edsm.managedObjectContext save:&error];
+                                  
+                                  if (error != nil) {
+                                    NSLog(@"ERROR saving context: %@", error);
                                     
-                                    if (jump.timestamp < timestamp) {
-                                      [jumps removeObjectAtIndex:i];
-                                      
-                                      i--;
-                                    }
-                                    else if (jump.timestamp == timestamp) {
-                                      found = YES;
-                                      
-                                      jump.edsm = self;
-                                      
-                                      [jumps removeObjectAtIndex:i];
-                                      
-                                      i--;
-                                      
-                                      break;
-                                    }
-                                    else {
-                                      break;
-                                    }
+                                    exit(-1);
                                   }
                                   
-                                  if (found == NO) {
-                                    [newJumpsFromEDSM addObject:log];
-                                  }
+                                  [edsm.managedObjectContext.parentContext performBlockAndWait:^{
+                                    NSError *error = nil;
+                                    
+                                    [edsm.managedObjectContext.parentContext save:&error];
+                                    
+                                    if (error != nil) {
+                                      NSLog(@"ERROR saving context: %@", error);
+                                      
+                                      exit(-1);
+                                    }
+                                  }];
                                   
-                                  prevSystem    = system;
-                                  prevTimestamp = timestamp;
-                                }
-                                
-                                NSError *error = nil;
-                                
-                                [self.managedObjectContext save:&error];
-                                
-                                if (error != nil) {
-                                  NSLog(@"ERROR saving context: %@", error);
+                                  NSLog(@"Received %ld jumps from EDSM", (long)travelLogs.count);
                                   
-                                  exit(-1);
-                                }
-
-                                NSLog(@"Received %ld jumps from EDSM", (long)travelLogs.count);
-                                
-                                //save new jumps from EDSM
-                                
-                                [self receiveJumpsFromEDSM:newJumpsFromEDSM];
-                                
-                                //Send new jumps TO EDSM
-
-                                NSPredicate  *predicate   = [NSPredicate predicateWithFormat:@"edsm == nil"];
-                                NSOrderedSet *jumpsToSend = [[NSOrderedSet orderedSetWithArray:allJumps] filteredOrderedSetUsingPredicate:predicate];
-                                
-                                [self sendJumpsToEDSM:jumpsToSend];
-                                
-                                [Jump printStatsOfCommander:self.commander];
-                                
-                                [self getNotesFromEDSM];
-                                
+                                  //save new jumps from EDSM
+                                  
+                                  [edsm receiveJumpsFromEDSM:newJumpsFromEDSM response:^{
+                                    
+                                    //Send new jumps TO EDSM
+                                    
+                                    NSPredicate  *predicate   = [NSPredicate predicateWithFormat:@"edsm == nil"];
+                                    NSOrderedSet *jumpsToSend = [[NSOrderedSet orderedSetWithArray:allJumps] filteredOrderedSetUsingPredicate:predicate];
+                                    
+                                    [edsm sendJumpsToEDSM:jumpsToSend];
+                                    
+                                    [Jump printStatsOfCommander:edsm.commander];
+                                    
+                                    [edsm getNotesFromEDSM];
+                                    
+                                    [CoreDataManager.instance.mainContext performBlock:^{
+                                      response();
+                                    }];
+                                  }];
+                                }];
                               }];
 }
 
-- (void)receiveJumpsFromEDSM:(NSArray *)jumps {
+- (void)receiveJumpsFromEDSM:(NSArray *)jumps response:(void(^)(void))response {
   NSLog(@"Received %ld new jumps from EDSM", (long)jumps.count);
   
-  if (jumps.count > 0) {
+  if (jumps.count == 0) {
+    response();
+  }
+  else {
     NSManagedObjectContext *context   = self.managedObjectContext;
     NSError                *error     = nil;
     NSDateFormatter        *formatter = [[NSDateFormatter alloc] init];
@@ -178,12 +206,20 @@
     formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
     formatter.timeZone   = [NSTimeZone timeZoneWithName:@"UTC"];
     
+    NSProgressIndicator *progress      = LoadingViewController.loadingViewController.progressIndicator;
+    double               progressValue = 0;
+    
+    [CoreDataManager.instance.mainContext performBlockAndWait:^{
+      progress.indeterminate = NO;
+      progress.maxValue      = jumps.count;
+    }];
+
     for (NSDictionary *jump in jumps) {
       NSString   *name      = jump[@"system"];
       NSDate     *timestamp = [formatter dateFromString:jump[@"date"]];
       NSString   *className = NSStringFromClass(Jump.class);
       Jump       *jump      = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
-      System     *system    = [System systemWithName:name];
+      System     *system    = [System systemWithName:name inContext:context];
       NSUInteger  idx       = NSNotFound;
       
       NSLog(@"%@ - %@", timestamp, name);
@@ -195,6 +231,14 @@
         system.name = name;
       }
       
+      progressValue++;
+      
+      if (((NSInteger)progressValue % 10) == 0) {
+        [CoreDataManager.instance.mainContext performBlockAndWait:^{
+          progress.doubleValue = progressValue;
+        }];
+      }
+      
       jump.system    = system;
       jump.timestamp = [timestamp timeIntervalSinceReferenceDate];
       
@@ -202,10 +246,14 @@
                         inSortedRange:(NSRange){0, self.jumps.count}
                               options:NSBinarySearchingInsertionIndex
                       usingComparator:^NSComparisonResult(Jump *jump1, Jump *jump2) {
-                        NSDate *date1 = [NSDate dateWithTimeIntervalSinceReferenceDate:jump1.timestamp];
-                        NSDate *date2 = [NSDate dateWithTimeIntervalSinceReferenceDate:jump2.timestamp];
+                        if (jump1.timestamp < jump2.timestamp) {
+                          return NSOrderedAscending;
+                        }
+                        else if (jump1.timestamp < jump2.timestamp) {
+                          return NSOrderedDescending;
+                        }
                         
-                        return [date1 compare:date2];
+                        return NSOrderedSame;
                       }];
       
       [self insertObject:jump inJumpsAtIndex:idx];
@@ -219,12 +267,26 @@
       exit(-1);
     }
     
+    [context.parentContext performBlockAndWait:^{
+      NSError *error = nil;
+      
+      [context.parentContext save:&error];
+      
+      if (error != nil) {
+        NSLog(@"ERROR saving context: %@", error);
+        
+        exit(-1);
+      }
+    }];
+    
     NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
     
     numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
     numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
     
     [EventLogger addLog:[NSString stringWithFormat:@"Received %@ new jumps from EDSM", [numberFormatter stringFromNumber:@(jumps.count)]]];
+    
+    response();
   }
 }
 
@@ -273,6 +335,18 @@
                        
                        exit(-1);
                      }
+                     
+                     [self.managedObjectContext.parentContext performBlockAndWait:^{
+                       NSError *error = nil;
+                       
+                       [self.managedObjectContext.parentContext save:&error];
+                       
+                       if (error != nil) {
+                         NSLog(@"ERROR saving context: %@", error);
+                         
+                         exit(-1);
+                       }
+                     }];
                      
                      if ([EventLogger.instance.currLine containsString:jump.system.name]) {
                        [EventLogger addLog:@" - sent to EDSM!" timestamp:NO newline:NO];
@@ -337,7 +411,7 @@
                                      
                                      if (note == nil) {
                                        NSString *className = NSStringFromClass(Note.class);
-                                       System   *system    = [System systemWithName:name];
+                                       System   *system    = [System systemWithName:name inContext:context];
                                        
                                        if (system == nil) {
                                          NSString *className = NSStringFromClass(System.class);
@@ -363,6 +437,18 @@
                                      
                                      exit(-1);
                                    }
+                                   
+                                   [context.parentContext performBlockAndWait:^{
+                                     NSError *error = nil;
+                                     
+                                     [context.parentContext save:&error];
+                                     
+                                     if (error != nil) {
+                                       NSLog(@"ERROR saving context: %@", error);
+                                       
+                                       exit(-1);
+                                     }
+                                   }];
                                    
                                    if (comments.count > 0) {
                                      [EventLogger addLog:[NSString stringWithFormat:@"Received %ld new comments from EDSM", (long)comments.count]];

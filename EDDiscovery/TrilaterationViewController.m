@@ -8,7 +8,6 @@
 
 #import "TrilaterationViewController.h"
 
-#import "EventLogger.h"
 #import "System.h"
 #import "Distance.h"
 #import "Commander.h"
@@ -49,7 +48,7 @@
   if (context == nil) {
     context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
     
-    context.parentContext = CoreDataManager.instance.managedObjectContext;
+    context.parentContext = CoreDataManager.instance.mainContext;
     
     [jumpsArrayController setManagedObjectContext:context];
     
@@ -457,7 +456,7 @@
     
     if (distancesSubmitted == YES) {
       NSManagedObjectID      *systemID    = system.objectID;
-      NSManagedObjectContext *mainContext = CoreDataManager.instance.managedObjectContext;
+      NSManagedObjectContext *mainContext = CoreDataManager.instance.mainContext;
       System                 *system      = [mainContext existingObjectWithID:systemID error:nil];
       
       [system updateFromEDSM:^{
