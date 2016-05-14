@@ -27,139 +27,123 @@
   NSArray        <NSSortDescriptor *> *distanceSortDescriptors;
   NSMutableArray <Distance         *> *sortedDistances;
   NSMutableArray <System           *> *suggestedReferences;
-  NSManagedObjectContext              *bgContext;
 }
 
-+ (void)printStats {
-  NSManagedObjectContext *context     = CoreDataManager.instance.mainContext;
-  NSString               *className   = NSStringFromClass([System class]);
-  NSFetchRequest         *request     = [[NSFetchRequest alloc] init];
-  NSEntityDescription    *entity      = [NSEntityDescription entityForName:className inManagedObjectContext:context];
-  NSError                *error       = nil;
-  NSUInteger              countTot    = 0;
-  NSUInteger              countCoords = 0;
-  
-  request.entity                 = entity;
-  request.returnsObjectsAsFaults = YES;
-  request.includesPendingChanges = YES;
-  
-  countTot = [context countForFetchRequest:request error:&error];
-  
-  NSAssert1(error == nil, @"could not execute fetch request: %@", error);
-  
-  request.predicate = [NSPredicate predicateWithFormat:@"name == %@ || x != 0 || y != 0 || z != 0", @"Sol"];
-  
-  countCoords = [context countForFetchRequest:request error:&error];
-  
-  NSAssert1(error == nil, @"could not execute fetch request: %@", error);
-  
-  NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
-  
-  numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
-  numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
-  
-  NSString *msg = [NSString stringWithFormat:@"DB contains %@ systems (%@ with known coords)", [numberFormatter stringFromNumber:@(countTot)], [numberFormatter stringFromNumber:@(countCoords)]];
-  
-  [EventLogger addLog:msg];
++ (void)printSystemStatsInContext:(NSManagedObjectContext *)context {
+  [context performBlock:^{
+    NSString            *className   = NSStringFromClass([System class]);
+    NSFetchRequest      *request     = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity      = [NSEntityDescription entityForName:className inManagedObjectContext:context];
+    NSError             *error       = nil;
+    NSUInteger           countTot    = 0;
+    NSUInteger           countCoords = 0;
+    
+    request.entity                 = entity;
+    request.returnsObjectsAsFaults = YES;
+    request.includesPendingChanges = YES;
+    
+    countTot = [context countForFetchRequest:request error:&error];
+    
+    NSAssert1(error == nil, @"could not execute fetch request: %@", error);
+    
+    request.predicate = [NSPredicate predicateWithFormat:@"name == %@ || x != 0 || y != 0 || z != 0", @"Sol"];
+    
+    countCoords = [context countForFetchRequest:request error:&error];
+    
+    NSAssert1(error == nil, @"could not execute fetch request: %@", error);
+    
+    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+    
+    numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
+    numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
+    
+    NSString *msg = [NSString stringWithFormat:@"DB contains %@ systems (%@ with known coords)", [numberFormatter stringFromNumber:@(countTot)], [numberFormatter stringFromNumber:@(countCoords)]];
+    
+    [EventLogger addLog:msg];
+  }];
 }
 
 + (NSArray *)allSystemsInContext:(NSManagedObjectContext *)context {
-  NSString            *className = NSStringFromClass([System class]);
-  NSFetchRequest      *request   = [[NSFetchRequest alloc] init];
-  NSEntityDescription *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
-  NSError             *error     = nil;
-  NSArray             *array     = nil;
+  __block NSArray *array = nil;
   
-  request.entity                 = entity;
-  request.returnsObjectsAsFaults = NO;
-  request.sortDescriptors        = @[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]];
-  request.includesPendingChanges = YES;
-  
-  array = [context executeFetchRequest:request error:&error];
+  [context performBlockAndWait:^{
+    NSString            *className = NSStringFromClass([System class]);
+    NSFetchRequest      *request   = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
+    NSError             *error     = nil;
+    
+    request.entity                 = entity;
+    request.returnsObjectsAsFaults = NO;
+    request.sortDescriptors        = @[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]];
+    request.includesPendingChanges = YES;
+    
+    array = [context executeFetchRequest:request error:&error];
+  }];
   
   return array;
 }
 
 + (System *)systemWithName:(NSString *)name inContext:(NSManagedObjectContext *)context {
-  NSString               *className = NSStringFromClass([System class]);
-  NSFetchRequest         *request   = [[NSFetchRequest alloc] init];
-  NSEntityDescription    *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
-  NSPredicate            *predicate = [NSPredicate predicateWithFormat:@"name == %@", name];
-  NSError                *error     = nil;
-  NSArray                *array     = nil;
+  __block NSArray *array = nil;
   
-  request.entity                 = entity;
-  request.predicate              = predicate;
-  request.returnsObjectsAsFaults = NO;
-  request.includesPendingChanges = YES;
-  
-  array = [context executeFetchRequest:request error:&error];
-  
-  NSAssert1(error == nil, @"could not execute fetch request: %@", error);
-  NSAssert2(array.count <= 1, @"this query should return at maximum 1 element: got %lu instead (name %@)", (unsigned long)array.count, name);
+  [context performBlockAndWait:^{
+    NSString               *className = NSStringFromClass([System class]);
+    NSFetchRequest         *request   = [[NSFetchRequest alloc] init];
+    NSEntityDescription    *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
+    NSPredicate            *predicate = [NSPredicate predicateWithFormat:@"name == %@", name];
+    NSError                *error     = nil;
+    
+    request.entity                 = entity;
+    request.predicate              = predicate;
+    request.returnsObjectsAsFaults = NO;
+    request.includesPendingChanges = YES;
+    
+    array = [context executeFetchRequest:request error:&error];
+    
+    NSAssert1(error == nil, @"could not execute fetch request: %@", error);
+    NSAssert2(array.count <= 1, @"this query should return at maximum 1 element: got %lu instead (name %@)", (unsigned long)array.count, name);
+  }];
   
   return array.lastObject;
 }
 
-+ (NSMutableArray *)systemsWithNames:(NSArray *)names inContext:(NSManagedObjectContext *)context {
-  NSString                 *className = NSStringFromClass([System class]);
-  NSFetchRequest           *request   = [[NSFetchRequest alloc] init];
-  NSEntityDescription      *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
-  NSPredicate              *predicate = [NSPredicate predicateWithFormat:@"name IN %@", names];
-  NSError                  *error     = nil;
-  NSArray<System *>        *array     = nil;
-  NSMutableArray<System *> *output    = [NSMutableArray array];
-  
-  request.entity                 = entity;
-  request.predicate              = predicate;
-  request.sortDescriptors        = @[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]];
-  request.returnsObjectsAsFaults = NO;
-  request.includesPendingChanges = YES;
-  
-  array = [[context executeFetchRequest:request error:&error] mutableCopy];
-  
-  NSAssert1(error == nil, @"could not execute fetch request: %@", error);
-  
-  //catch duplicate objects, if any
-  
-  for (System *system in array) {
-    if ([output.lastObject.name isEqualToString:system.name]) {
-      NSAssert1(NO, @"this query should return at maximum 1 element per system name: got more instead (name %@)", system.name);
-    }
-    else {
-      [output addObject:system];
-    }
-  }
-  
-  return output;
-}
-
 + (void)updateSystemsFromEDSM:(void(^)(void))resultBlock {
+  NSAssert (NSThread.isMainThread, @"Must be on main thread");
+  
   NSLog(@"%s", __FUNCTION__);
   
-  LoadingViewController.loadingViewController.textField.stringValue = NSLocalizedString(@"Receiving systems from EDSM", @"");
+  LoadingViewController.textField.stringValue = NSLocalizedString(@"Receiving systems from EDSM", @"");
   
-  [EDSMConnection getSystemsInfoWithResponse:^(NSArray *response, NSError *error) {
+  LoadingViewController.progressIndicator.indeterminate = NO;
+  LoadingViewController.progressIndicator.maxValue      = 1.0;
+  LoadingViewController.progressIndicator.doubleValue   = 0.0;
+
+  [EDSMConnection getSystemsInfoWithProgress:^(long long downloaded, long long total) {
+    LoadingViewController.progressIndicator.doubleValue = (double)downloaded / (double)total;
+  }
+                                    response:^(NSArray *response, NSError *error) {
     if (response != nil) {
-      NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
+      NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
       
       numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
       numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
 
       [EventLogger addLog:[NSString stringWithFormat:@"Received %@ new systems from EDSM", [numberFormatter stringFromNumber:@(response.count)]]];
       
-      [CoreDataManager.instance.mainContext performBlock:^{
-        NSMutableArray         *systems    = [[self allSystemsInContext:CoreDataManager.instance.mainContext] mutableCopy];
-        NSMutableArray         *names      = [NSMutableArray arrayWithCapacity:systems.count];
-        NSUInteger              numAdded   = 0;
-        NSUInteger              numUpdated = 0;
-        NSTimeInterval          ti         = [NSDate timeIntervalSinceReferenceDate];
-        NSString               *prevName   = 0;
+      [WORK_CONTEXT performBlock:^{
+        NSMutableArray *systems    = (response.count < 1000) ? nil : [[System allSystemsInContext:WORK_CONTEXT] mutableCopy];
+        NSMutableArray *names      = (response.count < 1000) ? nil : [NSMutableArray arrayWithCapacity:systems.count];
+        NSUInteger      numAdded   = 0;
+        NSUInteger      numUpdated = 0;
+        NSTimeInterval  ti         = [NSDate timeIntervalSinceReferenceDate];
+        NSString       *prevName   = 0;
         
-        NSLog(@"Have %ld systems in local DB", (long)systems.count);
-        
-        for (System *aSystem in systems) {
-          [names addObject:aSystem.name];
+        if (systems != nil) {
+          NSLog(@"Have %ld systems in local DB", (long)systems.count);
+          
+          for (System *aSystem in systems) {
+            [names addObject:aSystem.name];
+          }
         }
         
         NSArray *responseSystems = [response sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
@@ -170,19 +154,24 @@
           if (name.length > 0 && ![prevName isEqualToString:name]) {
             System *system = nil;
             
-            NSUInteger idx = [names indexOfObject:name];
-            
-            if (idx != NSNotFound) {
-              system = systems[idx];
+            if (systems == nil) {
+              system = [System systemWithName:name inContext:WORK_CONTEXT];
+            }
+            else {
+              NSUInteger idx = [names indexOfObject:name];
               
-              [systems removeObjectAtIndex:idx];
-              [names removeObjectAtIndex:idx];
+              if (idx != NSNotFound) {
+                system = systems[idx];
+                
+                [systems removeObjectAtIndex:idx];
+                [names removeObjectAtIndex:idx];
+              }
             }
             
             if (system == nil) {
               NSString *className = NSStringFromClass(System.class);
               
-              system = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:CoreDataManager.instance.mainContext];
+              system = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:WORK_CONTEXT];
               
               system.name = name;
               
@@ -202,21 +191,15 @@
           }
         }
         
-        NSError *error = nil;
-        
-        [CoreDataManager.instance.mainContext save:&error];
-        
-        if (error != nil) {
-          NSLog(@"ERROR saving context: %@", error);
-          
-          exit(-1);
-        }
+        [WORK_CONTEXT save];
         
         NSLog(@"Added %ld, updated %ld systems in %.1f seconds", (long)numAdded, (long)numUpdated, ([NSDate timeIntervalSinceReferenceDate] - ti));
         
-        [self printStats];
+        [System printSystemStatsInContext:WORK_CONTEXT];
         
-        resultBlock();
+        [MAIN_CONTEXT performBlock:^{
+          resultBlock();
+        }];
       }];
     }
     else if (error != nil) {
@@ -247,20 +230,22 @@
 
 - (void)updateFromEDSM:(void(^__nullable)(void))resultBlock {
   [EDSMConnection getSystemInfo:self.name response:^(NSDictionary *response, NSError *error) {
-    if (response != nil) {
-      [self parseEDSMData:response parseDistances:YES save:YES];
-    }
-    
-    if (resultBlock != nil) {
-      resultBlock();
-    }
+    [self.managedObjectContext performBlock:^{
+      if (response != nil) {
+        [self parseEDSMData:response parseDistances:YES save:YES];
+      }
+      
+      if (resultBlock != nil) {
+        resultBlock();
+      }
+    }];
   }];
 }
 
 - (void)parseEDSMData:(NSDictionary *)data parseDistances:(BOOL)parseDistances save:(BOOL)saveContext {
-//  NSLog(@"%s: %@", __FUNCTION__, data);
+  NSManagedObjectContext *context = self.managedObjectContext;
   
-  [self.managedObjectContext performBlockAndWait:^{
+  [context performBlockAndWait:^{
     NSDictionary *coords = data[@"coords"];
     
     if ([coords isKindOfClass:NSDictionary.class]) {
@@ -279,7 +264,7 @@
       NSSet   *currDistances = self.distances;
       
       for (Distance *distance in currDistances) {
-        [self.managedObjectContext deleteObject:distance];
+        [context deleteObject:distance];
       }
       
       if ([distances isKindOfClass:NSArray.class]) {
@@ -296,7 +281,7 @@
             
             if (name.length > 0 && dist > 0 && (prevDistance == nil || ![prevDistance.name isEqualToString:name] || prevDistance.distance != dist)) {
               NSString *className = NSStringFromClass(Distance.class);
-              Distance *distance  = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:self.managedObjectContext];
+              Distance *distance  = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
               
               distance.distance           = dist;
               distance.calculatedDistance = dist;
@@ -321,10 +306,10 @@
               
               if ([prevDistance.name isEqualToString:name]) {
                 if (prevDistance.distance != prevDistance.calculatedDistance && distance.distance == distance.calculatedDistance) {
-                  [self.managedObjectContext deleteObject:prevDistance];
+                  [context deleteObject:prevDistance];
                 }
                 else if (prevDistance.distance == prevDistance.calculatedDistance && distance.distance != distance.calculatedDistance) {
-                  [self.managedObjectContext deleteObject:distance];
+                  [context deleteObject:distance];
                   
                   continue;
                 }
@@ -340,15 +325,7 @@
     }
     
     if (saveContext) {
-      NSError *error = nil;
-      
-      [self.managedObjectContext save:&error];
-      
-      if (error != nil) {
-        NSLog(@"ERROR saving context: %@", error);
-        
-        exit(-1);
-      }
+      [context save];
     }
   }];
 }
@@ -384,6 +361,8 @@
 }
 
 - (NSMutableArray <System *> *)suggestedReferences {
+  NSAssert (NSThread.isMainThread, @"Must be on main thread");
+  
   @synchronized (self) {
     if (suggestedReferences == nil) {
       suggestedReferences = [NSMutableArray <System *> array];
@@ -396,6 +375,8 @@
 }
 
 - (void)addSuggestedReferences {
+  NSAssert (NSThread.isMainThread, @"Must be on main thread");
+  
   Commander         *commander   = Commander.activeCommander;
   Jump              *jump        = [Jump lastXYZJumpOfCommander:commander];
   System            *system      = jump.system;
@@ -404,20 +385,14 @@
   
   NSLog(@"Latest visited system with known coordinates: %@", jump.system.name);
   
-  if (bgContext == nil) {
-    bgContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-  
-    [bgContext setParentContext:self.managedObjectContext];
-  }
-  
-  [bgContext performBlock:^{
+  [WORK_CONTEXT performBlock:^{
     static char referenceCalculatorKey;
 
-    SuggestedReferences *referencesCalculator = objc_getAssociatedObject(bgContext, &referenceCalculatorKey);
+    SuggestedReferences *referencesCalculator = objc_getAssociatedObject(self, &referenceCalculatorKey);
     
     if (referencesCalculator == nil) {
-      System    *system    = [bgContext existingObjectWithID:systemID    error:nil];
-      Commander *commander = [bgContext existingObjectWithID:commanderID error:nil];
+      System    *system    = [WORK_CONTEXT existingObjectWithID:systemID    error:nil];
+      Commander *commander = [WORK_CONTEXT existingObjectWithID:commanderID error:nil];
       
       if (system != nil) {
         referencesCalculator = [[SuggestedReferences alloc] initWithLastKnownPosition:system];
@@ -425,7 +400,7 @@
         //feed already-known distances to calculator
         
         for (Distance *distance in system.distances) {
-          System *system = [System systemWithName:distance.name inContext:bgContext];
+          System *system = [System systemWithName:distance.name inContext:WORK_CONTEXT];
           
           if (system.hasCoordinates == YES) {
             [referencesCalculator addReferenceStar:system];
@@ -446,12 +421,18 @@
             if (filteredDistances.count == 0) {
               [referencesCalculator addReferenceStar:prevSystem];
               
-              [suggestedReferences addObject:prevSystem];
+              NSManagedObjectID *prevSystemID = prevSystem.objectID;
+              
+              [MAIN_CONTEXT performBlock:^{
+                System *prevSystem = [MAIN_CONTEXT existingObjectWithID:prevSystemID error:nil];
+                
+                [suggestedReferences addObject:prevSystem];
+              }];
             }
           }
         }
         
-        objc_setAssociatedObject(bgContext, &referenceCalculatorKey, referencesCalculator, OBJC_ASSOCIATION_RETAIN);
+        objc_setAssociatedObject(self, &referenceCalculatorKey, referencesCalculator, OBJC_ASSOCIATION_RETAIN);
       }
     }
     
@@ -470,8 +451,8 @@
         
         NSLog(@"\tFound suggested reference system: %@ Dist:%.2f x:%f y:%f z:%f", system.name, referenceSystem.distance, system.x, system.y, system.z);
         
-        [bgContext.parentContext performBlock:^{
-          System *system = [bgContext.parentContext existingObjectWithID:systemID error:nil];
+        [MAIN_CONTEXT performBlock:^{
+          System *system = [MAIN_CONTEXT existingObjectWithID:systemID error:nil];
         
           [self willChangeValueForKey:@"suggestedReferences"];
           [suggestedReferences addObject:system];
@@ -487,47 +468,41 @@
 }
 
 - (NSString *)note {
+  NSAssert(NSThread.isMainThread, @"Must be on main thread");
+  NSAssert([self.managedObjectContext isEqual:MAIN_CONTEXT], @"Wrong context!");
   NSAssert(Commander.activeCommander != nil, @"must have an active commander");
 
-  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"edsm.commander == %@", Commander.activeCommander];
+  Commander   *commander = Commander.activeCommander;
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"edsm.commander == %@", commander];
   NSSet       *notes     = [self.notes filteredSetUsingPredicate:predicate];
   Note        *note      = notes.anyObject;
   
-  if (notes.count > 1) {
-    NSArray *array = [notes allObjects];
-    
-    for (NSUInteger i=0; i<(array.count - 1); i++) {
-      Note *note = array[i];
-      
-      [note.managedObjectContext deleteObject:note];
-    }
-    
-    note = array.lastObject;
-  }
+  NSAssert2(notes.count < 2, @"Expected max 1 Note object for system %@, got %ld instead", self.name, (long)notes.count);
   
   return note.note;
 }
 
 - (void)setNote:(NSString *)newNote {
+  NSAssert(NSThread.isMainThread, @"Must be on main thread");
+  NSAssert([self.managedObjectContext isEqual:MAIN_CONTEXT], @"Wrong context!");
   NSAssert(Commander.activeCommander != nil, @"must have an active commander");
 
   [self willChangeValueForKey:@"note"];
   
-  NSManagedObjectContext *context   = Commander.activeCommander.managedObjectContext;
-  NSPredicate            *predicate = [NSPredicate predicateWithFormat:@"edsm.commander == %@", Commander.activeCommander];
-  NSSet                  *notes     = [self.notes filteredSetUsingPredicate:predicate];
-  Note                   *note      = notes.anyObject;
-  NSError                *error     = nil;
-  BOOL                    save      = NO;
+  Commander   *commander = Commander.activeCommander;
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"edsm.commander == %@", commander];
+  NSSet       *notes     = [self.notes filteredSetUsingPredicate:predicate];
+  Note        *note      = notes.anyObject;
+  BOOL         save      = NO;
   
-  NSAssert(notes.count < 2, @"Cannot have more than 1 note");
+  NSAssert2(notes.count < 2, @"Expected max 1 Note object for system %@, got %ld instead", self.name, (long)notes.count);
 
   if (note == nil) {
     NSString *className = NSStringFromClass(Note.class);
     
-    note = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
+    note = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:MAIN_CONTEXT];
     
-    note.edsm   = Commander.activeCommander.edsmAccount;
+    note.edsm   = commander.edsmAccount;
     note.system = self;
   }
   
@@ -538,14 +513,9 @@
   }
   
   if (save == YES) {
-    [context save:&error];
+    [MAIN_CONTEXT save];
     
-    if (error != nil) {
-      NSLog(@"%s: ERROR: cannot save context: %@", __FUNCTION__, error);
-      exit(-1);
-    }
-    
-    [Commander.activeCommander.edsmAccount sendNoteToEDSM:newNote forSystem:self.name];
+    [commander.edsmAccount sendNoteToEDSM:newNote forSystem:self.name];
   }
   
   [self didChangeValueForKey:@"note"];

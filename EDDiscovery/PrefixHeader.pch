@@ -17,5 +17,9 @@
 
 #import "EventLogger.h"
 #import "LoadingViewController.h"
+#import "NSManagedObjectContext+Parenthood.h"
+#import "NSURLConnection+Progress.h"
+
+#define ARE_EQUAL(A, B) (BOOL)((A == nil && B == nil) || ([A isEqual:B] == YES))
 
 #endif /* PrefixHeader_pch */

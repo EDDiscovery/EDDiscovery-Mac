@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10171" systemVersion="15E65" minimumToolsVersion="Xcode 7.0">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15E65" minimumToolsVersion="Xcode 7.0">
     <entity name="Commander" representedClassName="Commander" syncable="YES">
         <attribute name="name" attributeType="String" syncable="YES"/>
         <attribute name="netLogFilesDir" optional="YES" attributeType="String" syncable="YES"/>
@@ -35,6 +35,7 @@
     <entity name="NetLogFile" representedClassName="NetLogFile" syncable="YES">
         <attribute name="complete" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
         <attribute name="cqc" attributeType="Boolean" defaultValueString="0" syncable="YES"/>
+        <attribute name="fileDate" attributeType="String" syncable="YES"/>
         <attribute name="fileOffset" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="path" attributeType="String" syncable="YES"/>
         <relationship name="commander" maxCount="1" deletionRule="Nullify" destinationEntity="Commander" inverseName="netLogFiles" inverseEntity="Commander" syncable="YES"/>
@@ -62,7 +63,7 @@
         <element name="EDSM" positionX="-8048" positionY="-892" width="128" height="118"/>
         <element name="Image" positionX="-7407" positionY="-658" width="128" height="73"/>
         <element name="Jump" positionX="-7787" positionY="-862" width="128" height="103"/>
-        <element name="NetLogFile" positionX="-8048" positionY="-702" width="128" height="133"/>
+        <element name="NetLogFile" positionX="-8048" positionY="-702" width="128" height="148"/>
         <element name="Note" positionX="-7823" positionY="-673" width="128" height="88"/>
         <element name="System" positionX="-7598" positionY="-802" width="128" height="163"/>
     </elements>

@@ -10,11 +10,10 @@
 
 @interface LoadingViewController : NSViewController
 
-+ (LoadingViewController *)loadingViewController;
-+ (LoadingViewController *)loadingViewControllerInWindow:(NSWindow *)window;
-- (void)dismiss;
++ (void)presentLoadingViewControllerInWindow:(NSWindow *)window;
++ (void)dismiss;
 
-@property(nonatomic, readonly) IBOutlet NSTextField         *textField;
-@property(nonatomic, readonly) IBOutlet NSProgressIndicator *progressIndicator;
++ (NSTextField *)textField;
++ (NSProgressIndicator *)progressIndicator;
 
 @end

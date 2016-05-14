@@ -17,11 +17,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (Commander *)activeCommander;
 + (void)setActiveCommander:(nullable Commander *)commander;
-+ (Commander *)createCommanderWithName:(NSString *)name;
-+ (Commander *)commanderWithName:(NSString *)name;
-+ (NSArray *)commanders;
 
-- (void)setNetLogFilesDir:(NSString *)newNetLogFilesDir completion:(void(^)(void))completionBlock;
++ (NSArray *)allCommanders;
++ (Commander *)commanderWithName:(NSString *)name;
++ (Commander *)createCommanderWithName:(NSString *)name;
+
+- (void)setNetLogFilesDir:(NSString *)newNetLogFilesDir completion:(void(^__nonnull)(void))completionBlock;
 - (void)deleteCommander;
 
 @end

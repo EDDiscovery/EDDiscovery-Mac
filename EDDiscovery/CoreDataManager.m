@@ -143,35 +143,6 @@
   }
 }
 
-// Returns a new instance of the managed object context for the application.
-- (NSManagedObjectContext *)mainContext {
-	static NSManagedObjectContext *mainContext = nil;
-  
-  if (mainContext == nil) {
-    NSPersistentStoreCoordinator *coordinator = self.persistentStoreCoordinator;
-      
-    if (coordinator != nil) {
-      mainContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-      
-      [mainContext setPersistentStoreCoordinator:coordinator];
-    }
-  }
-	
-	return mainContext;
-}
-
--(NSManagedObjectContext *)bgContext {
-  static NSManagedObjectContext *bgContext = nil;
-  
-  if (bgContext == nil) {
-    bgContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    
-    bgContext.parentContext = self.mainContext;
-  }
-  
-  return bgContext;
-}
-
 // Returns the managed object model for the application.
 // If the model doesn't already exist, it is created by merging all of the models found in the application bundle.
 - (NSManagedObjectModel *)managedObjectModel {
@@ -237,35 +208,26 @@
 
 - (void)setDbVersion:(NSUInteger)version {
 	DBVersion *dbVersion = [self dbVersionInstance];
-  NSError   *error     = nil;
 	
 	if (dbVersion == nil) {
-    NSManagedObjectContext *context = self.mainContext;
-    
-		dbVersion = [NSEntityDescription insertNewObjectForEntityForName:@"DBVersion" inManagedObjectContext:context];
+		dbVersion = [NSEntityDescription insertNewObjectForEntityForName:@"DBVersion" inManagedObjectContext:MAIN_CONTEXT];
   }
 	
 	dbVersion.dbVersion = version;
 	
-	[dbVersion.managedObjectContext save:&error];
-  
-  if (error != nil) {
-    NSLog(@"%s: ERROR: cannot save context: %@", __FUNCTION__, error);
-    exit(-1);
-  }
+	[dbVersion.managedObjectContext save];
 }
 
 - (DBVersion *)dbVersionInstance {
-  NSManagedObjectContext *context   = self.mainContext;
 	NSFetchRequest         *request   = [[[NSFetchRequest alloc] init] autorelease];
-	NSEntityDescription    *entity    = [NSEntityDescription entityForName:@"DBVersion" inManagedObjectContext:context];
+	NSEntityDescription    *entity    = [NSEntityDescription entityForName:@"DBVersion" inManagedObjectContext:MAIN_CONTEXT];
 	NSError                *error     = nil;
 	NSArray                *array     = nil;
   DBVersion              *dbVersion = nil;
   
 	[request setEntity:entity];
 	
-	array = [[context executeFetchRequest:request error:&error] retain];
+	array = [[MAIN_CONTEXT executeFetchRequest:request error:&error] retain];
 	
 	if (error != nil) {
 		NSLog(@"%s: ERROR: could not execute fetch request: %@", __FUNCTION__, error);

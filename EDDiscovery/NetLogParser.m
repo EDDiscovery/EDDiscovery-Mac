@@ -18,18 +18,21 @@
 #import "Jump.h"
 #import "Commander.h"
 
-@interface NetLogParser () <VDKQueueDelegate>
+#define GAMMA_LAUNCH_DATE @"141122130000"
 
+@interface NetLogParser () <VDKQueueDelegate>
 @end
 
 @implementation NetLogParser {
-  Commander         *commander;
+  //access from any thread
   NSManagedObjectID *commanderID;
   NSString          *netLogFilesDir;
-  NetLogFile        *currNetLogFile;
-  Jump              *lastJump;
-  VDKQueue          *queue;
+  NSString          *currFilePath;
   BOOL               firstRun;
+  BOOL               running;
+  
+  //access from main thread
+  VDKQueue          *queue;
 }
 
 #pragma mark -
@@ -37,17 +40,31 @@
 
 static NetLogParser *instance = nil;
 
-+ (void)instanceWithCommander:(Commander *)commander response:(void(^)(NetLogParser *netLogParser))response {
-  if (instance == nil || instance->commander != commander) {
-    (void)[[NetLogParser alloc] initInstance:commander response:^(NetLogParser *netLogParser) {
-      instance = netLogParser;
-      
-      response(instance);
-    }];
++ (nullable NetLogParser *)instanceOrNil:(Commander * __nonnull)commander {
+  NSAssert (NSThread.isMainThread, @"Must be on main thread");
+  
+  if (instance != nil) {
+    if ([instance->commanderID isEqual:commander.objectID]) {
+      return instance;
+    }
   }
-  else {
-    response(instance);
+  
+  return nil;
+}
+
++ (nullable NetLogParser *)createInstanceForCommander:(Commander * __nonnull)commander {
+  NSAssert (NSThread.isMainThread, @"Must be on main thread");
+  
+  if ([self instanceOrNil:commander] != nil) {
+    return instance;
   }
+  else if (instance != nil) {
+    [instance stopInstance];
+  }
+  
+  instance = [[NetLogParser alloc] initInstance:commander];
+  
+  return instance;
 }
 
 - (id)init {
@@ -56,66 +73,70 @@ static NetLogParser *instance = nil;
   return nil;
 }
 
-- (NetLogParser *)initInstance:(Commander *)aCommander response:(void(^)(NetLogParser *netLogParser))response {
-  self = [super init];
+- (NetLogParser *)initInstance:(Commander *)commander {
+  if ([NetLogParser netlogDirIsValid:commander.netLogFilesDir]) {
+    self = [super init];
   
-  if (self) {
-    commander      = aCommander;
-    commanderID    = aCommander.objectID;
-    netLogFilesDir = aCommander.netLogFilesDir;
+    if (self) {
+      commanderID    = commander.objectID;
+      netLogFilesDir = [commander.netLogFilesDir copy];
+      currFilePath   = nil;
+      firstRun       = YES;
+      running        = NO;
+    }
     
-    if ([self netlogDirIsValid]) {
-      LoadingViewController.loadingViewController.textField.stringValue = NSLocalizedString(@"Parsing netLog files", @"");
-      
-      firstRun = YES;
-      queue    = [[VDKQueue alloc] init];
-      
-      [queue setDelegate:self];
-      [queue addPath:netLogFilesDir];
-      
-      [self scanLogFilesDir:^{
-        response(self);
-      }];
-    }
-    else {
-      self = nil;
-      
-      response(self);
-    }
+    return self;
   }
   
   return nil;
 }
 
+- (void)startInstance:(void(^__nonnull)(void))completionBlock {
+  if (running == NO) {
+    LoadingViewController.textField.stringValue = NSLocalizedString(@"Parsing netLog files", @"");
+    
+    running = YES;
+    queue   = [[VDKQueue alloc] init];
+    
+    [queue setDelegate:self];
+    [queue addPath:netLogFilesDir];
+
+    [WORK_CONTEXT performBlock:^{
+      [self scanNetLogFilesDir];
+      
+      [MAIN_CONTEXT performBlock:^{
+        completionBlock();
+      }];
+    }];
+  }
+  else {
+    completionBlock();
+  }
+}
+
 - (void)stopInstance {
+  running  = NO;
   instance = nil;
 }
 
 - (void)dealloc {
-  NSLog(@"%s", __FUNCTION__);
-  
   queue.delegate = nil;
   
-  if (currNetLogFile.path.length > 0) {
-    [queue removePath:currNetLogFile.path];
+  if (currFilePath.length > 0) {
+    [queue removePath:currFilePath];
   }
   
   if (netLogFilesDir.length > 0) {
     [queue removePath:netLogFilesDir];
   }
-  
-  queue          = nil;
-  commander      = nil;
-  netLogFilesDir = nil;
 }
 
 #pragma mark -
-#pragma mark UKKQueue delegate
+#pragma mark consistency checks
 
-- (BOOL)netlogDirIsValid {
-  NSString  *path  = netLogFilesDir;
-  BOOL      exists = NO;
-  BOOL      isDir  = NO;
++ (BOOL)netlogDirIsValid:(NSString *)path {
+  BOOL exists = NO;
+  BOOL isDir  = NO;
 
   if (path != nil) {
     exists = [NSFileManager.defaultManager fileExistsAtPath:path isDirectory:&isDir];
@@ -127,32 +148,34 @@ static NetLogParser *instance = nil;
 #pragma mark -
 #pragma mark VDKQueueDelegate delegate
 
-- (void)VDKQueue:(VDKQueue *)queue receivedNotification:(NSString *)nm forPath:(NSString *)path {
-  if ([path isEqualToString:netLogFilesDir]) {
-    NSLog(@"Log directory contents changed");
-    
-    [self scanLogFilesDir:nil];
-  }
-  else {
-    [self parseNetLogFile:currNetLogFile systems:nil names:nil jumps:nil];
-  }
+- (void)VDKQueue:(VDKQueue *)aQueue receivedNotification:(NSString *)nm forPath:(NSString *)path {
+  [WORK_CONTEXT performBlockAndWait:^{
+    if ([path isEqualToString:netLogFilesDir]) {
+      [self scanNetLogFilesDir];
+    }
+    else {
+      [self parseCurrNetLogFile];
+    }
+  }];
 }
 
 #pragma mark -
 #pragma mark log directory scanning
 
-- (void)scanLogFilesDir:(void(^)(void))completionBlock {
+- (void)scanNetLogFilesDir {
 #define FILE_KEY @"file"
 #define ATTR_KEY @"attr"
   
-  if (currNetLogFile != nil) {
-    [queue removePath:currNetLogFile.path];
+  if (currFilePath != nil) {
+    [MAIN_CONTEXT performBlock:^{
+      [queue removePath:currFilePath];
+    }];
   }
   
   NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:netLogFilesDir error:nil];
   
   if (firstRun) {
-    NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
+    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
     
     numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
     numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
@@ -169,7 +192,7 @@ static NetLogParser *instance = nil;
   }
   
   if (firstRun) {
-    NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
+    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
     
     numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
     numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
@@ -177,190 +200,162 @@ static NetLogParser *instance = nil;
     [EventLogger addLog:[NSString stringWithFormat:@"Have %@ netLog files in log directory", [numberFormatter stringFromNumber:@(netLogFiles.count)]]];
   }
   
-  NSMutableArray *netLogs = [NSMutableArray arrayWithCapacity:netLogFiles.count];
+  NSMutableArray *netLogsFilesAttrs = [NSMutableArray arrayWithCapacity:netLogFiles.count];
   
   for (NSString *file in netLogFiles) {
     NSString     *path  = [netLogFilesDir stringByAppendingPathComponent:file];
     NSDictionary *attrs = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:nil];
     
     if (attrs != nil) {
-      [netLogs addObject:@{FILE_KEY:file, ATTR_KEY:attrs}];
+      [netLogsFilesAttrs addObject:@{FILE_KEY:file, ATTR_KEY:attrs}];
     }
   }
   
   // sort
-  [netLogs sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:[NSString stringWithFormat:@"%@.%@", ATTR_KEY, NSFileModificationDate] ascending:YES]]];
+  [netLogsFilesAttrs sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:[NSString stringWithFormat:@"%@.%@", ATTR_KEY, NSFileModificationDate] ascending:YES]]];
   
-  [CoreDataManager.instance.bgContext performBlock:^{
-    Commander *myCommander = [CoreDataManager.instance.bgContext existingObjectWithID:commanderID error:nil];
+  //parse all netlog files
+  if (netLogsFilesAttrs.count > 0) {
+    Commander      *commander  = [WORK_CONTEXT existingObjectWithID:commanderID error:nil];
+    NSTimeInterval  ti         = [NSDate timeIntervalSinceReferenceDate];
+    NSUInteger      numParsed  = 0;
+    NSUInteger      numJumps   = 0;
+    NSMutableArray *allSystems = nil;
+    NSMutableArray *allNames   = nil;
+    NSMutableArray *allJumps   = nil;
+    Jump           *lastJump   = nil;
     
-    //parse all netlog files
-    if (netLogs.count > 0) {
-      NSMutableArray *systems   = nil;
-      NSMutableArray *names     = nil;
-      NSMutableArray *jumps     = nil;
-      NSTimeInterval  ti        = [NSDate timeIntervalSinceReferenceDate];
-      NSUInteger      numParsed = 0;
-      NSUInteger      numJumps  = 0;
-      
-      NSProgressIndicator *progress      = LoadingViewController.loadingViewController.progressIndicator;
-      double               progressValue = 0;
-      
-      [CoreDataManager.instance.mainContext performBlockAndWait:^{
-        progress.indeterminate = NO;
-        progress.maxValue      = netLogs.count;
-      }];
-      
-      for (NSDictionary *netLogData in netLogs) {
-        NSString   *netLog     = netLogData[FILE_KEY];
-        NSString   *path       = [netLogFilesDir stringByAppendingPathComponent:netLog];
-        NetLogFile *netLogFile = [NetLogFile netLogFileWithPath:path inContext:CoreDataManager.instance.bgContext];
-        
-        if (netLogFile == nil) {
-          NSString *className = NSStringFromClass(NetLogFile.class);
-          
-          netLogFile = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:CoreDataManager.instance.bgContext];
-          
-          netLogFile.commander = myCommander;
-          netLogFile.path      = path;
-        }
-        
-        progressValue++;
-        
-        if (netLogFile.complete == NO) {
-          NSLog(@"Parsing netLog file: %@", netLog);
-          
-          if ([netLog isEqualToString:netLogs.lastObject[FILE_KEY]] == NO && systems == nil) {
-            systems = [[System allSystemsInContext:CoreDataManager.instance.bgContext] mutableCopy];
-            names   = [NSMutableArray arrayWithCapacity:systems.count];
-            jumps   = [[Jump allJumpsOfCommander:myCommander] mutableCopy];
-            
-            for (System *aSystem in systems) {
-              [names addObject:aSystem.name];
-            }
-          }
-          
-          netLogFile.complete = YES;
-          
-          numJumps += [self parseNetLogFile:netLogFile systems:systems names:names jumps:jumps];
-          
-          numParsed++;
-          
-          [CoreDataManager.instance.mainContext performBlockAndWait:^{
-            progress.doubleValue = progressValue;
-          }];
-        }
-        
-        if ([netLog isEqualToString:netLogs.lastObject[FILE_KEY]] == YES) {
-          netLogFile.complete = NO;
-          
-          currNetLogFile = netLogFile;
-          
-          [queue addPath:currNetLogFile.path];
-        }
-      }
-      
-      if (firstRun) {
-        if (numParsed > 1) {
-          ti = [NSDate timeIntervalSinceReferenceDate] - ti;
-          
-          NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
-          
-          numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
-          numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
-          
-          [EventLogger addLog:[NSString stringWithFormat:@"Parsed %@ jumps from %@ netLog files in %.1f seconds", [numberFormatter stringFromNumber:@(numJumps)], [numberFormatter stringFromNumber:@(numParsed)], ti]];
-          
-          [Answers logCustomEventWithName:@"NETLOG parse" customAttributes:@{@"jumps":@(numJumps),@"files":@(numParsed)}];
-        }
-      }
-    }
+    double progressValue = 0;
     
-    NSError *error = nil;
-
-    [CoreDataManager.instance.bgContext save:&error];
-    
-    if (error != nil) {
-      NSLog(@"ERROR saving context: %@", error);
-      
-      exit(-1);
-    }
-    
-    [CoreDataManager.instance.mainContext performBlockAndWait:^{
-      NSError *error = nil;
-      
-      [CoreDataManager.instance.mainContext save:&error];
-      
-      if (error != nil) {
-        NSLog(@"ERROR saving context: %@", error);
-        
-        exit(-1);
-      }
+    [MAIN_CONTEXT performBlock:^{
+      LoadingViewController.progressIndicator.indeterminate = NO;
+      LoadingViewController.progressIndicator.maxValue      = netLogsFilesAttrs.count;
     }];
     
-    if (firstRun && myCommander.edsmAccount != nil) {
-      [myCommander.edsmAccount syncJumpsWithEDSM:^{
-        if (completionBlock != nil) {
-          [CoreDataManager.instance.mainContext performBlock:^{
-            completionBlock();
-          }];
+    for (NSDictionary *netLogData in netLogsFilesAttrs) {
+      NSString   *netLog     = netLogData[FILE_KEY];
+      NetLogFile *netLogFile = nil;
+      
+      currFilePath = [netLogFilesDir stringByAppendingPathComponent:netLog];
+      netLogFile   = [NetLogFile netLogFileWithPath:currFilePath inContext:WORK_CONTEXT];
+      
+      if (netLogFile == nil) {
+        NSString *className = NSStringFromClass(NetLogFile.class);
+        
+        netLogFile = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:WORK_CONTEXT];
+        
+        netLogFile.commander = commander;
+        netLogFile.path      = currFilePath;
+      }
+      
+      progressValue++;
+      
+      if (netLogFile.complete == NO) {
+        NSLog(@"Parsing netLog file: %@", netLog);
+        
+        if ([netLog isEqualToString:netLogsFilesAttrs.lastObject[FILE_KEY]] == NO && allSystems == nil) {
+          allSystems = [[System allSystemsInContext:WORK_CONTEXT] mutableCopy];
+          allNames   = [NSMutableArray arrayWithCapacity:allSystems.count];
+          allJumps   = [[Jump allJumpsOfCommander:commander] mutableCopy];
+          
+          for (System *system in allSystems) {
+            [allNames addObject:system.name];
+          }
         }
-      }];
-    }
-    else if (completionBlock != nil) {
-      [CoreDataManager.instance.mainContext performBlock:^{
-        completionBlock();
-      }];
+        
+        netLogFile.complete = YES;
+        
+        numJumps += [self parseNetLogFile:netLogFile systems:allSystems names:allNames jumps:allJumps lastJump:&lastJump];
+        
+        numParsed++;
+        
+        [MAIN_CONTEXT performBlock:^{
+          LoadingViewController.progressIndicator.doubleValue = progressValue;
+        }];
+      }
+      
+      if ([netLog isEqualToString:netLogsFilesAttrs.lastObject[FILE_KEY]] == YES) {
+        NSString *path = netLogFile.path;
+        
+        netLogFile.complete = NO;
+        
+        [MAIN_CONTEXT performBlock:^{
+          [queue addPath:path];
+        }];
+      }
     }
     
     if (firstRun) {
-      firstRun = NO;
+      if (numParsed > 1) {
+        ti = [NSDate timeIntervalSinceReferenceDate] - ti;
+        
+        NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+        
+        numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
+        numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
+        
+        [EventLogger addLog:[NSString stringWithFormat:@"Parsed %@ jumps from %@ netLog files in %.1f seconds", [numberFormatter stringFromNumber:@(numJumps)], [numberFormatter stringFromNumber:@(numParsed)], ti]];
+        
+        [Answers logCustomEventWithName:@"NETLOG parse" customAttributes:@{@"jumps":@(numJumps),@"files":@(numParsed)}];
+      }
     }
-  }];
+  }
+  
+  [WORK_CONTEXT save];
+  
+  if (firstRun) {
+    firstRun = NO;
+  }
 }
 
 #pragma mark -
 #pragma mark log file scanning
 
-- (NSUInteger)parseNetLogFile:(NetLogFile *)netLogFile systems:(NSMutableArray *)systems names:(NSMutableArray *)names jumps:(NSMutableArray *)jumps {
-  static NSString     *currPath   = nil;
-  static NSFileHandle *fileHandle = nil;
-  static NSString     *fileDate   = nil;
+- (NSUInteger)parseCurrNetLogFile {
+  NetLogFile *currNetLogFile = [NetLogFile netLogFileWithPath:currFilePath inContext:WORK_CONTEXT];
+  Jump       *lastJump       = nil;
   
-  NSUInteger           count      = 0;
+  return [self parseNetLogFile:currNetLogFile systems:nil names:nil jumps:nil lastJump:&lastJump];
+}
+
+- (NSUInteger)parseNetLogFile:(NetLogFile *)netLogFile systems:(NSMutableArray *)allSystems names:(NSMutableArray *)allNames jumps:(NSMutableArray *)allJumps lastJump:(Jump **)lastJump {
+  NSAssert([netLogFile.managedObjectContext isEqual:WORK_CONTEXT], @"Wrong context!");
+  
+  NSUInteger count = 0;
   
   if (netLogFile != nil) {
-    if ([currPath isEqualToString:netLogFile.path] == NO) {
-      currPath = netLogFile.path;
-      
-      [fileHandle closeFile];
-      fileHandle = [NSFileHandle fileHandleForReadingAtPath:currPath];
-      
-      [fileHandle seekToFileOffset:netLogFile.fileOffset];
-      
+    NSFileHandle *currFileHandle = [NSFileHandle fileHandleForReadingAtPath:netLogFile.path];
+    
+    if (netLogFile.fileOffset == 0) {
       //extract date from file name
       //netLog.160415232458.01.log
-      
-      fileDate = [[currPath lastPathComponent] substringWithRange:NSMakeRange(7, 12)];
+
+      netLogFile.fileDate = [[currFilePath lastPathComponent] substringWithRange:NSMakeRange(7, 12)];
     }
-    
-    NSData   *data    = [fileHandle readDataToEndOfFile];
+    else {
+      [currFileHandle seekToFileOffset:netLogFile.fileOffset];
+    }
+  
+    NSData   *data    = [currFileHandle readDataToEndOfFile];
     NSString *text    = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     NSArray  *records = [text componentsSeparatedByString:@"{"];
     
     for (NSString *record in records) {
       NSString *entry = [[NSString stringWithFormat:@"{%@", record] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
       
-      [self parseNetLogRecord:entry inFile:netLogFile referenceDate:fileDate systems:systems names:names jumps:jumps];
+      [self parseNetLogRecord:entry inFile:netLogFile systems:allSystems names:allNames jumps:allJumps lastJump:lastJump];
     }
     
-    netLogFile.fileOffset = fileHandle.offsetInFile;
+    netLogFile.fileOffset = currFileHandle.offsetInFile;
 
     for (Jump *jump in netLogFile.jumps) {
       if (jump.objectID.isTemporaryID == YES) {
         count++;
         
         if (netLogFile.complete == NO) {
+          
+#error viene chiamato più e più volte!!!
+          
           NSString *msg = [NSString stringWithFormat:@"Jump to %@ (num visits: %ld)", jump.system.name, (long)jump.system.jumps.count];
           
           [Answers logCustomEventWithName:@"NETLOG parse" customAttributes:@{@"jumps":@1,@"files":@1}];
@@ -369,8 +364,10 @@ static NetLogParser *instance = nil;
             [jump.system updateFromEDSM:nil];
           }
 
-          if (commander.edsmAccount != nil) {
-            [commander.edsmAccount sendJumpToEDSM:jump];
+          if (netLogFile.commander.edsmAccount != nil) {
+            if (jump.edsm == nil) {
+              [netLogFile.commander.edsmAccount sendJumpToEDSM:jump];
+            }
           }
           
           [EventLogger addLog:msg];
@@ -378,28 +375,8 @@ static NetLogParser *instance = nil;
       }
     }
 
-    if (count > 0 /*&& firstRun == NO*/) {
-      NSError *error = nil;
-      
-      [netLogFile.managedObjectContext save:&error];
-      
-      if (error != nil) {
-        NSLog(@"ERROR saving context: %@", error);
-        
-        exit(-1);
-      }
-      
-      [netLogFile.managedObjectContext.parentContext performBlockAndWait:^{
-        NSError *error = nil;
-        
-        [netLogFile.managedObjectContext.parentContext save:&error];
-        
-        if (error != nil) {
-          NSLog(@"ERROR saving context: %@", error);
-          
-          exit(-1);
-        }
-      }];
+    if (count > 0) {
+      [WORK_CONTEXT save];
       
       if (netLogFile.complete == YES && count > 0) {
         NSLog(@"Parsed %ld jumps.", (long)count);
@@ -410,7 +387,10 @@ static NetLogParser *instance = nil;
   return count;
 }
 
-- (void)parseNetLogRecord:(NSString *)record inFile:(NetLogFile *)netLogFile referenceDate:(NSString *)referenceDateTime systems:(NSMutableArray *)systems names:(NSMutableArray *)names jumps:(NSMutableArray *)jumps {
+- (void)parseNetLogRecord:(NSString *)record inFile:(NetLogFile *)netLogFile systems:(NSMutableArray *)allSystems names:(NSMutableArray *)allNames jumps:(NSMutableArray *)allJumps lastJump:(Jump **)lastJump {
+  NSAssert(netLogFile != nil, @"netLogFile MUST have a value");
+  NSAssert([netLogFile.managedObjectContext isEqual:WORK_CONTEXT], @"Wrong context!");
+  
   BOOL      logRecord   = NO;
   BOOL      parseRecord = NO;
   NSString *systemName  = nil;
@@ -479,98 +459,92 @@ static NetLogParser *instance = nil;
     }
   }
   
-  //cannot have two subsequent jumps to the same system
-  
   if (parseRecord) {
-    if (lastJump == nil) {
-      lastJump = [Jump lastJumpOfCommander:commander];
-    }
-    
-    if ([lastJump.system.name isEqualToString:systemName] == YES) {
-      parseRecord = NO;
-    }
-  }
-  
-  if (parseRecord) {
-    [self parseNetLogSystemRecord:record inFile:netLogFile referenceDate:referenceDateTime systems:systems names:names jumps:jumps];
+    [self parseNetLogSystemRecord:record inFile:netLogFile systems:allSystems names:allNames jumps:allJumps lastJump:lastJump];
   }
 }
 
-- (void)parseNetLogSystemRecord:(NSString *)record inFile:(NetLogFile *)netLogFile referenceDate:(NSString *)referenceDateTime systems:(NSMutableArray *)systems names:(NSMutableArray *)names jumps:(NSMutableArray *)jumps {
-  NSDate   *date = [self parseDateOfRecord:record referenceDateTime:referenceDateTime];
+- (void)parseNetLogSystemRecord:(NSString *)record inFile:(NetLogFile *)netLogFile systems:(NSMutableArray *)allSystems names:(NSMutableArray *)allNames jumps:(NSMutableArray *)allJumps lastJump:(Jump **)lastJump {
+  NSAssert(netLogFile != nil, @"netLogFile MUST have a value");
+  NSAssert([netLogFile.managedObjectContext isEqual:WORK_CONTEXT], @"Wrong context!");
+  
+  NSDate   *date = [self parseDateOfRecord:record inFile:netLogFile];
   NSString *name = [self parseSystemNameOfRecord:record];
   
   if (name != nil && date != nil) {
-    NSManagedObjectContext *context  = netLogFile.managedObjectContext;
-    System                 *system   = nil;
-    
-    if (systems == nil || names == nil) {
-      system = [System systemWithName:name inContext:context];
+    //cannot have two subsequent jumps to the same system
+
+    if ((*lastJump) == nil) {
+      (*lastJump) = [Jump lastNetlogJumpOfCommander:netLogFile.commander beforeDate:date];
     }
-    else {
-      NSUInteger idx = [names indexOfObject:name];
+
+    if ([(*lastJump).system.name isEqualToString:name] == NO) {
+      System *system  = nil;
       
-      if (idx != NSNotFound) {
-        system = systems[idx];
+      if (allSystems == nil || allNames == nil) {
+        system = [System systemWithName:name inContext:WORK_CONTEXT];
       }
-    }
-    
-    if (system == nil) {
-      NSString *className = NSStringFromClass(System.class);
-      
-      system = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
-      
-      system.name = name;
-      
-      if (systems != nil && names != nil) {
-        NSUInteger idx = [names indexOfObject:name
-                                inSortedRange:(NSRange){0, names.count}
-                                      options:NSBinarySearchingInsertionIndex
-                              usingComparator:^NSComparisonResult(NSString *str1, NSString *str2) {
-                                return [str1 compare:str2];
-                              }];
+      else {
+        NSUInteger idx = [allNames indexOfObject:name];
         
-        [names   insertObject:name   atIndex:idx];
-        [systems insertObject:system atIndex:idx];
+        if (idx != NSNotFound) {
+          system = allSystems[idx];
+        }
       }
-    }
     
-    Jump *jump = [jumps filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"timestamp == %@", date]].lastObject;
-    
-    if (jump == nil) {
-      NSString *className = NSStringFromClass(Jump.class);
+      if (system == nil) {
+        NSString *className = NSStringFromClass(System.class);
+        
+        system = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:WORK_CONTEXT];
+        
+        system.name = name;
+        
+        if (allSystems != nil && allNames != nil) {
+          NSUInteger idx = [allNames indexOfObject:name
+                                     inSortedRange:(NSRange){0, allNames.count}
+                                           options:NSBinarySearchingInsertionIndex
+                                   usingComparator:^NSComparisonResult(NSString *str1, NSString *str2) {
+                                     return [str1 compare:str2];
+                                   }];
+          
+          [allNames   insertObject:name   atIndex:idx];
+          [allSystems insertObject:system atIndex:idx];
+        }
+      }
       
-      jump = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
-    
-      jump.system    = system;
-      jump.timestamp = [date timeIntervalSinceReferenceDate];
+      Jump *jump = [allJumps filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"timestamp == %@", date]].lastObject;
+      
+      if (jump == nil) {
+        NSString *className = NSStringFromClass(Jump.class);
+        
+        jump = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:WORK_CONTEXT];
+      
+        jump.system    = system;
+        jump.timestamp = [date timeIntervalSinceReferenceDate];
+      }
+      else {
+        [allJumps removeObject:jump];
+      }
+      
+      jump.netLogFile = netLogFile;
+      
+      (*lastJump) = jump;
     }
-    else {
-      [jumps removeObject:jump];
-    }
-    
-    jump.netLogFile = netLogFile;
-    
-    lastJump = jump;
   }
 }
 
-- (NSDate *)parseDateOfRecord:(NSString *)record referenceDateTime:(NSString *)referenceDateTime {
+- (NSDate *)parseDateOfRecord:(NSString *)record inFile:(NetLogFile *)netLogFile {
   //netLog records have this format
   //{00:19:00} System:11(Frecku US-U d2-11) Body:1 Pos:(1.67497e+10,-2.85834e+07,1.1919e+09) Supercruise
   //{00:23:21} System:11(Frecku US-U d2-11) Body:17 Pos:(1.96291e+07,-2.16646e+07,5.13991e+07) NormalFlight
+  //note that dates will wrap if current netlog file crosses the midnight mark
   
-  static NSString        *strRefDateTime    = nil;
-  static NSDate          *refDateTime       = nil;
-  static NSString        *refStrDate        = nil;
   static NSDateFormatter *dateTimeFormatter = nil;
   static NSDateFormatter *dateFormatter     = nil;
   static NSDate          *gammaLaunchDate   = nil;
   static dispatch_once_t  onceToken;
   
   dispatch_once(&onceToken, ^{
-    NSString *gammaLaunch = @"141122130000";
-    
     dateTimeFormatter = [[NSDateFormatter alloc] init];
     dateFormatter     = [[NSDateFormatter alloc] init];
     
@@ -579,42 +553,43 @@ static NetLogParser *instance = nil;
     dateTimeFormatter.dateFormat = @"yyMMddHHmmss";
     dateFormatter.dateFormat     = @"yyMMdd";
     
-    gammaLaunchDate = [dateTimeFormatter dateFromString:gammaLaunch];
+    gammaLaunchDate = [dateTimeFormatter dateFromString:GAMMA_LAUNCH_DATE];
   });
   
   //OLD log files do not have seconds in file name... insert them if necessary
-  if ([[referenceDateTime substringWithRange:NSMakeRange(10, 1)] isEqualToString:@"."]) {
-    referenceDateTime = [[referenceDateTime substringToIndex:10] stringByAppendingString:@"00"];
+  if ([[netLogFile.fileDate substringWithRange:NSMakeRange(10, 1)] isEqualToString:@"."]) {
+    netLogFile.fileDate = [[netLogFile.fileDate substringToIndex:10] stringByAppendingString:@"00"];
   }
+
+  //extract date component from netlog file date, time component from netlog record, and combine them together
   
-  if ([strRefDateTime isEqualToString:referenceDateTime] == NO) {
-    strRefDateTime = referenceDateTime;
-    refDateTime    = [dateTimeFormatter dateFromString:strRefDateTime];
-    refStrDate     = [dateFormatter stringFromDate:refDateTime];
-  }
-  
+  NSDate   *refDateTime = [dateTimeFormatter dateFromString:netLogFile.fileDate];
+  NSString *refStrDate  = [dateFormatter stringFromDate:refDateTime];
   NSString *strTime     = [[record substringWithRange:NSMakeRange(1, 8)] stringByReplacingOccurrencesOfString:@":" withString:@""];
   NSString *strDateTime = [NSString stringWithFormat:@"%@%@", refStrDate, strTime];
   NSDate   *dateTime    = [dateTimeFormatter dateFromString:strDateTime];
   
-  // add 1 day to reference date if dates in netlog file wrapped
+  //if calculated date-time is earlier than netlog file date-time, it means that in-game time passed the midnight mark
+  //and need to add one day to calculated date-time
   
-  if ([refDateTime earlierDate:dateTime] == dateTime) {
+  if (dateTime.timeIntervalSinceReferenceDate < refDateTime.timeIntervalSinceReferenceDate) {
     NSDateComponents *dayComponent = [[NSDateComponents alloc] init];
     NSCalendar       *calendar     = [NSCalendar currentCalendar];
     
     dayComponent.day = 1;
     
-    refDateTime = [calendar dateByAddingComponents:dayComponent toDate:refDateTime options:0];
-    refStrDate  = [dateFormatter stringFromDate:refDateTime];
-    refDateTime = [dateFormatter dateFromString:refStrDate]; //otherwise refDateTime will be incorrect for subsequent calculations
-    strDateTime = [NSString stringWithFormat:@"%@%@", refStrDate, strTime];
-    dateTime    = [dateTimeFormatter dateFromString:strDateTime];
+    //add 1 day to calculated date-time
+    
+    dateTime = [calendar dateByAddingComponents:dayComponent toDate:dateTime options:0];
   }
   
+  //set netlog file date-time to calculated date-time
+  
+  netLogFile.fileDate = [dateTimeFormatter stringFromDate:dateTime];
+
   //make sure jump date is *after* gamma launch date
   
-  if ([gammaLaunchDate earlierDate:dateTime] == dateTime) {
+  if (dateTime.timeIntervalSinceReferenceDate < gammaLaunchDate.timeIntervalSinceReferenceDate) {
     dateTime = nil;
   }
   

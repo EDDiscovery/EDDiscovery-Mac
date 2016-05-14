@@ -17,11 +17,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface Jump : NSManagedObject
 
-+ (void)printStatsOfCommander:(Commander *)commander;
++ (void)printJumpStatsOfCommander:(Commander *)commander;
 + (NSArray *)allJumpsOfCommander:(Commander *)commander;
 + (NSArray *)last:(NSUInteger)count jumpsOfCommander:(Commander *)commander;
-+ (Jump *)lastJumpOfCommander:(Commander *)commander;
 + (Jump *)lastXYZJumpOfCommander:(Commander *)commander;
++ (Jump *)lastNetlogJumpOfCommander:(Commander *)commander beforeDate:(NSDate *)date;
 
 @property(nonatomic, readonly) NSNumber *distanceFromPreviousJump;
 

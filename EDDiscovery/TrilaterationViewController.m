@@ -33,7 +33,7 @@
   IBOutlet NSButton            *submitButton;
   IBOutlet NSButton            *resetButton;
   
-  NSManagedObjectContext *context;
+  NSManagedObjectContext *privateContext;
 }
 
 - (void)awakeFromNib {
@@ -45,20 +45,24 @@
 - (void)viewWillAppear {
   [super viewWillAppear];
   
-  if (context == nil) {
-    context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+  //use a private context, as changes made here need NOT be propagated to the backing store
+  //after a successful trilateration and submission to EDSM, data will be re-fetched from EDSM
+  
+  if (privateContext == nil) {
+    privateContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
     
-    context.parentContext = CoreDataManager.instance.mainContext;
+    privateContext.parentContext = MAIN_CONTEXT;
     
-    [jumpsArrayController setManagedObjectContext:context];
+    [jumpsArrayController setManagedObjectContext:privateContext];
     
+    [suggestedReferencesTableView setHidden:YES];
     [suggestedReferencesProgressIndicator startAnimation:nil];
   }
   
   Commander *commander = Commander.activeCommander;
   
   [jumpsArrayController setFetchPredicate:CMDR_PREDICATE];
-  [jumpsArrayController setSortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:NO selector:@selector(compare:)]]];;
+  [jumpsArrayController setSortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:NO selector:@selector(compare:)]]];
   [jumpsArrayController fetchWithRequest:nil merge:NO error:nil];
 
   EventLogger.instance.textView = textView;
@@ -220,6 +224,7 @@
     }
   }
   else if (aTableView == suggestedReferencesTableView) {
+    [suggestedReferencesTableView setHidden:NO];
     [suggestedReferencesProgressIndicator stopAnimation:nil];
   }
 }
@@ -449,26 +454,24 @@
 }
 
 - (IBAction)submitDistances:(id)sender {
-  Jump   *jump   = [jumpsArrayController valueForKeyPath:@"selection.self"];
-  System *system = jump.system;
+  Jump              *jump     = [jumpsArrayController valueForKeyPath:@"selection.self"];
+  System            *system   = jump.system;
+  NSManagedObjectID *systemID = system.objectID;;
   
   [EDSM sendDistancesToEDSM:system response:^(BOOL distancesSubmitted, BOOL systemTrilaterated) {
-    
     if (distancesSubmitted == YES) {
-      NSManagedObjectID      *systemID    = system.objectID;
-      NSManagedObjectContext *mainContext = CoreDataManager.instance.mainContext;
-      System                 *system      = [mainContext existingObjectWithID:systemID error:nil];
-      
-      [system updateFromEDSM:^{
+      [MAIN_CONTEXT performBlock:^{
+        System *system = [MAIN_CONTEXT existingObjectWithID:systemID error:nil];
         
-        [context rollback];
-        context = nil;
-        
-        [self viewWillAppear];
-        
+        [system updateFromEDSM:^{
+          
+          [privateContext rollback];
+          privateContext = nil;
+          
+          [self viewWillAppear];
+        }];
       }];
     }
-    
   }];
 }
 

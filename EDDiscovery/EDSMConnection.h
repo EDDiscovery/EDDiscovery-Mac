@@ -17,7 +17,7 @@
 @interface EDSMConnection : HttpApiManager
 
 //system info
-+ (void)getSystemsInfoWithResponse:(void(^)(NSArray *response, NSError *error))response;
++ (void)getSystemsInfoWithProgress:(ProgressBlock)progress response:(void(^)(NSArray *response, NSError *error))response;
 + (void)getSystemInfo:(NSString *)systemName response:(void(^)(NSDictionary *response, NSError *error))response;
 
 //system distances

@@ -31,6 +31,7 @@
   
   [self callApi:@"api-v1/system"
      withMethod:@"POST"
+progressCallBack:nil
 responseCallback:^(id data, NSError *error) {
   
   [Answers logCustomEventWithName:@"EDSM API call" customAttributes:@{@"API":@"api-v1/system"}];
@@ -93,6 +94,7 @@ responseCallback:^(id data, NSError *error) {
   
   [self callApi:@"api-v1/submit-distances"
        withBody:data
+progressCallBack:nil
 responseCallback:^(id output, NSError *error) {
   
   [Answers logCustomEventWithName:@"EDSM API call" customAttributes:@{@"API":@"api-v1/submit-distances"}];
@@ -153,11 +155,22 @@ responseCallback:^(id output, NSError *error) {
 }];
 }
 
-+ (void)getNightlyDumpWithResponse:(void(^)(NSArray *response, NSError *error))response {
++ (void)getNightlyDumpWithProgress:(ProgressBlock)progress response:(void(^)(NSArray *response, NSError *error))response {
   [self setup];
   
   [self callApi:@"dump/systemsWithCoordinates.json"
      withMethod:@"GET"
+progressCallBack:^(long long downloaded, long long total) {
+  if (progress != nil) {
+#warning FIXME: making assumptions on nightly dump file size!
+    //EDSM does not return expected content size of nightly dumps
+    //assume a size of 23 MB
+    
+    total = 1024 * 1024 * 23;
+  
+    progress(downloaded, MAX(downloaded,total));
+  }
+}
 responseCallback:^(id output, NSError *error) {
 
   [Answers logCustomEventWithName:@"EDSM API call" customAttributes:@{@"API":@"dump/systemsWithCoordinates.json"}];
@@ -180,13 +193,7 @@ responseCallback:^(id output, NSError *error) {
      parameters:0];
 }
 
-+ (void)getSystemsInfoWithResponse:(void(^)(NSArray *response, NSError *error))response {
-//#warning forcing update of ALL systems!
-//  static dispatch_once_t onceToken;
-//  dispatch_once(&onceToken, ^{
-//    [NSUserDefaults.standardUserDefaults removeObjectForKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
-//  });
-  
++ (void)getSystemsInfoWithProgress:(ProgressBlock)progress response:(void(^)(NSArray *response, NSError *error))response {
   NSDate           *lastSyncDate = [NSUserDefaults.standardUserDefaults objectForKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
   NSDateComponents *dayComponent = [[NSDateComponents alloc] init];
   
@@ -195,10 +202,10 @@ responseCallback:^(id output, NSError *error) {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSDate     *minDate  = [calendar dateByAddingComponents:dayComponent toDate:NSDate.date options:0];
   
-  if ([lastSyncDate earlierDate:minDate] == lastSyncDate) {
+  if (lastSyncDate.timeIntervalSinceReferenceDate <= minDate.timeIntervalSinceReferenceDate) {
     NSLog(@"Fetching nightly systems dump!");
     
-    [self getNightlyDumpWithResponse:^(NSArray *output, NSError *error) {
+    [self getNightlyDumpWithProgress:progress response:^(NSArray *output, NSError *error) {
       //save sync date 1 day in the past as the nighly dumps are generated once per day
       
       if (output != nil) {
@@ -211,7 +218,7 @@ responseCallback:^(id output, NSError *error) {
         
         [NSUserDefaults.standardUserDefaults setObject:lastSyncDate forKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
         
-        [self getSystemsInfoWithResponse:^(NSArray *output2, NSError *error2) {
+        [self getSystemsInfoWithProgress:nil response:^(NSArray *output2, NSError *error2) {
           NSMutableArray *array = [NSMutableArray arrayWithArray:output];
 
           if ([output2 isKindOfClass:NSArray.class]) {
@@ -237,7 +244,8 @@ responseCallback:^(id output, NSError *error) {
     
     [self callApi:@"api-v1/systems"
        withMethod:@"GET"
-  responseCallback:^(id output, NSError *error) {
+ progressCallBack:progress
+responseCallback:^(id output, NSError *error) {
     
     [Answers logCustomEventWithName:@"EDSM API call" customAttributes:@{@"API":@"api-v1/systems"}];
     
@@ -291,6 +299,7 @@ responseCallback:^(id output, NSError *error) {
   
   [self callApi:@"api-logs-v1/get-logs"
      withMethod:@"POST"
+progressCallBack:nil
 responseCallback:^(id output, NSError *error) {
   
   [Answers logCustomEventWithName:@"EDSM API call" customAttributes:@{@"API":@"api-v1/get-logs"}];
@@ -355,6 +364,7 @@ responseCallback:^(id output, NSError *error) {
   
   [self callApi:@"api-logs-v1/set-log"
      withMethod:@"POST"
+progressCallBack:nil
 responseCallback:^(id output, NSError *error) {
   
   [Answers logCustomEventWithName:@"EDSM API call" customAttributes:@{@"API":@"api-v1/set-log"}];
@@ -411,6 +421,7 @@ responseCallback:^(id output, NSError *error) {
   
   [self callApi:@"api-logs-v1/get-comments"
      withMethod:@"POST"
+progressCallBack:nil
 responseCallback:^(id output, NSError *error) {
   
   [Answers logCustomEventWithName:@"EDSM API call" customAttributes:@{@"API":@"api-v1/get-comments"}];
@@ -466,6 +477,7 @@ responseCallback:^(id output, NSError *error) {
   
   [self callApi:@"api-logs-v1/set-comment"
      withMethod:@"POST"
+progressCallBack:nil
 responseCallback:^(id output, NSError *error) {
   
   [Answers logCustomEventWithName:@"EDSM API call" customAttributes:@{@"API":@"api-v1/set-comment"}];

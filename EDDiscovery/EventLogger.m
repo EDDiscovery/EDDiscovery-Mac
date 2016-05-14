@@ -101,48 +101,52 @@
 }
 
 - (void)clearLogs {
-  [self.textView setString:@""];
-  [currLine setString:@""];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [self.textView setString:@""];
+    [currLine setString:@""];
+  });
 }
 
 - (void)addLog:(NSString *)msg timestamp:(BOOL)timestamp newline:(BOOL)newline attributes:(NSDictionary *)attributes {
-  static NSDateFormatter *formatter = nil;
-  static dispatch_once_t  onceToken;
-  
-  NSAttributedString *attr = nil;
-  
-  dispatch_once(&onceToken, ^{
-    formatter = [[NSDateFormatter alloc] init];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    static NSDateFormatter *formatter = nil;
+    static dispatch_once_t  onceToken;
     
-    formatter.dateFormat = @"HH:mm:ss - ";
+    NSAttributedString *attr = nil;
+    
+    dispatch_once(&onceToken, ^{
+      formatter = [[NSDateFormatter alloc] init];
+      
+      formatter.dateFormat = @"HH:mm:ss - ";
+    });
+    
+    if (newline == YES) {
+      NSLog(@"%@", msg);
+    }
+    
+    if (self.textView.string.length > 0 && newline) {
+      attr = [[NSAttributedString alloc] initWithString:@"\n" attributes:nil];
+      
+      [self.textView.textStorage appendAttributedString:attr];
+      [currLine setString:@""];
+    }
+    
+    if (timestamp) {
+      NSString *str = [formatter stringFromDate:NSDate.date];
+      
+      attr = [[NSAttributedString alloc] initWithString:str attributes:attributes];
+      
+      [self.textView.textStorage appendAttributedString:attr];
+      [currLine appendString:str];
+    }
+    
+    attr = [[NSAttributedString alloc] initWithString:msg attributes:attributes];
+    
+    [self.textView.textStorage appendAttributedString:attr];
+    [currLine appendString:msg];
+    
+    [self.textView scrollRangeToVisible:NSMakeRange(self.textView.string.length, 0)];
   });
-  
-  if (newline == YES) {
-    NSLog(@"%@", msg);
-  }
-  
-  if (self.textView.string.length > 0 && newline) {
-    attr = [[NSAttributedString alloc] initWithString:@"\n" attributes:nil];
-    
-    [self.textView.textStorage appendAttributedString:attr];
-    [currLine setString:@""];
-  }
-  
-  if (timestamp) {
-    NSString *str = [formatter stringFromDate:NSDate.date];
-    
-    attr = [[NSAttributedString alloc] initWithString:str attributes:attributes];
-    
-    [self.textView.textStorage appendAttributedString:attr];
-    [currLine appendString:str];
-  }
-  
-  attr = [[NSAttributedString alloc] initWithString:msg attributes:attributes];
-  
-  [self.textView.textStorage appendAttributedString:attr];
-  [currLine appendString:msg];
-  
-  [self.textView scrollRangeToVisible:NSMakeRange(self.textView.string.length, 0)];
 }
 
 @end

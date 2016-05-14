@@ -9,7 +9,7 @@
 #import "LoadingViewController.h"
 #import "AppDelegate.h"
 
-@interface LoadingViewController()
+@interface LoadingViewController ()
 
 @property(nonatomic, strong) IBOutlet NSTextField         *textField;
 @property(nonatomic, strong) IBOutlet NSProgressIndicator *progressIndicator;
@@ -27,7 +27,7 @@ static LoadingViewController *loadingViewController = nil;
   return loadingViewController;
 }
 
-+ (LoadingViewController *)loadingViewControllerInWindow:(NSWindow *)window {
++ (void)presentLoadingViewControllerInWindow:(NSWindow *)window {
   if (loadingViewController == nil) {
     NSStoryboard       *storyboard       = [NSStoryboard storyboardWithName:@"Main" bundle:nil];
     NSWindowController *windowController = [storyboard instantiateControllerWithIdentifier:@"LoadingWindow"];
@@ -36,14 +36,20 @@ static LoadingViewController *loadingViewController = nil;
 
     loadingViewController = (LoadingViewController *)windowController.contentViewController;
   }
-  
-  return loadingViewController;
 }
 
-- (void)dismiss {
-  [self.view.window.sheetParent endSheet:self.view.window];
++ (void)dismiss {
+  [self.loadingViewController.view.window.sheetParent endSheet:self.loadingViewController.view.window];
   
   loadingViewController = nil;
+}
+
++ (NSTextField *)textField {
+  return self.loadingViewController.textField;
+}
+
++ (NSProgressIndicator *)progressIndicator {
+  return self.loadingViewController.progressIndicator;
 }
 
 @end

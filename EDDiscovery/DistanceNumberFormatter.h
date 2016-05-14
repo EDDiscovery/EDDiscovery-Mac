@@ -1,5 +1,5 @@
 //
-//  NumberFormatter.h
+//  DistanceNumberFormatter.h
 //  EDDiscovery
 //
 //  Created by Michele Noberasco on 05/05/16.
@@ -8,6 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NumberFormatter : NSNumberFormatter
+@interface DistanceNumberFormatter : NSNumberFormatter
 
 @end

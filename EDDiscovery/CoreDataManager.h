@@ -17,12 +17,8 @@
 
 +(CoreDataManager *)instance;
 
-+(NSString *)dbPathName;
-
 - (BOOL)needDataMigration;
 - (void)initializeDatabaseContents;
-
--(NSManagedObjectContext *)mainContext;
--(NSManagedObjectContext *)bgContext;
+- (NSPersistentStoreCoordinator *)persistentStoreCoordinator;
 
 @end

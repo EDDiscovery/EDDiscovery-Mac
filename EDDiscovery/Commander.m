@@ -11,7 +11,6 @@
 #import "Commander.h"
 #import "EDSM.h"
 #import "NetLogFile.h"
-#import "CoreDataManager.h"
 #import "NetLogParser.h"
 #import "Jump.h"
 #import "EventLogger.h"
@@ -26,6 +25,8 @@
 static Commander *activeCommander = nil;
 
 + (Commander *)activeCommander {
+  NSAssert (NSThread.isMainThread, @"Must be on main thread");
+  
   if (activeCommander == nil) {
     NSString *name = [NSUserDefaults.standardUserDefaults objectForKey:ACTIVE_COMMANDER_KEY];
     
@@ -38,13 +39,10 @@ static Commander *activeCommander = nil;
 }
 
 + (void)setActiveCommander:(nullable Commander *)commander {
+  NSAssert (NSThread.isMainThread, @"Must be on main thread");
+  
   if (activeCommander != nil) {
-    if (activeCommander.netLogFilesDir.length > 0) {
-      [NetLogParser instanceWithCommander:activeCommander response:^(NetLogParser *netLogParser) {
-        [netLogParser stopInstance];
-        netLogParser = nil;
-      }];
-    }
+    [[NetLogParser instanceOrNil:activeCommander] stopInstance];
   }
   
   activeCommander = commander;
@@ -58,6 +56,8 @@ static Commander *activeCommander = nil;
 }
 
 + (Commander *)createCommanderWithName:(NSString *)name {
+  NSAssert (NSThread.isMainThread, @"Must be on main thread");
+  
   Commander *commander = [self commanderWithName:name];
   
   if (commander != nil) {
@@ -73,26 +73,18 @@ static Commander *activeCommander = nil;
     commander = nil;
   }
   else {
-    NSManagedObjectContext *context     = CoreDataManager.instance.mainContext;;
-    NSString               *className   = NSStringFromClass(EDSM.class);
-    EDSM                   *edsmAccount = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
-    NSError                *error       = nil;
+    NSString *className   = NSStringFromClass(EDSM.class);
+    EDSM     *edsmAccount = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:MAIN_CONTEXT];
     
     className = NSStringFromClass(Commander.class);
-    commander = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
+    commander = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:MAIN_CONTEXT];
     
     commander.name        = name;
     commander.edsmAccount = edsmAccount;
     
-    [context save:&error];
+    [MAIN_CONTEXT save];
     
-    if (error != nil) {
-      NSLog(@"ERROR saving context: %@", error);
-      
-      exit(-1);
-    }
-    
-    self.activeCommander = commander;
+    self.activeCommander  = commander;
   }
   
   return commander;
@@ -102,10 +94,11 @@ static Commander *activeCommander = nil;
 #pragma mark active fetch commanders
 
 + (Commander *)commanderWithName:(NSString *)name {
-  NSManagedObjectContext *context   = CoreDataManager.instance.mainContext;;
+  NSAssert (NSThread.isMainThread, @"Must be on main thread");
+  
   NSString               *className = NSStringFromClass([Commander class]);
   NSFetchRequest         *request   = [[NSFetchRequest alloc] init];
-  NSEntityDescription    *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
+  NSEntityDescription    *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:MAIN_CONTEXT];
   NSError                *error     = nil;
   NSArray                *array     = nil;
   
@@ -114,7 +107,7 @@ static Commander *activeCommander = nil;
   request.returnsObjectsAsFaults = NO;
   request.includesPendingChanges = YES;
   
-  array = [context executeFetchRequest:request error:&error];
+  array = [MAIN_CONTEXT executeFetchRequest:request error:&error];
   
   NSAssert1(error == nil, @"could not execute fetch request: %@", error);
   NSAssert1(array.count <= 1, @"this query should return at maximum 1 element: got %lu instead", (unsigned long)array.count);
@@ -122,11 +115,12 @@ static Commander *activeCommander = nil;
   return array.lastObject;
 }
 
-+ (NSArray *)commanders {
-  NSManagedObjectContext *context   = CoreDataManager.instance.mainContext;;
++ (NSArray *)allCommanders {
+  NSAssert (NSThread.isMainThread, @"Must be on main thread");
+  
   NSString               *className = NSStringFromClass([Commander class]);
   NSFetchRequest         *request   = [[NSFetchRequest alloc] init];
-  NSEntityDescription    *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
+  NSEntityDescription    *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:MAIN_CONTEXT];
   NSError                *error     = nil;
   NSArray                *array     = nil;
   
@@ -135,7 +129,7 @@ static Commander *activeCommander = nil;
   request.returnsObjectsAsFaults = NO;
   request.includesPendingChanges = YES;
   
-  array = [context executeFetchRequest:request error:&error];
+  array = [MAIN_CONTEXT executeFetchRequest:request error:&error];
   
   NSAssert1(error == nil, @"could not execute fetch request: %@", error);
   
@@ -145,16 +139,17 @@ static Commander *activeCommander = nil;
 #pragma mark -
 #pragma mark netlog dir changing
 
-- (void)setNetLogFilesDir:(NSString *)newNetLogFilesDir completion:(void(^)(void))completionBlock {
-  if ([newNetLogFilesDir isEqualToString:self.netLogFilesDir] == YES) {
+- (void)setNetLogFilesDir:(NSString *)newNetLogFilesDir completion:(void(^__nonnull)(void))completionBlock {
+  NSAssert (NSThread.isMainThread, @"Must be on main thread");
+  
+  if (ARE_EQUAL(newNetLogFilesDir, self.netLogFilesDir)) {
     completionBlock();
+    
+    return;
   }
   else if (self.netLogFilesDir.length > 0) {
-    [NetLogParser instanceWithCommander:self response:^(NetLogParser *netLogParser) {
-      [netLogParser stopInstance];
-      netLogParser = nil;
-    }];
-    
+    [[NetLogParser instanceOrNil:self] stopInstance];
+
     //wipe all NetLogFile entities for this commander
     
     NSArray    *netLogFiles = [NetLogFile netLogFilesForCommander:self];
@@ -163,25 +158,18 @@ static Commander *activeCommander = nil;
     for (NetLogFile *netLogFile in netLogFiles) {
       for (Jump *jump in netLogFile.jumps) {
         if (jump.edsm == nil) {
-          [jump.managedObjectContext deleteObject:jump];
+          [MAIN_CONTEXT deleteObject:jump];
           
           numJumps++;
         }
       }
       
-      [netLogFile.managedObjectContext deleteObject:netLogFile];
+      [MAIN_CONTEXT deleteObject:netLogFile];
     }
     
-    NSError *error = nil;
+    [MAIN_CONTEXT save];
     
-    [self.managedObjectContext save:&error];
-    
-    if (error != nil) {
-      NSLog(@"%s: ERROR: cannot save context: %@", __FUNCTION__, error);
-      exit(-1);
-    }
-    
-    NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
+    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
     
     numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
     numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
@@ -195,8 +183,12 @@ static Commander *activeCommander = nil;
   [self setPrimitiveValue:newNetLogFilesDir forKey:@"netLogFilesDir"];
   [self didChangeValueForKey:@"netLogFilesDir"];
   
-  [NetLogParser instanceWithCommander:Commander.activeCommander response:^(NetLogParser *netLogParser) {
-    completionBlock();
+  NetLogParser *netLogParser = [NetLogParser createInstanceForCommander:self];
+  
+  [netLogParser startInstance:^{
+    [self.edsmAccount syncJumpsWithEDSM:^{
+      completionBlock();
+    }];
   }];
 }
 
@@ -204,12 +196,9 @@ static Commander *activeCommander = nil;
 #pragma mark deletion
 
 - (void)deleteCommander {
-  if (self.netLogFilesDir.length > 0) {
-    [NetLogParser instanceWithCommander:self response:^(NetLogParser *netLogParser) {
-      [netLogParser stopInstance];
-      netLogParser = nil;
-    }];
-  }
+  NSAssert (NSThread.isMainThread, @"Must be on main thread");
+  
+  [[NetLogParser instanceOrNil:self] stopInstance];
 
   NSArray *jumps = [Jump allJumpsOfCommander:self];
   
@@ -223,14 +212,7 @@ static Commander *activeCommander = nil;
   
   [self.managedObjectContext deleteObject:self];
   
-  NSError *error = nil;
-  
-  [self.managedObjectContext save:&error];
-  
-  if (error != nil) {
-    NSLog(@"%s: ERROR: cannot save context: %@", __FUNCTION__, error);
-    exit(-1);
-  }
+  [self.managedObjectContext save];
 }
 
 @end

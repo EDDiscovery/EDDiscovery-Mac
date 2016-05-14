@@ -39,8 +39,8 @@
   
   EventLogger.instance.textView = textView;
   
-  cmdrArrayController.managedObjectContext = CoreDataManager.instance.mainContext;
-  jumpsArrayController.managedObjectContext = CoreDataManager.instance.mainContext;
+  cmdrArrayController.managedObjectContext = MAIN_CONTEXT;
+  jumpsArrayController.managedObjectContext = MAIN_CONTEXT;
   
   cmdrArrayController.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"name"      ascending:YES selector:@selector(caseInsensitiveCompare:)]];
   jumpsTableView.sortDescriptors      = @[[NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:NO  selector:@selector(compare:)]];
@@ -56,10 +56,10 @@
   [super viewWillAppear];
 
   EventLogger.instance.textView = textView;
+
+#warning FIXME: forcing hard-coded window size!
   
   NSRect frame = self.view.window.frame;
-  
-  NSLog(@"FRAME: %@", NSStringFromRect(frame));
   
   frame.size = CGSizeMake(1024, 600);
   
@@ -185,7 +185,7 @@
     }
     
     if (exists == YES && isDir == YES) {
-      NSArray *commanders = [Commander commanders];
+      NSArray *commanders = [Commander allCommanders];
       BOOL     goOn       = YES;
       
       for (Commander *commander in commanders) {
@@ -223,10 +223,10 @@
       }
       
       if (goOn == YES) {
-        LoadingViewController *loadingVC = [LoadingViewController loadingViewControllerInWindow:self.view.window];
+        [LoadingViewController presentLoadingViewControllerInWindow:self.view.window];
         
         [Commander.activeCommander setNetLogFilesDir:path completion:^{
-          [loadingVC dismiss];
+          [LoadingViewController dismiss];
         }];
         
         [Answers logCustomEventWithName:@"NETLOG configure path" customAttributes:@{@"path":path}];
@@ -254,17 +254,17 @@
 
   NSLog(@"%s: %@ - %@", __FUNCTION__, cmdrName, apiKey);
   
-  LoadingViewController *loadingVC = [LoadingViewController loadingViewControllerInWindow:self.view.window];
+  [LoadingViewController presentLoadingViewControllerInWindow:self.view.window];
   
   if (cmdrName.length > 0 && apiKey.length > 0) {
     [Commander.activeCommander.edsmAccount syncJumpsWithEDSM:^{
-      [loadingVC dismiss];
+      [LoadingViewController dismiss];
     }];
     
     [Answers logCustomEventWithName:@"EDSM configure account" customAttributes:nil];
   }
   else {
-    [loadingVC dismiss];
+    [LoadingViewController dismiss];
   }
 }
 
@@ -367,21 +367,25 @@
     setNetlogDirButton.enabled    = NO;
   }
   
-  LoadingViewController *loadingVC = [LoadingViewController loadingViewControllerInWindow:self.view.window];
+  [LoadingViewController presentLoadingViewControllerInWindow:self.view.window];
   
   [System updateSystemsFromEDSM:^{
     if (name.length == 0) {
-      [loadingVC dismiss];
+      [LoadingViewController dismiss];
     }
     else {
-      [NetLogParser instanceWithCommander:Commander.activeCommander response:^(NetLogParser *netLogParser) {
-        if (netLogParser == nil) {
-          [self ESDMAccountChanged:nil];
-        }
-        else {
-          [loadingVC dismiss];
-        }
-      }];
+      NetLogParser *netLogParser = [NetLogParser createInstanceForCommander:commander];
+      
+      if (netLogParser == nil) {
+        [self ESDMAccountChanged:nil];
+      }
+      else {
+        [netLogParser startInstance:^{
+          [commander.edsmAccount syncJumpsWithEDSM:^{
+            [LoadingViewController dismiss];
+          }];
+        }];
+      }
     }
   }];
 }
