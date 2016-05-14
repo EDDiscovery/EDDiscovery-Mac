@@ -40,21 +40,21 @@
 }
 
 - (void)save {
-  NSError *error = nil;
-  
-  [self save:&error];
-  
-  NSAssert1(error == nil, @"ERROR: could not save context: %@", error.localizedDescription);
-  
-  if (error != nil) {
-    exit(-1);
-  }
-  
-  if (self.parentContext != nil) {
-    [self.parentContext performBlockAndWait:^{
+  [self performBlockAndWait:^{
+    NSError *error = nil;
+    
+    [self save:&error];
+    
+    NSAssert1(error == nil, @"ERROR: could not save context: %@", error.localizedDescription);
+    
+    if (error != nil) {
+      exit(-1);
+    }
+    
+    if (self.parentContext != nil) {
       [self.parentContext save];
-    }];
-  }
+    }
+  }];
 }
 
 @end

@@ -149,7 +149,7 @@ static NetLogParser *instance = nil;
 #pragma mark VDKQueueDelegate delegate
 
 - (void)VDKQueue:(VDKQueue *)aQueue receivedNotification:(NSString *)nm forPath:(NSString *)path {
-  [WORK_CONTEXT performBlockAndWait:^{
+  [WORK_CONTEXT performBlock:^{
     if ([path isEqualToString:netLogFilesDir]) {
       [self scanNetLogFilesDir];
     }
@@ -321,7 +321,7 @@ static NetLogParser *instance = nil;
 - (NSUInteger)parseNetLogFile:(NetLogFile *)netLogFile systems:(NSMutableArray *)allSystems names:(NSMutableArray *)allNames jumps:(NSMutableArray *)allJumps lastJump:(Jump **)lastJump {
   NSAssert([netLogFile.managedObjectContext isEqual:WORK_CONTEXT], @"Wrong context!");
   
-  NSUInteger count = 0;
+  NSMutableArray *newJumps = [NSMutableArray array];
   
   if (netLogFile != nil) {
     NSFileHandle *currFileHandle = [NSFileHandle fileHandleForReadingAtPath:netLogFile.path];
@@ -350,41 +350,47 @@ static NetLogParser *instance = nil;
 
     for (Jump *jump in netLogFile.jumps) {
       if (jump.objectID.isTemporaryID == YES) {
-        count++;
-        
-        if (netLogFile.complete == NO) {
-          
-#error viene chiamato più e più volte!!!
-          
-          NSString *msg = [NSString stringWithFormat:@"Jump to %@ (num visits: %ld)", jump.system.name, (long)jump.system.jumps.count];
-          
-          [Answers logCustomEventWithName:@"NETLOG parse" customAttributes:@{@"jumps":@1,@"files":@1}];
-          
-          if (jump.system.hasCoordinates == NO) {
-            [jump.system updateFromEDSM:nil];
-          }
-
-          if (netLogFile.commander.edsmAccount != nil) {
-            if (jump.edsm == nil) {
-              [netLogFile.commander.edsmAccount sendJumpToEDSM:jump];
-            }
-          }
-          
-          [EventLogger addLog:msg];
-        }
+        [newJumps addObject:jump];
       }
     }
 
-    if (count > 0) {
+    if (newJumps.count > 0) {
       [WORK_CONTEXT save];
       
-      if (netLogFile.complete == YES && count > 0) {
-        NSLog(@"Parsed %ld jumps.", (long)count);
+      if (netLogFile.complete == YES) {
+        NSLog(@"Parsed %ld jumps.", (long)newJumps.count);
+      }
+      else {
+        NSError *error  = nil;
+        BOOL     result = [WORK_CONTEXT obtainPermanentIDsForObjects:newJumps error:&error];
+        
+        if (error != nil) {
+          NSLog(@"ERROR obtaining permanend IDs: %@", error.localizedDescription);
+        }
+        else if (result == YES) {
+          for (Jump *jump in newJumps) {
+            NSString *msg = [NSString stringWithFormat:@"Jump to %@ (num visits: %ld)", jump.system.name, (long)jump.system.jumps.count];
+            
+            [Answers logCustomEventWithName:@"NETLOG parse" customAttributes:@{@"jumps":@1,@"files":@1}];
+            
+            if (jump.system.hasCoordinates == NO) {
+              [jump.system updateFromEDSM:nil];
+            }
+            
+            if (netLogFile.commander.edsmAccount != nil) {
+              if (jump.edsm == nil) {
+                [netLogFile.commander.edsmAccount sendJumpToEDSM:jump];
+              }
+            }
+            
+            [EventLogger addLog:msg];
+          }
+        }
       }
     }
   }
   
-  return count;
+  return newJumps.count;
 }
 
 - (void)parseNetLogRecord:(NSString *)record inFile:(NetLogFile *)netLogFile systems:(NSMutableArray *)allSystems names:(NSMutableArray *)allNames jumps:(NSMutableArray *)allJumps lastJump:(Jump **)lastJump {
