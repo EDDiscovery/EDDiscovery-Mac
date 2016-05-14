@@ -18,7 +18,7 @@ After configuring your data, the application will:
 - add to local database any jumps present only on EDSM
 - send to EDSM any jumps present only in the local database
 
-If you have a large number of netlog files, this can take a few minutes, during which the application will be unresponsive. Subsequent launches should be much faster.
+If you have a large number of netlog files, this can take a few minutes. Subsequent launches should be much faster.
 
 At subsequent launches, the application will:
 - fetch new systems from EDSM
@@ -38,10 +38,10 @@ UI side, at present you can:
 - add / delete commanders
 - browse your jump history
 - select single jumps and see system information
-- add / edit / removed comments (changes will be synced to EDSM)
+- add / edit / remove comments (changes will be synced to EDSM)
 - see submitted distances from other systems (suspicious distances will be marked in red)
 - trilaterate systems by adding distances to system with known coordinates
-- submit trilaterations to EDSM
+- submit distances to EDSM
 
 TODO:
 - screenshots management
