@@ -324,7 +324,7 @@
                                    return;
                                  }
                                  
-                                 NSLog(@"Received %ld new comments from EDSM", (long)comments.count);
+                                 NSLog(@"Got %ld comments from EDSM", (long)comments.count);
                                 
                                  if (comments.count > 0) {
                                    [WORK_CONTEXT performBlock:^{
