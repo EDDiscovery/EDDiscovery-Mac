@@ -51,7 +51,7 @@
 
 - (void)finishInitialization {
   NSStoryboard       *storyboard       = [NSStoryboard storyboardWithName:@"Main" bundle:nil];
-  NSWindowController *windowController = [storyboard instantiateControllerWithIdentifier:@"XXX"];
+  NSWindowController *windowController = [storyboard instantiateControllerWithIdentifier:@"MainWindow"];
   
   keyWindow = windowController.window;
   
