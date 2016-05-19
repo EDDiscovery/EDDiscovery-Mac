@@ -426,7 +426,9 @@
               [MAIN_CONTEXT performBlock:^{
                 System *prevSystem = [MAIN_CONTEXT existingObjectWithID:prevSystemID error:nil];
                 
-                [suggestedReferences addObject:prevSystem];
+                if (prevSystem != nil) {
+                  [suggestedReferences addObject:prevSystem];
+                }
               }];
             }
           }
@@ -449,17 +451,21 @@
         System            *system   = referenceSystem.system;
         NSManagedObjectID *systemID = system.objectID;
         
-        NSLog(@"\tFound suggested reference system: %@ Dist:%.2f x:%f y:%f z:%f", system.name, referenceSystem.distance, system.x, system.y, system.z);
-        
-        [MAIN_CONTEXT performBlock:^{
-          System *system = [MAIN_CONTEXT existingObjectWithID:systemID error:nil];
-        
-          [self willChangeValueForKey:@"suggestedReferences"];
-          [suggestedReferences addObject:system];
-          [self didChangeValueForKey:@"suggestedReferences"];
-        }];
-        
-        [referencesCalculator addReferenceStar:system];
+        if (systemID != nil) {
+          NSLog(@"\tFound suggested reference system: %@ Dist:%.2f x:%f y:%f z:%f", system.name, referenceSystem.distance, system.x, system.y, system.z);
+          
+          [MAIN_CONTEXT performBlock:^{
+            System *system = [MAIN_CONTEXT existingObjectWithID:systemID error:nil];
+          
+            if (system != nil) {
+              [self willChangeValueForKey:@"suggestedReferences"];
+              [suggestedReferences addObject:system];
+              [self didChangeValueForKey:@"suggestedReferences"];
+            }
+          }];
+          
+          [referencesCalculator addReferenceStar:system];
+        }
       }
       
       [Answers logCustomEventWithName:@"Suggested reference systems" customAttributes:nil];
