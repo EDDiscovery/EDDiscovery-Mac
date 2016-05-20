@@ -275,10 +275,10 @@
 }
 
 - (void)tableView:(NSTableView *)aTableView sortDescriptorsDidChange:(NSArray<NSSortDescriptor *> *)oldDescriptors {
-  Jump   *jump   = [jumpsArrayController valueForKeyPath:@"selection.self"];
-  System *system = jump.system;
-
   if (aTableView == distancesTableView) {
+    Jump   *jump   = [jumpsArrayController valueForKeyPath:@"selection.self"];
+    System *system = jump.system;
+  
     system.distanceSortDescriptors = aTableView.sortDescriptors;
   }
 }
