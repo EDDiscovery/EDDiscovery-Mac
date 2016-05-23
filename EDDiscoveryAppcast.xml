@@ -26,5 +26,22 @@
                    sparkle:dsaSignature="MC0CFQCK+8Z15nR7PMmSZGmalFi1s2ZgGwIUZJFk78Z9tQQHUhVHyPY4Yyr7jGY=" />
       </item>
 
+      <item>
+        <title>Version 1.2</title>
+        <description>
+          <![CDATA[
+            <ul>
+              <li>Fixed bug in sending netlog-parsed system coordinates to EDSM.</li>
+            </ul>
+          ]]>
+        </description>
+        <pubDate>Mon, 24 May 2016 00:20:00 +0000</pubDate>
+        <enclosure url="https://github.com/EDDiscovery/EDDiscovery-Mac/releases/download/Release-1.2/EDDiscovery-1.2.dmg"
+                   sparkle:version="1.2"
+                   length="3419415"
+                   type="application/x-apple-diskimage"
+                   sparkle:dsaSignature="MC0CFQCVpMAm++Mi0qOtJazQU91HYIdWzgIUVHdlAFw1QlLKbxE9NhrCsvIrd88=" />
+      </item>
+
   </channel>
 </rss>
