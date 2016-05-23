@@ -336,9 +336,18 @@ static NetLogParser *instance = nil;
       [currFileHandle seekToFileOffset:netLogFile.fileOffset];
     }
   
-    NSData   *data    = [currFileHandle readDataToEndOfFile];
-    NSString *text    = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    NSArray  *records = [text componentsSeparatedByString:@"{"];
+    NSData   *data = [currFileHandle readDataToEndOfFile];
+    NSString *text = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    
+    if (text.length == 0 && data.length > 0) {
+      text = [[NSString alloc] initWithData:data encoding:NSISOLatin1StringEncoding];
+      
+      if (text.length == 0) {
+        text = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
+      }
+    }
+    
+    NSArray *records = [text componentsSeparatedByString:@"{"];
     
     for (NSString *record in records) {
       NSString *entry = [[NSString stringWithFormat:@"{%@", record] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
@@ -442,7 +451,7 @@ static NetLogParser *instance = nil;
   //make sure we have a valid system name
   
   if (parseRecord) {
-    systemName = [[self parseSystemNameOfRecord:record] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    systemName = [[self parseSystemNameOfRecord:record haveCoords:nil] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     
     if (systemName.length == 0) {
       parseRecord = NO;
@@ -474,8 +483,9 @@ static NetLogParser *instance = nil;
   NSAssert(netLogFile != nil, @"netLogFile MUST have a value");
   NSAssert([netLogFile.managedObjectContext isEqual:WORK_CONTEXT], @"Wrong context!");
   
-  NSDate   *date = [self parseDateOfRecord:record inFile:netLogFile];
-  NSString *name = [self parseSystemNameOfRecord:record];
+  BOOL      haveCoords = NO;
+  NSDate   *date       = [self parseDateOfRecord:record inFile:netLogFile];
+  NSString *name       = [self parseSystemNameOfRecord:record haveCoords:&haveCoords];
   
   if (name != nil && date != nil) {
     //cannot have two subsequent jumps to the same system
@@ -527,6 +537,10 @@ static NetLogParser *instance = nil;
       
         jump.system    = system;
         jump.timestamp = [date timeIntervalSinceReferenceDate];
+        
+        if (haveCoords) {
+          [self parseSystemCoordsOfRecord:record intoSystem:system];
+        }
       }
       else {
         [allJumps removeObject:jump];
@@ -602,24 +616,76 @@ static NetLogParser *instance = nil;
   return dateTime;
 }
 
-- (NSString *)parseSystemNameOfRecord:(NSString *)record {
+- (NSString *)parseSystemNameOfRecord:(NSString *)record haveCoords:(BOOL *)haveCoords {
   NSString *name  = nil;
   NSRange   range = [record rangeOfString:@"System:"];
   
   if (range.location != NSNotFound) {
     record = [record substringFromIndex:range.location + range.length];
   
-    NSRange range1 = [record rangeOfString:@"("];
-    NSRange range2 = [record rangeOfString:@")"];
-  
-    if (range1.location != NSNotFound && range2.location != NSNotFound && range2.location > (range1.location + 1)) {
-      range  = NSMakeRange(range1.location + 1, range2.location - range1.location - 1);
+    if (record.length > 0) {
+      if ([[record substringToIndex:1] isEqualToString:@"\""]) {
+        
+        //engineers (1.6 / 2.1) netlog file format
+        
+        record = [record substringFromIndex:1];
+        
+        NSRange range = [record rangeOfString:@"\""];
+        
+        if (range.location != NSNotFound) {
+          name = [record substringToIndex:range.location];
+          
+          if (haveCoords != nil) {
+            *haveCoords = YES;
+          }
+        }
+      }
+      else {
+        
+        //old netlog file format
+        
+        NSRange range1 = [record rangeOfString:@"("];
+        NSRange range2 = [record rangeOfString:@")"];
       
-      name = [record substringWithRange:range];
+        if (range1.location != NSNotFound && range2.location != NSNotFound && range2.location > (range1.location + 1)) {
+          range  = NSMakeRange(range1.location + 1, range2.location - range1.location - 1);
+          
+          name = [record substringWithRange:range];
+        }
+      }
     }
   }
   
   return name;
+}
+
+- (void)parseSystemCoordsOfRecord:(NSString *)record intoSystem:(System *)system {
+  NSRange range = [record rangeOfString:@"StarPos:("];
+  
+  if (range.location != NSNotFound) {
+    record = [record substringFromIndex:(range.location + range.length)];
+    range  = [record rangeOfString:@")"];
+    
+    if (range.location != NSNotFound) {
+      record = [record substringToIndex:range.location];
+      
+      NSArray *comps = [record componentsSeparatedByString:@","];
+      
+      if (comps.count >= 3) {
+        double x = [comps[0] doubleValue];
+        double y = [comps[1] doubleValue];
+        double z = [comps[2] doubleValue];
+        
+        if (x != 0 || y != 0 || z != 0 || [system.name compare:@"Sol" options:NSCaseInsensitiveSearch] == NSOrderedSame) {
+          if ([system hasCoordinates] == NO) {
+            system.x = x;
+            system.y = y;
+            system.z = z;
+          }
+        }
+      }
+    }
+  }
 }
 
 @end

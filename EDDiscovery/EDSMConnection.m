@@ -357,8 +357,13 @@ responseCallback:^(id output, NSError *error) {
   formatter.timeZone   = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
   formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
   
-  NSString *name      = jump.system.name;
-  NSString *timestamp = [formatter stringFromDate:[NSDate dateWithTimeIntervalSinceReferenceDate:jump.timestamp]];
+  NSString   *name      = jump.system.name;
+  NSString   *timestamp = [formatter stringFromDate:[NSDate dateWithTimeIntervalSinceReferenceDate:jump.timestamp]];
+  NSUInteger  numParams = 4;
+  
+  if ([jump.system hasCoordinates] == YES) {
+    numParams += 3;
+  }
   
   [self setup];
   
@@ -395,11 +400,14 @@ responseCallback:^(id output, NSError *error) {
   }
   
 }
-     parameters:4,
+     parameters:numParams,
    @"systemName", name,
    @"dateVisited", timestamp,
    @"commanderName", commanderName,
-   @"apiKey", apiKey
+   @"apiKey", apiKey,
+   @"x", [NSString stringWithFormat:@"%f", jump.system.x],
+   @"y", [NSString stringWithFormat:@"%f", jump.system.y],
+   @"z", [NSString stringWithFormat:@"%f", jump.system.z]
    ];
 }
 
