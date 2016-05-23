@@ -357,58 +357,78 @@ responseCallback:^(id output, NSError *error) {
   formatter.timeZone   = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
   formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
   
-  NSString   *name      = jump.system.name;
-  NSString   *timestamp = [formatter stringFromDate:[NSDate dateWithTimeIntervalSinceReferenceDate:jump.timestamp]];
-  NSUInteger  numParams = 4;
+  NSString   *name       = jump.system.name;
+  NSString   *timestamp  = [formatter stringFromDate:[NSDate dateWithTimeIntervalSinceReferenceDate:jump.timestamp]];
+  NSString   *appName    = [NSBundle.mainBundle objectForInfoDictionaryKey:(NSString *)kCFBundleNameKey];
+  NSString   *appVersion = [NSString stringWithFormat:@"%@", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
+  BOOL        sendCoords = NO;
   
   if ([jump.system hasCoordinates] == YES) {
-    numParams += 3;
+    sendCoords = YES;
   }
+  
+  void (^responseBlock)(id output, NSError *error) = ^void(id output, NSError *error) {
+    [Answers logCustomEventWithName:@"EDSM API call" customAttributes:@{@"API":@"api-v1/set-log"}];
+    
+    if (error == nil) {
+      NSError      *error = nil;
+      NSDictionary *data  = [NSJSONSerialization JSONObjectWithData:output options:0 error:&error];
+      
+      if ([data isKindOfClass:NSDictionary.class]) {
+        NSInteger result = [data[@"msgnum"] integerValue];
+        
+        //100 --> success
+        
+        if (result == 100) {
+          response(YES, nil);
+        }
+        else {
+          error = [NSError errorWithDomain:@"EDDiscovery"
+                                      code:result
+                                  userInfo:@{NSLocalizedDescriptionKey:data[@"msg"]}];
+          
+          response(NO, error);
+        }
+      }
+    }
+    else {
+      response(NO, error);
+    }
+  };
   
   [self setup];
   
-  [self callApi:@"api-logs-v1/set-log"
-     withMethod:@"POST"
-progressCallBack:nil
-responseCallback:^(id output, NSError *error) {
-  
-  [Answers logCustomEventWithName:@"EDSM API call" customAttributes:@{@"API":@"api-v1/set-log"}];
-  
-  if (error == nil) {
-    NSError      *error = nil;
-    NSDictionary *data  = [NSJSONSerialization JSONObjectWithData:output options:0 error:&error];
-    
-    if ([data isKindOfClass:NSDictionary.class]) {
-      NSInteger result = [data[@"msgnum"] integerValue];
-      
-      //100 --> success
-      
-      if (result == 100) {
-        response(YES, nil);
-      }
-      else {
-        error = [NSError errorWithDomain:@"EDDiscovery"
-                                    code:result
-                                userInfo:@{NSLocalizedDescriptionKey:data[@"msg"]}];
-        
-        response(NO, error);
-      }
-    }
+  if (sendCoords == YES) {
+    [self callApi:@"api-logs-v1/set-log"
+       withMethod:@"POST"
+ progressCallBack:nil
+ responseCallback:responseBlock
+       parameters:9,
+     @"systemName", name,
+     @"commanderName", commanderName,
+     @"apiKey", apiKey,
+     @"fromSoftware", appName,
+     @"fromSoftwareVersion", appVersion,
+     @"x", [NSString stringWithFormat:@"%f", jump.system.x],
+     @"y", [NSString stringWithFormat:@"%f", jump.system.y],
+     @"z", [NSString stringWithFormat:@"%f", jump.system.z],
+     @"dateVisited", timestamp
+     ];
   }
   else {
-    response(NO, error);
+    [self callApi:@"api-logs-v1/set-log"
+       withMethod:@"POST"
+ progressCallBack:nil
+ responseCallback:responseBlock
+       parameters:6,
+     @"systemName", name,
+     @"commanderName", commanderName,
+     @"apiKey", apiKey,
+     @"fromSoftware", appName,
+     @"fromSoftwareVersion", appVersion,
+     @"dateVisited", timestamp
+     ];
   }
-  
-}
-     parameters:numParams,
-   @"systemName", name,
-   @"dateVisited", timestamp,
-   @"commanderName", commanderName,
-   @"apiKey", apiKey,
-   @"x", [NSString stringWithFormat:@"%f", jump.system.x],
-   @"y", [NSString stringWithFormat:@"%f", jump.system.y],
-   @"z", [NSString stringWithFormat:@"%f", jump.system.z]
-   ];
 }
 
 + (void)getNotesForCommander:(Commander *)commander response:(void(^)(NSArray *comments, NSError *error))response {
