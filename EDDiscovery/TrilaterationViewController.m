@@ -286,23 +286,6 @@
   }
 }
 
-- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
-  if (aTableView == distancesTableView) {
-    if ([aTableColumn.identifier isEqualToString:@"calculatedDistance"]) {
-      Jump                        *jump      = [jumpsArrayController valueForKeyPath:@"selection.self"];
-      System                      *system    = jump.system;
-      NSMutableArray <Distance *> *distances = system.sortedDistances;
-      Distance                    *distance  = distances[rowIndex];
-      
-      if (distance.calculatedDistance == 0) {
-        return @(12345);
-      }
-    }
-  }
-  
-  return nil;
-}
-
 - (void)tableView:(NSTableView *)aTableView setObjectValue:(id)anObject forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
   if (aTableView == distancesTableView) {
     if ([aTableColumn.identifier isEqualToString:@"distance"]) {
