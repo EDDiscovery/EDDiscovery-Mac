@@ -129,15 +129,29 @@
 
 - (BOOL)tableView:(NSTableView *)aTableView shouldSelectRow:(NSInteger)rowIndex {
   if (aTableView == jumpsTableView) {
-    Jump *jump = jumpsArrayController.arrangedObjects[rowIndex];
+    static NSUInteger numRequests = 0;
+    
+    Jump *jump  = jumpsArrayController.arrangedObjects[rowIndex];
+    BOOL  query = NO;
 
     jump.system.distanceSortDescriptors = distancesTableView.sortDescriptors;
 
     [jumpsArrayController setSelectionIndex:rowIndex];
+
+    @synchronized (self) {
+      if (numRequests == 0) {
+        numRequests++;
+        query = YES;
+      }
+    }
     
-    [jump.system updateFromEDSM:^{
-      jump.system.distanceSortDescriptors = jump.system.distanceSortDescriptors;
-    }];
+    if (query == YES) {
+      [jump.system updateFromEDSM:^{
+        jump.system.distanceSortDescriptors = jump.system.distanceSortDescriptors;
+        
+        numRequests--;
+      }];
+    }
   }
   
   return YES;
