@@ -457,7 +457,7 @@
           [MAIN_CONTEXT performBlock:^{
             System *system = [MAIN_CONTEXT existingObjectWithID:systemID error:nil];
           
-            if (system != nil) {
+            if (system != nil && self.isFault == NO) {
               [self willChangeValueForKey:@"suggestedReferences"];
               [suggestedReferences addObject:system];
               [self didChangeValueForKey:@"suggestedReferences"];
