@@ -1319,7 +1319,7 @@
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-                <arrayController mode="entity" entityName="Jump" preservesSelection="NO" automaticallyRearrangesObjects="YES" id="8om-YV-xhG" userLabel="Jumps">
+                <arrayController mode="entity" entityName="Jump" usesLazyFetching="YES" preservesSelection="NO" automaticallyRearrangesObjects="YES" id="8om-YV-xhG" userLabel="Jumps">
                     <declaredKeys>
                         <string>time</string>
                         <string>system</string>
@@ -1794,7 +1794,7 @@
                     </connections>
                 </viewController>
                 <customObject id="Bce-dR-bhA" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-                <arrayController mode="entity" entityName="Jump" preservesSelection="NO" automaticallyRearrangesObjects="YES" id="76B-Qg-F90" userLabel="Jumps">
+                <arrayController mode="entity" entityName="Jump" usesLazyFetching="YES" preservesSelection="NO" automaticallyRearrangesObjects="YES" id="76B-Qg-F90" userLabel="Jumps">
                     <declaredKeys>
                         <string>time</string>
                         <string>system</string>
