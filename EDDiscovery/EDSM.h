@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)syncJumpsWithEDSM:(void(^)(void))response;
 - (void)sendJumpToEDSM:(Jump *)jump;
 - (void)sendNoteToEDSM:(NSString *)note forSystem:(NSString *)system;
+- (void)deleteJumpFromEDSM:(Jump *)jump;
 
 @property(nullable, nonatomic, strong) NSString *apiKey;
 

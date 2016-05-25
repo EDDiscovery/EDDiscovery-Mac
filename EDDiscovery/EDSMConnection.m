@@ -431,6 +431,63 @@ responseCallback:^(id output, NSError *error) {
   }
 }
 
++ (void)deleteJump:(Jump *)jump forCommander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(BOOL success, NSError *error))response {
+  NSAssert(jump != nil, @"missing jump");
+  NSAssert(jump.edsm != nil, @"jump not sent to EDSM");
+  
+  NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+  
+  formatter.timeZone   = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
+  formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
+  
+  NSString   *name       = jump.system.name;
+  NSString   *timestamp  = [formatter stringFromDate:[NSDate dateWithTimeIntervalSinceReferenceDate:jump.timestamp]];
+  NSString   *appName    = [NSBundle.mainBundle objectForInfoDictionaryKey:(NSString *)kCFBundleNameKey];
+  NSString   *appVersion = [NSString stringWithFormat:@"%@", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
+  
+  [self setup];
+  
+  [self callApi:@"api-logs-v1/delete-log"
+     withMethod:@"POST"
+progressCallBack:nil
+responseCallback:^(id output, NSError *error) {
+  [Answers logCustomEventWithName:@"EDSM API call" customAttributes:@{@"API":@"api-v1/delete-log"}];
+  
+  if (error == nil) {
+    NSError      *error = nil;
+    NSDictionary *data  = [NSJSONSerialization JSONObjectWithData:output options:0 error:&error];
+    
+    if ([data isKindOfClass:NSDictionary.class]) {
+      NSInteger result = [data[@"msgnum"] integerValue];
+      
+      //100 --> success
+      
+      if (result == 100) {
+        response(YES, nil);
+      }
+      else {
+        error = [NSError errorWithDomain:@"EDDiscovery"
+                                    code:result
+                                userInfo:@{NSLocalizedDescriptionKey:data[@"msg"]}];
+        
+        response(NO, error);
+      }
+    }
+  }
+  else {
+    response(NO, error);
+  }
+}
+     parameters:6,
+   @"systemName", name,
+   @"commanderName", commanderName,
+   @"apiKey", apiKey,
+   @"fromSoftware", appName,
+   @"fromSoftwareVersion", appVersion,
+   @"dateVisited", timestamp
+   ];
+}
+
 + (void)getNotesForCommander:(Commander *)commander response:(void(^)(NSArray *comments, NSError *error))response {
   NSDate *lastSyncDate = nil;
   

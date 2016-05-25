@@ -296,6 +296,28 @@
                  }];
 }
 
+- (void)deleteJumpFromEDSM:(Jump *)jump {
+  NSAssert([self.managedObjectContext isEqual:MAIN_CONTEXT], @"Wrong context!");
+  
+  [EDSMConnection deleteJump:jump
+                forCommander:self.commander.name
+                      apiKey:self.apiKey
+                    response:^(BOOL success, NSError *error) {
+                      if (success == NO) {
+                        [EventLogger addError:[NSString stringWithFormat:@"ERROR from EDSM: %ld - %@", (long)error.code, error.localizedDescription]];
+                      }
+                      else {
+                        NSTimeInterval  timestamp  = jump.timestamp;
+                        NSString       *systemName = jump.system.name;
+                        
+                        [MAIN_CONTEXT deleteObject:jump];
+                        [MAIN_CONTEXT save];
+                        
+                        [EventLogger addLog:[NSString stringWithFormat:@"Deleted jump from travel history and EDSM: %@ - %@", [NSDate dateWithTimeIntervalSinceReferenceDate:timestamp], systemName]];
+                      }
+                    }];
+}
+
 //FIXME workaround for a known SDK bug (http://stackoverflow.com/questions/7385439/exception-thrown-in-nsorderedset-generated-accessors)
 - (void)insertObject:(Jump *)value inJumpsAtIndex:(NSUInteger)idx {
   NSAssert([self.managedObjectContext isEqual:WORK_CONTEXT], @"Wrong context!");

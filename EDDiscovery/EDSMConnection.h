@@ -26,6 +26,7 @@
 //commander travel logs
 + (void)getJumpsForCommander:(Commander *)commander response:(void(^)(NSArray *jumps, NSError *error))response;
 + (void)addJump:(Jump *)jump forCommander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(BOOL success, NSError *error))response;
++ (void)deleteJump:(Jump *)jump forCommander:(NSString *)commanderName apiKey:(NSString *)apiKey response:(void(^)(BOOL success, NSError *error))response;
 
 //commander comments
 + (void)getNotesForCommander:(Commander *)commander response:(void(^)(NSArray *comments, NSError *error))response;

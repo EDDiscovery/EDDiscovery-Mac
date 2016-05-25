@@ -745,7 +745,7 @@
                                                             <rect key="frame" x="1" y="0.0" width="610" height="425"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
-                                                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="sequential" alternatingRowBackgroundColors="YES" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" headerView="eX4-W7-Df1" id="Bam-q7-TPi">
+                                                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="sequential" alternatingRowBackgroundColors="YES" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" headerView="eX4-W7-Df1" id="Bam-q7-TPi" customClass="DeleteTableView">
                                                                     <rect key="frame" x="0.0" y="0.0" width="610" height="19"/>
                                                                     <autoresizingMask key="autoresizingMask"/>
                                                                     <size key="intercellSpacing" width="3" height="2"/>
@@ -852,6 +852,7 @@
                                                                         <binding destination="8om-YV-xhG" name="content" keyPath="arrangedObjects" id="JWm-x8-VYw"/>
                                                                         <outlet property="dataSource" destination="XfG-lQ-9wD" id="36U-AA-Azb"/>
                                                                         <outlet property="delegate" destination="XfG-lQ-9wD" id="PRK-ja-uBg"/>
+                                                                        <outlet property="menu" destination="53t-2M-pg2" id="HCv-AT-PLi"/>
                                                                     </connections>
                                                                 </tableView>
                                                             </subviews>
@@ -1319,6 +1320,16 @@
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+                <menu id="53t-2M-pg2">
+                    <items>
+                        <menuItem title="Delete jump" id="IQ1-O2-aZa">
+                            <modifierMask key="keyEquivalentModifierMask"/>
+                            <connections>
+                                <action selector="deleteMenuItemSelected:" target="XfG-lQ-9wD" id="gZ7-A8-uto"/>
+                            </connections>
+                        </menuItem>
+                    </items>
+                </menu>
                 <arrayController mode="entity" entityName="Jump" usesLazyFetching="YES" preservesSelection="NO" automaticallyRearrangesObjects="YES" id="8om-YV-xhG" userLabel="Jumps">
                     <declaredKeys>
                         <string>time</string>

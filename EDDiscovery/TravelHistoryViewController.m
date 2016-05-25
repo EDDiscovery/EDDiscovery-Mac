@@ -171,6 +171,41 @@
   }
 }
 
+- (void)tableView:(NSTableView *)aTableView deleteRow:(NSInteger)row {
+  NSAlert *alert = [[NSAlert alloc] init];
+  
+  alert.messageText = NSLocalizedString(@"Are you sure you want to delete this jump?", @"");
+  alert.informativeText = NSLocalizedString(@"This operation cannot be undone!", @"");
+  
+  [alert addButtonWithTitle:NSLocalizedString(@"OK", @"")];
+  [alert addButtonWithTitle:NSLocalizedString(@"Cancel", @"")];
+  
+  NSInteger button = [alert runModal];
+  
+  if (button == NSAlertFirstButtonReturn) {
+    Jump *jump = jumpsArrayController.arrangedObjects[row];
+    
+    NSLog(@"%s: %ld (%@)", __FUNCTION__, row, jump.system.name);
+    
+    if (jump.edsm != nil) {
+      [jump.edsm deleteJumpFromEDSM:jump];
+    }
+    else {
+      NSTimeInterval  timestamp  = jump.timestamp;
+      NSString       *systemName = jump.system.name;
+      
+      [MAIN_CONTEXT deleteObject:jump];
+      [MAIN_CONTEXT save];
+      
+      [EventLogger addLog:[NSString stringWithFormat:@"Deleted jump from travel history: %@ - %@", [NSDate dateWithTimeIntervalSinceReferenceDate:timestamp], systemName]];
+    }
+  }
+}
+
+- (IBAction)deleteMenuItemSelected:(id)sender {
+  [self tableView:jumpsTableView deleteRow:jumpsTableView.selectedRow];
+}
+
 #pragma mark -
 #pragma mark log file dir selection
 
