@@ -7,6 +7,24 @@
     <language>en</language>
 
       <item>
+        <title>Version 1.4</title>
+        <description>
+          <![CDATA[
+            <ul>
+              <li>In travel history, calculate jump distance directly if both systems have known coordinates.</li>
+              <li>Fixed bug where jumps list would not update in real time in travel history.</li>
+            </ul>
+          ]]>
+        </description>
+        <pubDate>Wed, 27 May 2016 00:00:00 +0000</pubDate>
+        <enclosure url="https://github.com/EDDiscovery/EDDiscovery-Mac/releases/download/Release-1.4/EDDiscovery-1.4.dmg"
+                   sparkle:version="1.4"
+                   length="3400391"
+                   type="application/x-apple-diskimage"
+                   sparkle:dsaSignature="MCwCFDE8p//2via39WHKM83pKC+cNRImAhREGmHgNUS6x5XT8sNaJXZg5Zu+Pg==" />
+      </item>
+
+      <item>
         <title>Version 1.3</title>
         <description>
           <![CDATA[
