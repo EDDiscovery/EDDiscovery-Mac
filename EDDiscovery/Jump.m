@@ -203,23 +203,29 @@
       NSAssert1(array.count <= 2, @"this query should return at maximum 2 elements: got %lu instead", (unsigned long)array.count);
       
       if (array.count == 2) {
-        Jump     *jump     = array.lastObject;
-        NSString *name     = jump.system.name;
+        Jump *jump = array.lastObject;
         
-        for (Distance *aDistance in self.system.distances) {
-          if (ABS(aDistance.distance.doubleValue - aDistance.calculatedDistance.doubleValue) <= 0.01 && [aDistance.name isEqualToString:name]) {
-            distance = aDistance.distance;
-            
-            break;
-          }
+        if (self.system.hasCoordinates == YES && jump.system.hasCoordinates == YES) {
+          distance = @(sqrt(pow((self.system.x-jump.system.x), 2) + pow((self.system.y-jump.system.y), 2) + pow((self.system.z-jump.system.z), 2)));
         }
+        else {
+          NSString *name = jump.system.name;
         
-        if (distance == nil) {
-          for (Distance *aDistance in jump.system.distances) {
+          for (Distance *aDistance in self.system.distances) {
             if (ABS(aDistance.distance.doubleValue - aDistance.calculatedDistance.doubleValue) <= 0.01 && [aDistance.name isEqualToString:name]) {
               distance = aDistance.distance;
-              
+            
               break;
+            }
+          }
+        
+          if (distance == nil) {
+            for (Distance *aDistance in jump.system.distances) {
+              if (ABS(aDistance.distance.doubleValue - aDistance.calculatedDistance.doubleValue) <= 0.01 && [aDistance.name isEqualToString:name]) {
+                distance = aDistance.distance;
+              
+                break;
+              }
             }
           }
         }
