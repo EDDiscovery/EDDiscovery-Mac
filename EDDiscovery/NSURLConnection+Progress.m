@@ -11,13 +11,15 @@
 
 #import "NSURLConnection+Progress.h"
 
+#define MAX_CONCURRENT_CONNECTIONS 8
+
 @interface NSURLConnection () <NSURLConnectionDelegate>
 @end
 
 @implementation NSURLConnection (Progress)
 
-static dispatch_queue_t queue;
-static dispatch_once_t  onceToken;
+static NSOperationQueue *queue;
+static dispatch_once_t   onceToken;
 
 
 static char progressHandlerKey;
@@ -31,10 +33,12 @@ static char finishedKey;
               completionHandler:(CompletionBlock)completionHandler {
   
   dispatch_once(&onceToken, ^{
-    queue = dispatch_queue_create(NULL, DISPATCH_QUEUE_CONCURRENT);
+    queue = [[NSOperationQueue alloc] init];
+    
+    queue.maxConcurrentOperationCount = MAX_CONCURRENT_CONNECTIONS;
   });
 
-  dispatch_async(queue, ^{
+  [queue addOperationWithBlock:^{
     NSRunLoop       *runLoop  = [NSRunLoop currentRunLoop];
     NSMutableData   *data     = [NSMutableData data];
     NSURLConnection *conn     = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
@@ -53,7 +57,7 @@ static char finishedKey;
       
       finished = [(NSNumber *)objc_getAssociatedObject(conn, &finishedKey) boolValue];
     }
-  });
+  }];
 }
 
 #pragma mark - NSURLConnection management

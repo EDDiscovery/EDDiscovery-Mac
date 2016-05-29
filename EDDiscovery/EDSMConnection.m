@@ -378,8 +378,9 @@ responseCallback:^(id output, NSError *error) {
         NSInteger result = [data[@"msgnum"] integerValue];
         
         //100 --> success
+        //401 --> An entry for the same system already exists at that date -> success
         
-        if (result == 100) {
+        if (result == 100 || result == 401) {
           response(YES, nil);
         }
         else {

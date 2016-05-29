@@ -59,7 +59,7 @@
                               response:^(NSArray *travelLogs, NSError *connectionError) {
                                 
                                 if (![travelLogs isKindOfClass:NSArray.class]) {
-                                  [EventLogger addError:[NSString stringWithFormat:@"ERROR from EDSM: %ld - %@", (long)connectionError.code, connectionError.localizedDescription]];
+                                  [EventLogger addError:[NSString stringWithFormat:@"%@: %ld - %@", ([connectionError.domain isEqualToString:@"EDDiscovery"]) ? @"ERROR from EDSM" : @"NETWORK ERROR", (long)connectionError.code, connectionError.localizedDescription]];
                                         
                                   [Jump printJumpStatsOfCommander:self.commander];
                                   
@@ -68,6 +68,13 @@
                                   return;
                                 }
     
+                                NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+                                
+                                numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
+                                numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
+                                
+                                [EventLogger addLog:[NSString stringWithFormat:@"Received %@ jumps from EDSM", [numberFormatter stringFromNumber:@(travelLogs.count)]]];
+                                
                                 NSManagedObjectID *edsmID = self.objectID;
                                 
                                 [WORK_CONTEXT performBlock:^{
@@ -135,8 +142,6 @@
                                   
                                   [WORK_CONTEXT save];
                                   
-                                  NSLog(@"Received %ld jumps from EDSM", (long)travelLogs.count);
-                                  
                                   //save new jumps from EDSM
                                   
                                   [edsm parseJumpsFromEDSM:newJumpsFromEDSM];
@@ -146,20 +151,20 @@
                                   NSPredicate  *predicate   = [NSPredicate predicateWithFormat:@"edsm == nil"];
                                   NSOrderedSet *jumpsToSend = [[NSOrderedSet orderedSetWithArray:allJumps] filteredOrderedSetUsingPredicate:predicate];
                                   
-                                  [edsm sendJumpsToEDSM:jumpsToSend];
-                                  
-                                  //print some stats to log window
-                                  
-                                  [Jump printJumpStatsOfCommander:edsm.commander];
-                                  
-                                  [MAIN_CONTEXT performBlock:^{
-                                    EDSM *edsm = [MAIN_CONTEXT existingObjectWithID:edsmID error:nil];
-                                  
-                                    //get new notes from EDSM
+                                  [edsm sendJumpsToEDSM:jumpsToSend response:^{
+                                    //print some stats to log window
                                     
-                                    [edsm getNotesFromEDSM];
+                                    [Jump printJumpStatsOfCommander:edsm.commander];
                                     
-                                    response();
+                                    [MAIN_CONTEXT performBlock:^{
+                                      EDSM *edsm = [MAIN_CONTEXT existingObjectWithID:edsmID error:nil];
+                                      
+                                      //get new notes from EDSM
+                                      
+                                      [edsm getNotesFromEDSM];
+                                      
+                                      response();
+                                    }];
                                   }];
                                 }];
                               }];
@@ -190,8 +195,6 @@
       System     *system    = [System systemWithName:name inContext:WORK_CONTEXT];
       NSUInteger  idx       = NSNotFound;
       
-      NSLog(@"%@ - %@", timestamp, name);
-      
       if (system == nil) {
         className = NSStringFromClass(System.class);
         system    = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:WORK_CONTEXT];
@@ -201,6 +204,10 @@
       
       [MAIN_CONTEXT performBlock:^{
         LoadingViewController.progressIndicator.doubleValue++;
+        
+        if (((long)LoadingViewController.progressIndicator.doubleValue % 1000) == 0 && LoadingViewController.progressIndicator.doubleValue != 0) {
+          [EventLogger addLog:[NSString stringWithFormat:@"%.0f jumps parsed...", LoadingViewController.progressIndicator.doubleValue]];
+        }
       }];
       
       jump.system    = system;
@@ -230,21 +237,51 @@
     numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
     numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
     
-    [EventLogger addLog:[NSString stringWithFormat:@"Received %@ new jumps from EDSM", [numberFormatter stringFromNumber:@(jumps.count)]]];
+    [EventLogger addLog:[NSString stringWithFormat:@"Parsed %@ new jumps from EDSM", [numberFormatter stringFromNumber:@(jumps.count)]]];
   }
 }
 
-- (void)sendJumpsToEDSM:(NSOrderedSet *)jumps {
+- (void)sendJumpsToEDSM:(NSOrderedSet *)jumps response:(void(^)(void))response {
   NSAssert([self.managedObjectContext isEqual:WORK_CONTEXT], @"Wrong context!");
   
   NSLog(@"Sending %ld jumps to EDSM", (long)jumps.count);
   
+  if (jumps.count == 0) {
+    response();
+    return;
+  }
+  
+  __block NSUInteger count    = jumps.count;
+  __block NSUInteger progress = 0;
+  
+  [MAIN_CONTEXT performBlock:^{
+    LoadingViewController.progressIndicator.indeterminate = NO;
+    LoadingViewController.progressIndicator.maxValue      = count;
+    LoadingViewController.progressIndicator.doubleValue   = 0;
+  }];
+  
   for (Jump *jump in jumps) {
-    [self sendJumpToEDSM:jump];
+    [self sendJumpToEDSM:jump log:NO response:^{
+      progress++;
+
+      if ((progress % 100) == 0 && progress != 0) {
+        [EventLogger addLog:[NSString stringWithFormat:@"%ld / %ld jumps sent...", progress, count]];
+      }
+      
+      [MAIN_CONTEXT performBlock:^{
+        NSLog(@"progress: %.0f%%", (double)progress / (double)count * (double)100);
+        
+        LoadingViewController.progressIndicator.doubleValue = progress;
+      }];
+      
+      if (progress == count && response != nil) {
+        response();
+      }
+    }];
   }
 }
 
-- (void)sendJumpToEDSM:(Jump *)jump {
+- (void)sendJumpToEDSM:(Jump *)jump log:(BOOL)log response:(void(^__nullable)(void))response {
   NSAssert([self.managedObjectContext isEqual:WORK_CONTEXT], @"Wrong context!");
   NSAssert([jump.managedObjectContext isEqual:WORK_CONTEXT], @"Wrong context!");
   
@@ -259,7 +296,26 @@
                  response:^(BOOL success, NSError *error) {
                    
                    if (success == NO) {
-                     [EventLogger addError:[NSString stringWithFormat:@"ERROR from EDSM: %ld - %@", (long)error.code, error.localizedDescription]];
+                     if ([error.domain isEqualToString:@"EDDiscovery"]) {
+                       [EventLogger addError:[NSString stringWithFormat:@"ERROR from EDSM: %ld - %@", (long)error.code, error.localizedDescription]];
+                       
+                       //EDSM did not like this jump, delete it from travel history
+                       
+                       [WORK_CONTEXT performBlock:^{
+                         Jump *jump = [WORK_CONTEXT existingObjectWithID:jumpID error:nil];
+
+                         [WORK_CONTEXT deleteObject:jump];
+                       }];
+                     }
+                     else {
+                       [EventLogger addError:[NSString stringWithFormat:@"NETWORK ERROR: %ld - %@", (long)error.code, error.localizedDescription]];
+                     }
+                     
+                     if (response != nil) {
+                       [WORK_CONTEXT performBlock:^{
+                         response();
+                       }];
+                     }
                    }
                    else {
                      [WORK_CONTEXT performBlock:^{
@@ -285,11 +341,17 @@
                        
                        [WORK_CONTEXT save];
                        
-                       if ([EventLogger.instance.currLine containsString:jump.system.name]) {
-                         [EventLogger addLog:@" - sent to EDSM!" timestamp:NO newline:NO];
+                       if (log == YES) {
+                         if ([EventLogger.instance.currLine containsString:jump.system.name]) {
+                           [EventLogger addLog:@" - sent to EDSM!" timestamp:NO newline:NO];
+                         }
+                         else {
+                           [EventLogger addLog:[NSString stringWithFormat:@"Sent new jump to EDSM: %@ - %@", [NSDate dateWithTimeIntervalSinceReferenceDate:jump.timestamp], jump.system.name]];
+                         }
                        }
-                       else {
-                         [EventLogger addLog:[NSString stringWithFormat:@"Sent new jump to EDSM: %@ - %@", [NSDate dateWithTimeIntervalSinceReferenceDate:jump.timestamp], jump.system.name]];
+                       
+                       if (response != nil) {
+                         response();
                        }
                      }];
                    }
@@ -304,7 +366,7 @@
                       apiKey:self.apiKey
                     response:^(BOOL success, NSError *error) {
                       if (success == NO) {
-                        [EventLogger addError:[NSString stringWithFormat:@"ERROR from EDSM: %ld - %@", (long)error.code, error.localizedDescription]];
+                        [EventLogger addError:[NSString stringWithFormat:@"%@: %ld - %@", ([error.domain isEqualToString:@"EDDiscovery"]) ? @"ERROR from EDSM" : @"NETWORK ERROR", (long)error.code, error.localizedDescription]];
                       }
                       else {
                         NSTimeInterval  timestamp  = jump.timestamp;
@@ -316,17 +378,6 @@
                         [EventLogger addLog:[NSString stringWithFormat:@"Deleted jump from travel history and EDSM: %@ - %@", [NSDate dateWithTimeIntervalSinceReferenceDate:timestamp], systemName]];
                       }
                     }];
-}
-
-//FIXME workaround for a known SDK bug (http://stackoverflow.com/questions/7385439/exception-thrown-in-nsorderedset-generated-accessors)
-- (void)insertObject:(Jump *)value inJumpsAtIndex:(NSUInteger)idx {
-  NSAssert([self.managedObjectContext isEqual:WORK_CONTEXT], @"Wrong context!");
-  
-  NSMutableOrderedSet *tempSet = [NSMutableOrderedSet orderedSetWithOrderedSet:self.jumps];
-  
-  [tempSet insertObject:value atIndex:idx];
-  
-  self.jumps = tempSet;
 }
 
 #pragma mark -
@@ -341,7 +392,7 @@
                               response:^(NSArray *comments, NSError *connectionError) {
                                    
                                  if (![comments isKindOfClass:NSArray.class]) {
-                                   [EventLogger addError:[NSString stringWithFormat:@"ERROR from EDSM: %ld - %@", (long)connectionError.code, connectionError.localizedDescription]];
+                                   [EventLogger addError:[NSString stringWithFormat:@"%@: %ld - %@", ([connectionError.domain isEqualToString:@"EDDiscovery"]) ? @"ERROR from EDSM" : @"NETWORK ERROR", (long)connectionError.code, connectionError.localizedDescription]];
                                    
                                    return;
                                  }

@@ -368,6 +368,10 @@ static NetLogParser *instance = nil;
       
       if (netLogFile.complete == YES) {
         NSLog(@"Parsed %ld jumps.", (long)newJumps.count);
+        
+        if ((newJumps.count % 1000) == 0 && newJumps.count != 0) {
+          [EventLogger addLog:[NSString stringWithFormat:@"%ld jumps parsed...", newJumps.count]];
+        }
       }
       else {
         NSError *error  = nil;
@@ -388,7 +392,7 @@ static NetLogParser *instance = nil;
             
             if (netLogFile.commander.edsmAccount != nil) {
               if (jump.edsm == nil) {
-                [netLogFile.commander.edsmAccount sendJumpToEDSM:jump];
+                [netLogFile.commander.edsmAccount sendJumpToEDSM:jump log:YES response:nil];
               }
             }
             

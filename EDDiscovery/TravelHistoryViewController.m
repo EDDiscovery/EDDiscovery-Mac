@@ -274,8 +274,12 @@
       if (goOn == YES) {
         [LoadingViewController presentLoadingViewControllerInWindow:self.view.window];
         
+        [self hideJumps];
+        
         [Commander.activeCommander setNetLogFilesDir:path completion:^{
           [LoadingViewController dismiss];
+          
+          [self showJumps];
         }];
         
         [Answers logCustomEventWithName:@"NETLOG configure path" customAttributes:@{@"path":path}];
@@ -306,8 +310,12 @@
   [LoadingViewController presentLoadingViewControllerInWindow:self.view.window];
   
   if (cmdrName.length > 0 && apiKey.length > 0) {
+    [self hideJumps];
+    
     [Commander.activeCommander.edsmAccount syncJumpsWithEDSM:^{
       [LoadingViewController dismiss];
+      
+      [self showJumps];
     }];
     
     [Answers logCustomEventWithName:@"EDSM configure account" customAttributes:nil];
@@ -404,9 +412,8 @@
     [cmdrSelButton selectItemWithTitle:name];
     
     [cmdrArrayController setSelectedObjects:@[commander]];
-    
-    [jumpsArrayController setFetchPredicate:CMDR_PREDICATE];
-    [jumpsArrayController fetchWithRequest:nil merge:NO error:nil];
+
+    [self hideJumps];
     
     deleteCommanderButton.enabled = YES;
     setNetlogDirButton.enabled    = YES;
@@ -421,6 +428,8 @@
   [System updateSystemsFromEDSM:^{
     if (name.length == 0) {
       [LoadingViewController dismiss];
+      
+      [self showJumps];
     }
     else {
       NetLogParser *netLogParser = [NetLogParser createInstanceForCommander:commander];
@@ -432,11 +441,31 @@
         [netLogParser startInstance:^{
           [commander.edsmAccount syncJumpsWithEDSM:^{
             [LoadingViewController dismiss];
+            
+            [self showJumps];
           }];
         }];
       }
     }
   }];
+}
+
+#pragma mark -
+#pragma mark data management
+
+- (void)showJumps {
+  Commander *commander = Commander.activeCommander;
+  NSString  *name      = commander.name;
+  
+  if (name.length > 0) {
+    jumpsArrayController.fetchPredicate = CMDR_PREDICATE;
+    
+    [jumpsArrayController fetchWithRequest:nil merge:NO error:nil];
+  }
+}
+
+- (void)hideJumps {
+  jumpsArrayController.fetchPredicate = VOID_PREDICATE;
 }
 
 @end

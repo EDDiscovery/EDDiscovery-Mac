@@ -184,7 +184,7 @@
             [system parseEDSMData:systemData parseDistances:NO save:NO];
             
             if (((numAdded % 1000) == 0 && numAdded != 0) || ((numUpdated % 1000) == 0 && numUpdated != 0)) {
-              NSLog(@"Added %ld, updated %ld systems", (long)numAdded, (long)numUpdated);
+              [EventLogger addLog:[NSString stringWithFormat:@"Added %ld, updated %ld systems", (long)numAdded, (long)numUpdated]];
             }
             
             prevName = name;
@@ -193,7 +193,7 @@
         
         [WORK_CONTEXT save];
         
-        NSLog(@"Added %ld, updated %ld systems in %.1f seconds", (long)numAdded, (long)numUpdated, ([NSDate timeIntervalSinceReferenceDate] - ti));
+        [EventLogger addLog:[NSString stringWithFormat:@"Added %ld, updated %ld systems in %.1f seconds", (long)numAdded, (long)numUpdated, ([NSDate timeIntervalSinceReferenceDate] - ti)]];
         
         [System printSystemStatsInContext:WORK_CONTEXT];
         

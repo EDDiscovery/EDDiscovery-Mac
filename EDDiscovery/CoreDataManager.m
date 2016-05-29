@@ -13,6 +13,7 @@
 #import "EDSM.h"
 #import "EDSMConnection.h"
 #import "NetLogParser.h"
+#import "NSManagedObjectModel+KCOrderedAccessorFix.h"
 
 #define kDefaultDBVersion 0
 #define kCurrentDBVersion 1
@@ -146,8 +147,11 @@
 // Returns the managed object model for the application.
 // If the model doesn't already exist, it is created by merging all of the models found in the application bundle.
 - (NSManagedObjectModel *)managedObjectModel {
-	if (managedObjectModel == nil)
+  if (managedObjectModel == nil) {
 		managedObjectModel = [[NSManagedObjectModel mergedModelFromBundles:nil] retain];
+    
+    [managedObjectModel kc_generateOrderedSetAccessors];
+  }
 	
 	return managedObjectModel;
 }
