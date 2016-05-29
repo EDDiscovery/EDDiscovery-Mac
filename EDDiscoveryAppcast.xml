@@ -7,6 +7,23 @@
     <language>en</language>
 
       <item>
+        <title>Version 1.5</title>
+        <description>
+          <![CDATA[
+            <ul>
+              <li>Bug fixes for commanders who have large amounts of jumps not yet sent to EDSM.</li>
+            </ul>
+          ]]>
+        </description>
+        <pubDate>Mon, 30 May 2016 01:30:00 +0000</pubDate>
+        <enclosure url="https://github.com/EDDiscovery/EDDiscovery-Mac/releases/download/Release-1.5/EDDiscovery-1.5.dmg"
+                   sparkle:version="1.5"
+                   length="3449652"
+                   type="application/x-apple-diskimage"
+                   sparkle:dsaSignature="MC0CFBsB2eKJJHpQ+FPgF2HhGGPS12xEAhUAxhjSLt5Shsm+igL6mYg/966MoEw=" />
+      </item>
+
+      <item>
         <title>Version 1.4</title>
         <description>
           <![CDATA[
