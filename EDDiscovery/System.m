@@ -478,12 +478,8 @@
   NSAssert([self.managedObjectContext isEqual:MAIN_CONTEXT], @"Wrong context!");
   NSAssert(Commander.activeCommander != nil, @"must have an active commander");
 
-  Commander   *commander = Commander.activeCommander;
-  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"edsm.commander == %@", commander];
-  NSSet       *notes     = [self.notes filteredSetUsingPredicate:predicate];
-  Note        *note      = notes.anyObject;
-  
-  NSAssert2(notes.count < 2, @"Expected max 1 Note object for system %@, got %ld instead", self.name, (long)notes.count);
+  Commander *commander = Commander.activeCommander;
+  Note      *note      = [Note noteForSystem:self commander:commander];
   
   return note.note;
 }
@@ -495,14 +491,10 @@
 
   [self willChangeValueForKey:@"note"];
   
-  Commander   *commander = Commander.activeCommander;
-  NSPredicate *predicate = [NSPredicate predicateWithFormat:@"edsm.commander == %@", commander];
-  NSSet       *notes     = [self.notes filteredSetUsingPredicate:predicate];
-  Note        *note      = notes.anyObject;
-  BOOL         save      = NO;
+  Commander *commander = Commander.activeCommander;
+  Note      *note      = [Note noteForSystem:self commander:commander];
+  BOOL       save      = NO;
   
-  NSAssert2(notes.count < 2, @"Expected max 1 Note object for system %@, got %ld instead", self.name, (long)notes.count);
-
   if (note == nil) {
     NSString *className = NSStringFromClass(Note.class);
     

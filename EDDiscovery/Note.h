@@ -9,13 +9,13 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
-@class EDSM, System;
+@class EDSM, System, Commander;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface Note : NSManagedObject
 
-// Insert code here to declare functionality of your managed object subclass
++ (Note *)noteForSystem:(System *)system commander:(Commander *)commander;
 
 @end
 
