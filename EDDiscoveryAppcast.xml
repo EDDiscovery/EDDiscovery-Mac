@@ -17,7 +17,7 @@
         </description>
         <pubDate>Sun, 05 Jun 2016 23:10:00 +0000</pubDate>
         <enclosure url="https://github.com/EDDiscovery/EDDiscovery-Mac/releases/download/Release-1.6/EDDiscovery-1.6.dmg"
-                   sparkle:version="1.5"
+                   sparkle:version="1.6"
                    length="3420958"
                    type="application/x-apple-diskimage"
                    sparkle:dsaSignature="MC4CFQDy18KbddLKe69SPQ96gfTS3NFPpAIVANMIrh+k2f8GrApwEBidvgNB5QTq" />
