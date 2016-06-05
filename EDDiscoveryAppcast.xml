@@ -7,6 +7,23 @@
     <language>en</language>
 
       <item>
+        <title>Version 1.6</title>
+        <description>
+          <![CDATA[
+            <ul>
+              <li>Fixed newly inserted notes not appearing in travel history jump list.</li>
+            </ul>
+          ]]>
+        </description>
+        <pubDate>Sun, 05 Jun 2016 23:10:00 +0000</pubDate>
+        <enclosure url="https://github.com/EDDiscovery/EDDiscovery-Mac/releases/download/Release-1.6/EDDiscovery-1.6.dmg"
+                   sparkle:version="1.5"
+                   length="3420958"
+                   type="application/x-apple-diskimage"
+                   sparkle:dsaSignature="MC4CFQDy18KbddLKe69SPQ96gfTS3NFPpAIVANMIrh+k2f8GrApwEBidvgNB5QTq" />
+      </item>
+
+      <item>
         <title>Version 1.5</title>
         <description>
           <![CDATA[
