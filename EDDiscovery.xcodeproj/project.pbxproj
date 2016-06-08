@@ -24,6 +24,11 @@
 		D92ED4661CD81C820087BC07 /* SystemData.m in Sources */ = {isa = PBXBuildFile; fileRef = D92ED4651CD81C820087BC07 /* SystemData.m */; };
 		D931908C1CDB56E50087BC07 /* VDKQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = D931908B1CDB56E50087BC07 /* VDKQueue.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		D93514441CF5220A0087BC07 /* DeleteTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = D93514431CF5220A0087BC07 /* DeleteTableView.m */; };
+		D93F0F261D0855BC0087BC07 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D93F0F241D0855BC0087BC07 /* MapViewController.m */; };
+		D93F0F291D0856D30087BC07 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D93F0F281D0856D30087BC07 /* MapKit.framework */; };
+		D93F0F2C1D086CFA0087BC07 /* Galaxy_L_Grid.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D93F0F2B1D086CFA0087BC07 /* Galaxy_L_Grid.jpg */; };
+		D93F0F491D086DC10087BC07 /* CartographicOverlay.m in Sources */ = {isa = PBXBuildFile; fileRef = D93F0F461D086DC10087BC07 /* CartographicOverlay.m */; };
+		D93F0F4A1D086DC10087BC07 /* CartographicOverlayRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = D93F0F481D086DC10087BC07 /* CartographicOverlayRenderer.m */; };
 		D94DE2931CC4EA0E0087BC07 /* EDDiscovery.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2911CC4EA0E0087BC07 /* EDDiscovery.xcdatamodeld */; };
 		D94DE2B41CC4FF320087BC07 /* CoreDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2B31CC4FF320087BC07 /* CoreDataManager.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		D94DE2DF1CC5024D0087BC07 /* DBVersion+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = D94DE2CE1CC5024D0087BC07 /* DBVersion+CoreDataProperties.m */; };
@@ -45,6 +50,8 @@
 		D960B6791CDFD5A80087BC07 /* LoadingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D960B6781CDFD5A80087BC07 /* LoadingViewController.m */; };
 		D971F72A1CDCDF030087BC07 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D971F7281CDCDF030087BC07 /* Fabric.framework */; };
 		D971F72B1CDCDF030087BC07 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D971F7291CDCDF030087BC07 /* Crashlytics.framework */; };
+		D9841CE31D08BDD30087BC07 /* MapAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = D9841CE21D08BDD30087BC07 /* MapAnnotation.m */; };
+		D9841CE61D08C3670087BC07 /* BlackTileOverlay.m in Sources */ = {isa = PBXBuildFile; fileRef = D9841CE51D08C3670087BC07 /* BlackTileOverlay.m */; };
 		D9AC4C321CE1320D0087BC07 /* NSManagedObjectContext+Parenthood.m in Sources */ = {isa = PBXBuildFile; fileRef = D9AC4C311CE1320D0087BC07 /* NSManagedObjectContext+Parenthood.m */; };
 		D9B5622B1CD787800087BC07 /* TrilaterationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D9B5622A1CD787800087BC07 /* TrilaterationViewController.m */; };
 		D9BAB5DD1CC0F7D80087BC07 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D9BAB5DC1CC0F7D80087BC07 /* AppDelegate.m */; };
@@ -101,6 +108,14 @@
 		D931908B1CDB56E50087BC07 /* VDKQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VDKQueue.m; sourceTree = "<group>"; };
 		D93514421CF5220A0087BC07 /* DeleteTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeleteTableView.h; sourceTree = "<group>"; };
 		D93514431CF5220A0087BC07 /* DeleteTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DeleteTableView.m; sourceTree = "<group>"; };
+		D93F0F231D0855BC0087BC07 /* MapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
+		D93F0F241D0855BC0087BC07 /* MapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapViewController.m; sourceTree = "<group>"; };
+		D93F0F281D0856D30087BC07 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		D93F0F2B1D086CFA0087BC07 /* Galaxy_L_Grid.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Galaxy_L_Grid.jpg; sourceTree = "<group>"; };
+		D93F0F451D086DC10087BC07 /* CartographicOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CartographicOverlay.h; sourceTree = "<group>"; };
+		D93F0F461D086DC10087BC07 /* CartographicOverlay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CartographicOverlay.m; sourceTree = "<group>"; };
+		D93F0F471D086DC10087BC07 /* CartographicOverlayRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CartographicOverlayRenderer.h; sourceTree = "<group>"; };
+		D93F0F481D086DC10087BC07 /* CartographicOverlayRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CartographicOverlayRenderer.m; sourceTree = "<group>"; };
 		D94DE2921CC4EA0E0087BC07 /* EDDiscovery.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = EDDiscovery.xcdatamodel; sourceTree = "<group>"; };
 		D94DE2B21CC4FF320087BC07 /* CoreDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreDataManager.h; sourceTree = "<group>"; };
 		D94DE2B31CC4FF320087BC07 /* CoreDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreDataManager.m; sourceTree = "<group>"; };
@@ -141,6 +156,10 @@
 		D971F7261CDCD6B70087BC07 /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
 		D971F7281CDCDF030087BC07 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
 		D971F7291CDCDF030087BC07 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
+		D9841CE11D08BDD30087BC07 /* MapAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapAnnotation.h; sourceTree = "<group>"; };
+		D9841CE21D08BDD30087BC07 /* MapAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapAnnotation.m; sourceTree = "<group>"; };
+		D9841CE41D08C3670087BC07 /* BlackTileOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlackTileOverlay.h; sourceTree = "<group>"; };
+		D9841CE51D08C3670087BC07 /* BlackTileOverlay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlackTileOverlay.m; sourceTree = "<group>"; };
 		D9AC4C301CE1320D0087BC07 /* NSManagedObjectContext+Parenthood.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSManagedObjectContext+Parenthood.h"; sourceTree = "<group>"; };
 		D9AC4C311CE1320D0087BC07 /* NSManagedObjectContext+Parenthood.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSManagedObjectContext+Parenthood.m"; sourceTree = "<group>"; };
 		D9B562291CD787800087BC07 /* TrilaterationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrilaterationViewController.h; sourceTree = "<group>"; };
@@ -167,6 +186,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D93F0F291D0856D30087BC07 /* MapKit.framework in Frameworks */,
 				D971F72B1CDCDF030087BC07 /* Crashlytics.framework in Frameworks */,
 				D92656621CDEB01F0087BC07 /* Sparkle.framework in Frameworks */,
 				D971F72A1CDCDF030087BC07 /* Fabric.framework in Frameworks */,
@@ -282,15 +302,11 @@
 		D95E14EC1CC1AA180087BC07 /* GUI */ = {
 			isa = PBXGroup;
 			children = (
+				D9841CE71D08CA760087BC07 /* Loading */,
+				D9841CE81D08CA7B0087BC07 /* Travel History */,
+				D9841CE91D08CA870087BC07 /* Trilateration */,
+				D9841CEA1D08CA920087BC07 /* 2D Map */,
 				D9BAB5E61CC0F7D80087BC07 /* Main.storyboard */,
-				D960B6771CDFD5A80087BC07 /* LoadingViewController.h */,
-				D960B6781CDFD5A80087BC07 /* LoadingViewController.m */,
-				D9BAB5E11CC0F7D80087BC07 /* TravelHistoryViewController.h */,
-				D9BAB5E21CC0F7D80087BC07 /* TravelHistoryViewController.m */,
-				D9B562291CD787800087BC07 /* TrilaterationViewController.h */,
-				D9B5622A1CD787800087BC07 /* TrilaterationViewController.m */,
-				D93514421CF5220A0087BC07 /* DeleteTableView.h */,
-				D93514431CF5220A0087BC07 /* DeleteTableView.m */,
 			);
 			name = GUI;
 			sourceTree = "<group>";
@@ -298,6 +314,7 @@
 		D95E14ED1CC1AA2B0087BC07 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				D93F0F2B1D086CFA0087BC07 /* Galaxy_L_Grid.jpg */,
 				D92656651CDEB4CB0087BC07 /* dsa_pub.pem */,
 				D9BAB5E41CC0F7D80087BC07 /* Assets.xcassets */,
 			);
@@ -344,6 +361,52 @@
 			name = Crashlytics;
 			sourceTree = "<group>";
 		};
+		D9841CE71D08CA760087BC07 /* Loading */ = {
+			isa = PBXGroup;
+			children = (
+				D960B6771CDFD5A80087BC07 /* LoadingViewController.h */,
+				D960B6781CDFD5A80087BC07 /* LoadingViewController.m */,
+			);
+			name = Loading;
+			sourceTree = "<group>";
+		};
+		D9841CE81D08CA7B0087BC07 /* Travel History */ = {
+			isa = PBXGroup;
+			children = (
+				D9BAB5E11CC0F7D80087BC07 /* TravelHistoryViewController.h */,
+				D9BAB5E21CC0F7D80087BC07 /* TravelHistoryViewController.m */,
+				D93514421CF5220A0087BC07 /* DeleteTableView.h */,
+				D93514431CF5220A0087BC07 /* DeleteTableView.m */,
+			);
+			name = "Travel History";
+			sourceTree = "<group>";
+		};
+		D9841CE91D08CA870087BC07 /* Trilateration */ = {
+			isa = PBXGroup;
+			children = (
+				D9B562291CD787800087BC07 /* TrilaterationViewController.h */,
+				D9B5622A1CD787800087BC07 /* TrilaterationViewController.m */,
+			);
+			name = Trilateration;
+			sourceTree = "<group>";
+		};
+		D9841CEA1D08CA920087BC07 /* 2D Map */ = {
+			isa = PBXGroup;
+			children = (
+				D93F0F231D0855BC0087BC07 /* MapViewController.h */,
+				D93F0F241D0855BC0087BC07 /* MapViewController.m */,
+				D9841CE11D08BDD30087BC07 /* MapAnnotation.h */,
+				D9841CE21D08BDD30087BC07 /* MapAnnotation.m */,
+				D93F0F451D086DC10087BC07 /* CartographicOverlay.h */,
+				D93F0F461D086DC10087BC07 /* CartographicOverlay.m */,
+				D93F0F471D086DC10087BC07 /* CartographicOverlayRenderer.h */,
+				D93F0F481D086DC10087BC07 /* CartographicOverlayRenderer.m */,
+				D9841CE41D08C3670087BC07 /* BlackTileOverlay.h */,
+				D9841CE51D08C3670087BC07 /* BlackTileOverlay.m */,
+			);
+			name = "2D Map";
+			sourceTree = "<group>";
+		};
 		D9B5622C1CD7B1150087BC07 /* Trilateration */ = {
 			isa = PBXGroup;
 			children = (
@@ -364,6 +427,7 @@
 		D9BAB5CF1CC0F7D80087BC07 = {
 			isa = PBXGroup;
 			children = (
+				D93F0F281D0856D30087BC07 /* MapKit.framework */,
 				D9BAB5DA1CC0F7D80087BC07 /* EDDiscovery */,
 				D9BAB5D91CC0F7D80087BC07 /* Products */,
 			);
@@ -469,6 +533,7 @@
 			files = (
 				D9BAB5E51CC0F7D80087BC07 /* Assets.xcassets in Resources */,
 				D92656661CDEB4CB0087BC07 /* dsa_pub.pem in Resources */,
+				D93F0F2C1D086CFA0087BC07 /* Galaxy_L_Grid.jpg in Resources */,
 				D9BAB5E81CC0F7D80087BC07 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -524,11 +589,14 @@
 				D94DE2DF1CC5024D0087BC07 /* DBVersion+CoreDataProperties.m in Sources */,
 				D917A8E81CC672E20087BC07 /* EDSM+CoreDataProperties.m in Sources */,
 				D92E57221CE493E00087BC07 /* NSURLConnection+Progress.m in Sources */,
+				D93F0F261D0855BC0087BC07 /* MapViewController.m in Sources */,
 				D94DE2B41CC4FF320087BC07 /* CoreDataManager.m in Sources */,
+				D9841CE31D08BDD30087BC07 /* MapAnnotation.m in Sources */,
 				D960B6791CDFD5A80087BC07 /* LoadingViewController.m in Sources */,
 				D92ED4661CD81C820087BC07 /* SystemData.m in Sources */,
 				D91CAA741CD416F10087BC07 /* Note.m in Sources */,
 				D94DE2FF1CC5028B0087BC07 /* System+CoreDataProperties.m in Sources */,
+				D9841CE61D08C3670087BC07 /* BlackTileOverlay.m in Sources */,
 				D952CAB81CD371BF0087BC07 /* Commander+CoreDataProperties.m in Sources */,
 				D92ED45D1CD811F00087BC07 /* SuggestedReferences.m in Sources */,
 				D92ED4601CD812D20087BC07 /* ReferencesSector.m in Sources */,
@@ -536,7 +604,9 @@
 				D94DE3001CC5028B0087BC07 /* System.m in Sources */,
 				D94DE2FC1CC5028B0087BC07 /* Image.m in Sources */,
 				D9CC87281CF8A49C0087BC07 /* NSManagedObjectModel+KCOrderedAccessorFix.m in Sources */,
+				D93F0F491D086DC10087BC07 /* CartographicOverlay.m in Sources */,
 				D9AC4C321CE1320D0087BC07 /* NSManagedObjectContext+Parenthood.m in Sources */,
+				D93F0F4A1D086DC10087BC07 /* CartographicOverlayRenderer.m in Sources */,
 				D9BAB5DD1CC0F7D80087BC07 /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15E65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10117"/>
+        <plugIn identifier="com.apple.MapKitIBPlugin" version="10117"/>
         <capability name="stacking Non-gravity area distributions on NSStackView" minToolsVersion="7.0" minSystemVersion="10.11"/>
     </dependencies>
     <scenes>
@@ -1816,39 +1817,31 @@
             </objects>
             <point key="canvasLocation" x="75" y="1852"/>
         </scene>
-        <!--Screenshots-->
+        <!--2D Map-->
         <scene sceneID="JOG-w2-sk5">
             <objects>
-                <viewController title="Screenshots" id="qmF-v1-0Vb" sceneMemberID="viewController">
+                <viewController title="2D Map" id="qmF-v1-0Vb" customClass="MapViewController" sceneMemberID="viewController">
                     <view key="view" id="wH7-mS-r9X">
                         <rect key="frame" x="0.0" y="0.0" width="1024" height="600"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" translatesAutoresizingMaskIntoConstraints="NO" id="Yzj-3r-5bc">
-                                <rect key="frame" x="493" y="292" width="38" height="17"/>
-                                <subviews>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="sLm-Gf-852">
-                                        <rect key="frame" x="-2" y="0.0" width="42" height="17"/>
-                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="TODO" id="brn-Ss-FYX">
-                                            <font key="font" metaFont="system"/>
-                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                        </textFieldCell>
-                                    </textField>
-                                </subviews>
-                                <visibilityPriorities>
-                                    <integer value="1000"/>
-                                </visibilityPriorities>
-                                <customSpacing>
-                                    <real value="3.4028234663852886e+38"/>
-                                </customSpacing>
-                            </stackView>
+                            <mapView mapType="standard" pitchEnabled="NO" showsBuildings="NO" showsPointsOfInterest="NO" showsCompass="NO" showsZoomControls="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bIc-Ze-gDg">
+                                <rect key="frame" x="0.0" y="0.0" width="1024" height="600"/>
+                                <connections>
+                                    <outlet property="delegate" destination="qmF-v1-0Vb" id="CsI-Ir-e3w"/>
+                                </connections>
+                            </mapView>
                         </subviews>
                         <constraints>
-                            <constraint firstItem="Yzj-3r-5bc" firstAttribute="centerX" secondItem="wH7-mS-r9X" secondAttribute="centerX" id="YV7-Wg-K6U"/>
-                            <constraint firstItem="Yzj-3r-5bc" firstAttribute="centerY" secondItem="wH7-mS-r9X" secondAttribute="centerY" id="vXs-Fo-7RN"/>
+                            <constraint firstItem="bIc-Ze-gDg" firstAttribute="top" secondItem="wH7-mS-r9X" secondAttribute="top" id="6b8-2l-aGP"/>
+                            <constraint firstAttribute="bottom" secondItem="bIc-Ze-gDg" secondAttribute="bottom" id="IHx-lP-hyM"/>
+                            <constraint firstItem="bIc-Ze-gDg" firstAttribute="leading" secondItem="wH7-mS-r9X" secondAttribute="leading" id="Oqu-H0-INl"/>
+                            <constraint firstAttribute="trailing" secondItem="bIc-Ze-gDg" secondAttribute="trailing" id="t6B-2Y-Oau"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="mapView" destination="bIc-Ze-gDg" id="zac-FO-osF"/>
+                    </connections>
                 </viewController>
                 <customObject id="w3s-Jv-f7p" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
