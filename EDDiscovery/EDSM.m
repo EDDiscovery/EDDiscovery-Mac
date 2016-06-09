@@ -489,6 +489,10 @@
     }
   }
   
+  if (distances.count == 0) {
+    return;
+  }
+  
   [EventLogger addLog:[NSString stringWithFormat:@"Submitting %ld distances to EDSM", (long)distances.count]];
   
   [EDSMConnection submitDistances:distances

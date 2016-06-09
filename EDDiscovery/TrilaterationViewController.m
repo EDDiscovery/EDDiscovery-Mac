@@ -70,7 +70,7 @@
   distancesTableView.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"distance" ascending:YES selector:@selector(compare:)]];
   
   Jump   *jump   = [jumpsArrayController valueForKeyPath:@"selection.self"];
-  System *system = jump.system;
+  System *system = ([jump isKindOfClass:Jump.class]) ? jump.system : nil;
   
   if (system != nil) {
     [self trilaterate];
@@ -406,7 +406,7 @@
 
 - (IBAction)resetDistances:(id)sender {
   Jump                        *jump       = [jumpsArrayController valueForKeyPath:@"selection.self"];
-  System                      *system     = jump.system;
+  System                      *system     = ([jump isKindOfClass:Jump.class]) ? jump.system : nil;
   NSMutableArray <Distance *> *distances  = system.sortedDistances;
   NSMutableArray <System   *> *references = system.suggestedReferences;
   NSMutableArray <Distance *> *restore    = [NSMutableArray array];
@@ -441,8 +441,12 @@
 
 - (IBAction)submitDistances:(id)sender {
   Jump              *jump     = [jumpsArrayController valueForKeyPath:@"selection.self"];
-  System            *system   = jump.system;
+  System            *system   = ([jump isKindOfClass:Jump.class]) ? jump.system : nil;
   NSManagedObjectID *systemID = system.objectID;;
+  
+  if (system == nil) {
+    return;
+  }
   
   [EDSM sendDistancesToEDSM:system response:^(BOOL distancesSubmitted, BOOL systemTrilaterated) {
     if (distancesSubmitted == YES) {
