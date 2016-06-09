@@ -397,6 +397,10 @@ static NetLogParser *instance = nil;
             }
             
             [EventLogger addLog:msg];
+            
+            [MAIN_CONTEXT performBlock:^{
+              [NSWorkspace.sharedWorkspace.notificationCenter postNotificationName:NEW_JUMP_NOTIFICATION object:self];
+            }];
           }
         }
       }

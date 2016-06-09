@@ -17,26 +17,51 @@
 #import "MapAnnotation.h"
 #import "BlackTileOverlay.h"
 
+//boundaries of galaxy, in ED coordinate system
+
+#define MINX -45000
+#define MAXX  45000
+#define MINY -20000
+#define MAXY  70000
+
 @implementation MapViewController {
   IBOutlet MKMapView *mapView;
+  
+  MKPolyline     *polyline;
+  NSMutableArray *waypoints;
+}
+
+#pragma mark -
+#pragma mark NSViewController delegate
+
+- (void)viewDidLoad {
+  [super viewDidLoad];
+  
+  polyline  = nil;
+  waypoints = [[NSMutableArray alloc] init];
 }
 
 - (void)viewDidAppear {
   [super viewDidAppear];
   
-  NSLog(@"%s", __FUNCTION__);
-  
   [self loadMap];
+  
+  [NSWorkspace.sharedWorkspace.notificationCenter addObserver:self selector:@selector(loadJumpsAndWaypoints) name:NEW_JUMP_NOTIFICATION object:nil];
 }
 
 - (void)viewDidDisappear {
   [super viewDidDisappear];
   
-  [mapView removeAnnotations:mapView.annotations];
-  [mapView removeOverlays:mapView.overlays];
+  [NSWorkspace.sharedWorkspace.notificationCenter removeObserver:self name:NEW_JUMP_NOTIFICATION object:nil];
 }
 
-- (void)loadMap {
+#pragma mark -
+#pragma mark ED coordinate system
+
+static MKMapPoint minPoint;
+static MKMapPoint maxPoint;
+
+- (void)loadCoordinateSystem {
   //determine boundaries of map view, in map view coordinate format
   
   CGRect frame = mapView.frame;
@@ -62,80 +87,101 @@
   
   CLLocationCoordinate2D minC = [mapView convertPoint:CGPointMake(frame.origin.x, frame.origin.y) toCoordinateFromView:nil];
   CLLocationCoordinate2D maxC = [mapView convertPoint:CGPointMake(frame.origin.x+frame.size.width, frame.origin.y+frame.size.height) toCoordinateFromView:nil];
-  MKMapPoint minP = MKMapPointForCoordinate(minC);
-  MKMapPoint maxP = MKMapPointForCoordinate(maxC);
   
-  
-  //determine boundaries of galaxy, in ED coordinate format
-  
-  double minX = -45000;
-  double maxX =  45000;
-  double minY = -20000;
-  double maxY =  70000;
+  minPoint = MKMapPointForCoordinate(minC);
+  maxPoint = MKMapPointForCoordinate(maxC);
+}
 
-  
-  //add base layer (black) overlay, so that we do not display Apple Maps as background ;-)
-  
-  BlackTileOverlay *tileOverlay = [[BlackTileOverlay alloc] init];
-  
-  [mapView addOverlay:tileOverlay];
+NS_INLINE MKMapPoint pointFromEDPoint(MKMapPoint point) {
+  return MKMapPointMake(minPoint.x + ((point.x - MINX) / (MAXX - MINX)) * (maxPoint.x - minPoint.x),
+                        minPoint.y + ((point.y - MINY) / (MAXY - MINY)) * (maxPoint.y - minPoint.y));
+}
 
+NS_INLINE CLLocationCoordinate2D coordinateFromEDPoint(MKMapPoint point) {
+  return MKCoordinateForMapPoint(pointFromEDPoint(point));
+}
+
+#pragma mark -
+#pragma mark map contents management
+
+- (void)loadMap {
+  static dispatch_once_t onceToken;
   
-  //add background galaxy image overlay
-  
-  CartographicOverlay *overlay = [[CartographicOverlay alloc] init];
-  double x = minP.x + ((45000 - minX) / (maxX - minX)) * (maxP.x - minP.x);
-  double y = minP.y + ((70000 - minY) / (maxY - minY)) * (maxP.y - minP.y);
-  MKMapPoint ne = MKMapPointMake(x, y);
-  x = minP.x + ((-45000 - minX) / (maxX - minX)) * (maxP.x - minP.x);
-  y = minP.y + ((-20000 - minY) / (maxY - minY)) * (maxP.y - minP.y);
-  MKMapPoint sw = MKMapPointMake(x, y);
-  
-  overlay.image = [NSImage imageNamed:@"Galaxy_L_Grid.jpg"];
-  overlay.ne    = MKCoordinateForMapPoint(ne);
-  overlay.sw    = MKCoordinateForMapPoint(sw);
-  
-  [mapView addOverlay:overlay];
+  dispatch_once(&onceToken, ^{
+    
+    //calculate ED coordinate system
+    
+    [self loadCoordinateSystem];
+    
+    
+    //add base layer (black) overlay, so that we do not display Apple Maps as background ;-)
+    
+    BlackTileOverlay *tileOverlay = [[BlackTileOverlay alloc] init];
+    
+    [mapView addOverlay:tileOverlay];
+    
+    
+    //add background galaxy image overlay
+    
+    CartographicOverlay *overlay = [[CartographicOverlay alloc] init];
+    
+    overlay.image = [NSImage imageNamed:@"Galaxy_L_Grid.jpg"];
+    overlay.ne    = coordinateFromEDPoint(MKMapPointMake( 45000,  70000));
+    overlay.sw    = coordinateFromEDPoint(MKMapPointMake(-45000, -20000));
+    
+    [mapView addOverlay:overlay];
+    
+    
+    // zoom and center map to match selected background image
+    
+    MKMapRect          mapRect = overlay.boundingMapRect;
+    MKCoordinateRegion region  = MKCoordinateRegionForMapRect(mapRect);
+    
+    [mapView setRegion:region animated:YES];
+  });
   
   
   //add polyline with CMDR jumps
   
+  [self loadJumpsAndWaypoints];
+}
+
+- (void)loadJumpsAndWaypoints {
   NSArray       *jumps  = [Jump allJumpsOfCommander:Commander.activeCommander];
   NSMutableData *points = [NSMutableData data];
   MKMapPoint     point;
+
+  [mapView removeOverlay:polyline];
+  [mapView removeAnnotations:waypoints];
   
+  polyline  = nil;
+  waypoints = [[NSMutableArray alloc] init];
+
   for (Jump *jump in jumps) {
     if (jump.system.hasCoordinates) {
-      x = minP.x + ((jump.system.x - minX) / (maxX - minX)) * (maxP.x - minP.x);
-      y = minP.y + ((jump.system.z - minY) / (maxY - minY)) * (maxP.y - minP.y);
+      point = pointFromEDPoint(MKMapPointMake(jump.system.x, jump.system.z));
       
-      point = MKMapPointMake(x, y);
-    
       [points appendBytes:&point length:sizeof(MKMapPoint)];
       
       //if system has a note, add an annotation for it
       
       if (jump.system.note.length > 0) {
-        MapAnnotation *annotation = [[MapAnnotation alloc] initWithCoordinate:MKCoordinateForMapPoint(point)
-                                                                        title:jump.system.note];
+        MapAnnotation *waypoint = [[MapAnnotation alloc] initWithCoordinate:MKCoordinateForMapPoint(point)
+                                                                      title:jump.system.note];
         
-        [mapView addAnnotation:annotation];
+        [waypoints addObject:waypoint];
       }
     }
   }
   
-  MKPolyline *polyline = [MKPolyline polylineWithPoints:(MKMapPoint *)points.bytes count:(points.length / sizeof(MKMapPoint))];
+  polyline = [MKPolyline polylineWithPoints:(MKMapPoint *)points.bytes count:(points.length / sizeof(MKMapPoint))];
   
   [mapView addOverlay:polyline];
-  
-  
-  // zoom and center map to match selected background image
-  
-  MKMapRect          mapRect = overlay.boundingMapRect;
-  MKCoordinateRegion region  = MKCoordinateRegionForMapRect(mapRect);
-  
-  [mapView setRegion:region animated:YES];
+  [mapView addAnnotations:waypoints];
 }
+
+#pragma mark -
+#pragma mark MKMapView delegate
 
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation {
   if ([annotation isKindOfClass:[MapAnnotation class]]) {
@@ -155,7 +201,7 @@
   return nil;
 }
 
--(MKOverlayRenderer *)mapView:(MKMapView*)mapView rendererForOverlay:(id<MKOverlay>)overlay {
+- (MKOverlayRenderer *)mapView:(MKMapView*)mapView rendererForOverlay:(id<MKOverlay>)overlay {
   MKOverlayRenderer *renderer = nil;
   
   if ([overlay isKindOfClass:[MKTileOverlay class]]) {
