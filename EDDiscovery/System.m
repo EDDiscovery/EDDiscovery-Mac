@@ -148,6 +148,12 @@
         
         NSArray *responseSystems = [response sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
         
+        [MAIN_CONTEXT performBlock:^{
+          LoadingViewController.progressIndicator.indeterminate = NO;
+          LoadingViewController.progressIndicator.maxValue      = responseSystems.count;
+          LoadingViewController.progressIndicator.doubleValue   = 0;
+        }];
+
         for (NSDictionary *systemData in responseSystems) {
           NSString *name = systemData[@"name"];
           
@@ -186,6 +192,10 @@
             if (((numAdded % 1000) == 0 && numAdded != 0) || ((numUpdated % 1000) == 0 && numUpdated != 0)) {
               [EventLogger addLog:[NSString stringWithFormat:@"Added %ld, updated %ld systems", (long)numAdded, (long)numUpdated]];
             }
+            
+            [MAIN_CONTEXT performBlock:^{
+              LoadingViewController.progressIndicator.doubleValue++;
+            }];
             
             prevName = name;
           }
