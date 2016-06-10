@@ -42,6 +42,7 @@ UI side, at present you can:
 - see submitted distances from other systems (suspicious distances will be marked in red)
 - trilaterate systems by adding distances to system with known coordinates
 - submit distances to EDSM
+- see a 2D map of your travel history, with markers for systems with user notes
 
 TODO:
 - screenshots management
