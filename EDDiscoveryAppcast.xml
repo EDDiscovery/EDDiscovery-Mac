@@ -7,6 +7,25 @@
     <language>en</language>
 
       <item>
+        <title>Version 1.7</title>
+        <description>
+          <![CDATA[
+            <ul>
+              <li>Added 2D galaxy map with travelled line and markers for systems with user notes.</li>
+              <li>Fixed a series of crashes when accessing trilateration screen with an unpopulated travel history.</li>
+              <li>Other smaller fixes and clean-ups.</li>
+            </ul>
+          ]]>
+        </description>
+        <pubDate>Fri, 10 Jun 2016 15:50:00 +0000</pubDate>
+        <enclosure url="https://github.com/EDDiscovery/EDDiscovery-Mac/releases/download/Release-1.7/EDDiscovery-1.7.dmg"
+                   sparkle:version="1.7"
+                   length="4212023"
+                   type="application/x-apple-diskimage"
+                   sparkle:dsaSignature="MC0CFAoHBR2C8DAU910rJxJMLeFxF4CnAhUAzOTFM8O4XsfdN2DikzeVIR9vf/w=" />
+      </item>
+
+      <item>
         <title>Version 1.6</title>
         <description>
           <![CDATA[
