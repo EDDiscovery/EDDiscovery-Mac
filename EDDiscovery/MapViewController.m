@@ -44,6 +44,8 @@
 - (void)viewDidAppear {
   [super viewDidAppear];
   
+  [Answers logCustomEventWithName:@"Screen view" customAttributes:@{@"screen":NSStringFromClass(self.class)}];
+
   [self loadMap];
   
   [NSWorkspace.sharedWorkspace.notificationCenter addObserver:self selector:@selector(loadJumpsAndWaypoints) name:NEW_JUMP_NOTIFICATION object:nil];
