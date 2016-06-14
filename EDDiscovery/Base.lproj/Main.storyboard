@@ -1044,7 +1044,7 @@
                                                 </connections>
                                             </textField>
                                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jvb-Bc-vwS">
-                                                <rect key="frame" x="308" y="338" width="80" height="22"/>
+                                                <rect key="frame" x="296" y="338" width="92" height="22"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="Dz6-ic-ljV">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1057,14 +1057,6 @@
                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="f5c-4H-ICH">
                                                 <rect key="frame" x="19" y="341" width="37" height="17"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="X" id="LPT-Gw-Qn1">
-                                                    <font key="font" metaFont="system"/>
-                                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                </textFieldCell>
-                                            </textField>
-                                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Pha-2Z-A5I">
-                                                <rect key="frame" x="267" y="341" width="37" height="17"/>
-                                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Visits" id="xJB-hC-t3e">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -1089,6 +1081,23 @@
                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oAR-Dh-gmX">
                                                 <rect key="frame" x="19" y="278" width="37" height="17"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Sol" id="lvx-eQ-zpz">
+                                                    <font key="font" metaFont="system"/>
+                                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                </textFieldCell>
+                                            </textField>
+                                            <textField hidden="YES" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ovf-bk-WOu">
+                                                <rect key="frame" x="296" y="275" width="92" height="22"/>
+                                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="JhI-fY-p3c">
+                                                    <numberFormatter key="formatter" formatterBehavior="custom10_4" numberStyle="decimal" alwaysShowsDecimalSeparator="YES" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" minimumFractionDigits="2" maximumFractionDigits="2" id="VU9-Bk-Fn3"/>
+                                                    <font key="font" metaFont="system"/>
+                                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                </textFieldCell>
+                                            </textField>
+                                            <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Sqz-be-MKl">
+                                                <rect key="frame" x="160" y="278" width="130" height="17"/>
+                                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Sol" id="Djj-xR-83r">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -1282,6 +1291,14 @@
                                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                 </textFieldCell>
                                             </textField>
+                                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Pha-2Z-A5I">
+                                                <rect key="frame" x="256" y="341" width="37" height="17"/>
+                                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Visits" id="xJB-hC-t3e">
+                                                    <font key="font" metaFont="system"/>
+                                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                </textFieldCell>
+                                            </textField>
                                         </subviews>
                                         <constraints>
                                             <constraint firstItem="Nd0-YB-u9M" firstAttribute="top" secondItem="v9z-do-dIz" secondAttribute="top" constant="407" id="gjH-JI-KTu"/>
@@ -1312,7 +1329,9 @@
                     <connections>
                         <outlet property="cmdrArrayController" destination="w4z-Tg-Rgr" id="Bjr-79-ahc"/>
                         <outlet property="cmdrSelButton" destination="Yro-Z3-P7m" id="HRq-0f-chW"/>
+                        <outlet property="currSystemTextField" destination="Sqz-be-MKl" id="aTd-gn-X4z"/>
                         <outlet property="deleteCommanderButton" destination="mXh-cL-afl" id="zF4-uh-nPE"/>
+                        <outlet property="distanceFromCurrSystemTextField" destination="ovf-bk-WOu" id="UXd-hr-e9Z"/>
                         <outlet property="distancesTableView" destination="FTN-4D-V9h" id="xsr-1l-3Br"/>
                         <outlet property="jumpsArrayController" destination="8om-YV-xhG" id="fUw-hF-cEB"/>
                         <outlet property="jumpsTableView" destination="Bam-q7-TPi" id="vSu-ML-3Bn"/>

@@ -29,6 +29,8 @@
   IBOutlet NSTableView       *distancesTableView;
   IBOutlet NSButton          *deleteCommanderButton;
   IBOutlet NSButton          *setNetlogDirButton;
+  IBOutlet NSTextField       *currSystemTextField;
+  IBOutlet NSTextField       *distanceFromCurrSystemTextField;
 }
 
 #pragma mark -
@@ -151,6 +153,34 @@
         
         numRequests--;
       }];
+    }
+    
+    if (rowIndex == 0) {
+      currSystemTextField.hidden = YES;
+      distanceFromCurrSystemTextField.hidden = YES;
+    }
+    else {
+      System *from = jump.system;
+      System *to   = ((Jump *)jumpsArrayController.arrangedObjects[0]).system;
+      BOOL    show = NO;
+      
+      if (from != nil && to != nil) {
+        if (from.hasCoordinates == YES && to.hasCoordinates == YES) {
+          show = YES;
+        }
+      }
+      
+      if (show == NO) {
+        currSystemTextField.hidden = YES;
+        distanceFromCurrSystemTextField.hidden = YES;
+      }
+      else {
+        currSystemTextField.hidden = NO;
+        distanceFromCurrSystemTextField.hidden = NO;
+        
+        currSystemTextField.stringValue = to.name;
+        distanceFromCurrSystemTextField.objectValue = @(sqrt(pow((from.x-to.x), 2) + pow((from.y-to.y), 2) + pow((from.z-to.z), 2)));
+      }
     }
   }
   
