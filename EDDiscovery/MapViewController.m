@@ -160,7 +160,7 @@ NS_INLINE CLLocationCoordinate2D coordinateFromEDPoint(MKMapPoint point) {
   waypoints = [[NSMutableArray alloc] init];
 
   for (Jump *jump in jumps) {
-    if (jump.system.hasCoordinates) {
+    if (jump.system.hasCoordinates && !jump.hidden) {
       point = pointFromEDPoint(MKMapPointMake(jump.system.x, jump.system.z));
       
       [points appendBytes:&point length:sizeof(MKMapPoint)];

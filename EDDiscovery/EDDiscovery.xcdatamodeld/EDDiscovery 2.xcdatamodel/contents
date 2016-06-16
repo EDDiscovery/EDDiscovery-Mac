@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15F34" minimumToolsVersion="Xcode 7.0">
+    <entity name="Commander" representedClassName="Commander" syncable="YES">
+        <attribute name="name" attributeType="String" syncable="YES"/>
+        <attribute name="netLogFilesDir" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="screenshotsDir" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="edsmAccount" maxCount="1" deletionRule="Cascade" destinationEntity="EDSM" inverseName="commander" inverseEntity="EDSM" syncable="YES"/>
+        <relationship name="netLogFiles" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="NetLogFile" inverseName="commander" inverseEntity="NetLogFile" syncable="YES"/>
+    </entity>
+    <entity name="DBVersion" representedClassName="DBVersion" syncable="YES">
+        <attribute name="dbVersion" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+    </entity>
+    <entity name="Distance" representedClassName="Distance" syncable="YES">
+        <attribute name="calculatedDistance" optional="YES" attributeType="Double" syncable="YES"/>
+        <attribute name="distance" attributeType="Double" syncable="YES"/>
+        <attribute name="name" attributeType="String" syncable="YES"/>
+        <relationship name="system" maxCount="1" deletionRule="Nullify" destinationEntity="System" inverseName="distances" inverseEntity="System" syncable="YES"/>
+    </entity>
+    <entity name="EDSM" representedClassName="EDSM" syncable="YES">
+        <attribute name="jumpsUpdateTimestamp" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="notesUpdateTimestamp" optional="YES" attributeType="Date" syncable="YES"/>
+        <relationship name="commander" maxCount="1" deletionRule="Nullify" destinationEntity="Commander" inverseName="edsmAccount" inverseEntity="Commander" syncable="YES"/>
+        <relationship name="jumps" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Jump" inverseName="edsm" inverseEntity="Jump" syncable="YES"/>
+        <relationship name="notes" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Note" inverseName="edsm" inverseEntity="Note" syncable="YES"/>
+    </entity>
+    <entity name="Image" representedClassName="Image" syncable="YES">
+        <attribute name="path" attributeType="String" syncable="YES"/>
+        <attribute name="thumbnail" optional="YES" attributeType="Binary" syncable="YES"/>
+        <relationship name="jump" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Jump" inverseName="images" inverseEntity="Jump" syncable="YES"/>
+    </entity>
+    <entity name="Jump" representedClassName="Jump" syncable="YES">
+        <attribute name="hidden" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
+        <attribute name="timestamp" attributeType="Date" indexed="YES" syncable="YES"/>
+        <relationship name="edsm" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="EDSM" inverseName="jumps" inverseEntity="EDSM" syncable="YES"/>
+        <relationship name="images" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Image" inverseName="jump" inverseEntity="Image" syncable="YES"/>
+        <relationship name="netLogFile" optional="YES" maxCount="1" deletionRule="Nullify" ordered="YES" destinationEntity="NetLogFile" inverseName="jumps" inverseEntity="NetLogFile" syncable="YES"/>
+        <relationship name="system" maxCount="1" deletionRule="Nullify" destinationEntity="System" inverseName="jumps" inverseEntity="System" syncable="YES"/>
+    </entity>
+    <entity name="NetLogFile" representedClassName="NetLogFile" syncable="YES">
+        <attribute name="complete" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
+        <attribute name="cqc" attributeType="Boolean" defaultValueString="0" syncable="YES"/>
+        <attribute name="fileDate" attributeType="String" syncable="YES"/>
+        <attribute name="fileOffset" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="path" attributeType="String" syncable="YES"/>
+        <relationship name="commander" maxCount="1" deletionRule="Nullify" destinationEntity="Commander" inverseName="netLogFiles" inverseEntity="Commander" syncable="YES"/>
+        <relationship name="jumps" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Jump" inverseName="netLogFile" inverseEntity="Jump" syncable="YES"/>
+    </entity>
+    <entity name="Note" representedClassName="Note" syncable="YES">
+        <attribute name="note" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="edsm" maxCount="1" deletionRule="Nullify" destinationEntity="EDSM" inverseName="notes" inverseEntity="EDSM" syncable="YES"/>
+        <relationship name="system" maxCount="1" deletionRule="Nullify" destinationEntity="System" inverseName="notes" inverseEntity="System" syncable="YES"/>
+    </entity>
+    <entity name="System" representedClassName="System" syncable="YES">
+        <attribute name="name" attributeType="String" indexed="YES" syncable="YES"/>
+        <attribute name="x" optional="YES" attributeType="Double" syncable="YES"/>
+        <attribute name="y" optional="YES" attributeType="Double" syncable="YES"/>
+        <attribute name="z" optional="YES" attributeType="Double" syncable="YES"/>
+        <relationship name="distances" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Distance" inverseName="system" inverseEntity="Distance" syncable="YES"/>
+        <relationship name="jumps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Jump" inverseName="system" inverseEntity="Jump" syncable="YES"/>
+        <relationship name="notes" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Note" inverseName="system" inverseEntity="Note" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="Commander" positionX="-8235" positionY="-792" width="128" height="118"/>
+        <element name="DBVersion" positionX="-8136" positionY="-999" width="128" height="58"/>
+        <element name="Distance" positionX="-7409" positionY="-787" width="128" height="103"/>
+        <element name="EDSM" positionX="-8048" positionY="-892" width="128" height="118"/>
+        <element name="Image" positionX="-7596" positionY="-922" width="128" height="88"/>
+        <element name="Jump" positionX="-7787" positionY="-862" width="128" height="133"/>
+        <element name="NetLogFile" positionX="-8048" positionY="-702" width="128" height="148"/>
+        <element name="Note" positionX="-7823" positionY="-673" width="128" height="88"/>
+        <element name="System" positionX="-7598" positionY="-802" width="128" height="148"/>
+    </elements>
+</model>

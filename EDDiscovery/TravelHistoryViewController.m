@@ -98,7 +98,10 @@
       Jump   *jump   = jumpsArrayController.arrangedObjects[rowIndex];
       System *system = jump.system;
 
-      if (system.hasCoordinates) {
+      if (jump.hidden) {
+        aCell.textColor = NSColor.grayColor;
+      }
+      else if (system.hasCoordinates) {
         aCell.textColor = NSColor.blackColor;
       }
       else {
@@ -232,8 +235,69 @@
   }
 }
 
+- (void)tableView:(NSTableView *)aTableView deleteRows:(NSIndexSet *)rows {
+  NSAlert *alert = [[NSAlert alloc] init];
+  
+  if (rows.count > 1) {
+    alert.messageText = [NSLocalizedString(@"Are you sure you want to delete XXX jumps?", @"") stringByReplacingOccurrencesOfString:@"XXX" withString:[NSString stringWithFormat:@"%ld", rows.count]];
+  }
+  else {
+    alert.messageText = NSLocalizedString(@"Are you sure you want to delete this jump?", @"");
+  }
+  
+  alert.informativeText = NSLocalizedString(@"This operation cannot be undone!", @"");
+  
+  [alert addButtonWithTitle:NSLocalizedString(@"OK", @"")];
+  [alert addButtonWithTitle:NSLocalizedString(@"Cancel", @"")];
+  
+  NSInteger button = [alert runModal];
+  
+  if (button == NSAlertFirstButtonReturn) {
+    NSMutableArray *jumps = [NSMutableArray array];
+    
+    [rows enumerateIndexesUsingBlock:^(NSUInteger row, BOOL * _Nonnull stop) {
+      Jump *jump = jumpsArrayController.arrangedObjects[row];
+      
+      NSLog(@"%s: %ld (%@)", __FUNCTION__, row, jump.system.name);
+      
+      [jumps addObject:jump];
+    }];
+    
+    for (Jump *jump in jumps) {
+      if (jump.edsm != nil) {
+        [jump.edsm deleteJumpFromEDSM:jump];
+      }
+      else {
+        NSTimeInterval  timestamp  = jump.timestamp;
+        NSString       *systemName = jump.system.name;
+        
+        [MAIN_CONTEXT deleteObject:jump];
+        [MAIN_CONTEXT save];
+        
+        [EventLogger addLog:[NSString stringWithFormat:@"Deleted jump from travel history: %@ - %@", [NSDate dateWithTimeIntervalSinceReferenceDate:timestamp], systemName]];
+      }
+    }
+  }
+}
+
+- (void)tableView:(NSTableView *)aTableView hideRows:(NSIndexSet *)rows {
+  [rows enumerateIndexesUsingBlock:^(NSUInteger row, BOOL * _Nonnull stop) {
+    Jump *jump = jumpsArrayController.arrangedObjects[row];
+    
+    NSLog(@"%s: %ld (%@)", __FUNCTION__, row, jump.system.name);
+    
+    jump.hidden = !jump.hidden;
+  }];
+  
+  [MAIN_CONTEXT save];
+}
+
 - (IBAction)deleteMenuItemSelected:(id)sender {
-  [self tableView:jumpsTableView deleteRow:jumpsTableView.selectedRow];
+  [self tableView:jumpsTableView deleteRows:jumpsTableView.selectedRowIndexes];
+}
+
+- (IBAction)hideMenuItemSelected:(id)sender {
+  [self tableView:jumpsTableView hideRows:jumpsTableView.selectedRowIndexes];
 }
 
 #pragma mark -

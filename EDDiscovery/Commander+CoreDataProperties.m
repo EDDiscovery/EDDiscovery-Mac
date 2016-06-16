@@ -15,6 +15,7 @@
 
 @dynamic name;
 @dynamic netLogFilesDir;
+@dynamic screenshotsDir;
 @dynamic edsmAccount;
 @dynamic netLogFiles;
 

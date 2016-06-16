@@ -23,6 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (Commander *)createCommanderWithName:(NSString *)name;
 
 - (void)setNetLogFilesDir:(NSString *)newNetLogFilesDir completion:(void(^__nonnull)(void))completionBlock;
+- (void)setScreenshotsDir:(NSString *)newScreenshotsDir completion:(void(^__nonnull)(void))completionBlock;
+
 - (void)deleteCommander;
 
 @end

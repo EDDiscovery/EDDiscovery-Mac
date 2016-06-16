@@ -14,6 +14,8 @@
 #import "NetLogParser.h"
 #import "Jump.h"
 #import "EventLogger.h"
+#import "ScreenshotMonitor.h"
+#import "Image.h"
 
 #define ACTIVE_COMMANDER_KEY @"activeCommanderKey"
 
@@ -189,6 +191,42 @@ static Commander *activeCommander = nil;
     [self.edsmAccount syncJumpsWithEDSM:^{
       completionBlock();
     }];
+  }];
+}
+
+#pragma mark -
+#pragma mark screenshot dir changing
+
+- (void)setScreenshotsDir:(NSString *)newScreenshotsDir completion:(void(^__nonnull)(void))completionBlock {
+  NSAssert (NSThread.isMainThread, @"Must be on main thread");
+  
+  if (ARE_EQUAL(newScreenshotsDir, self.screenshotsDir)) {
+    completionBlock();
+    
+    return;
+  }
+  else if (self.screenshotsDir.length > 0) {
+    [[ScreenshotMonitor instanceOrNil:self] stopInstance];
+    
+    //wipe all NetLogFile entities for this commander
+    
+    NSArray *screenshots = [Image screenshotsForCommander:self];
+    
+    for (Image *screenshot in screenshots) {
+      [MAIN_CONTEXT deleteObject:screenshot];
+    }
+    
+    [MAIN_CONTEXT save];
+  }
+  
+  [self willChangeValueForKey:@"screenshotsDir"];
+  [self setPrimitiveValue:newScreenshotsDir forKey:@"screenshotsDir"];
+  [self didChangeValueForKey:@"screenshotsDir"];
+  
+  ScreenshotMonitor *screenshotMonitor = [ScreenshotMonitor createInstanceForCommander:self];
+  
+  [screenshotMonitor startInstance:^{
+    completionBlock();
   }];
 }
 

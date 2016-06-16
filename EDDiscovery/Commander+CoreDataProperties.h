@@ -17,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nullable, nonatomic, retain) NSString *name;
 @property (nullable, nonatomic, retain) NSString *netLogFilesDir;
+@property (nullable, nonatomic, retain) NSString *screenshotsDir;
 @property (nullable, nonatomic, retain) EDSM *edsmAccount;
 @property (nullable, nonatomic, retain) NSOrderedSet<NetLogFile *> *netLogFiles;
 

@@ -197,6 +197,14 @@ responseCallback:^(id output, NSError *error) {
   NSDate           *lastSyncDate = [NSUserDefaults.standardUserDefaults objectForKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
   NSDateComponents *dayComponent = [[NSDateComponents alloc] init];
   
+  //don't keep systems up to date, just perform initial download when app is first launched
+  
+  if (lastSyncDate != nil) {
+    response(@[], nil);
+    
+    return;
+  }
+  
   dayComponent.day = -6;
   
   NSCalendar *calendar = [NSCalendar currentCalendar];

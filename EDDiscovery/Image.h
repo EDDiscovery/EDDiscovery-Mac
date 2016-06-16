@@ -9,13 +9,19 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
+@class Commander;
 @class System;
+@class Jump;
 
 NS_ASSUME_NONNULL_BEGIN
 
+#define IMG_VOID_PREDICATE [NSPredicate predicateWithFormat:@"jump.edsm == nil && jump.edsm != nil"]
+#define IMG_CMDR_PREDICATE [NSPredicate predicateWithFormat:@"jump.edsm.commander.name == %@ OR jump.netLogFile.commander.name == %@", commander.name, commander.name]
+
 @interface Image : NSManagedObject
 
-// Insert code here to declare functionality of your managed object subclass
++ (NSArray *)screenshotsForCommander:(Commander *)commander;
++ (Image *)imageWithPath:(NSString *)path inContext:(NSManagedObjectContext *)context;
 
 @end
 

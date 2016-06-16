@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
-@class System, EDSM, NetLogFile, Commander;
+@class System, EDSM, NetLogFile, Commander, Image;
 
 NS_ASSUME_NONNULL_BEGIN
 

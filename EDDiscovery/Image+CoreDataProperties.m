@@ -2,7 +2,7 @@
 //  Image+CoreDataProperties.m
 //  EDDiscovery
 //
-//  Created by Michele Noberasco on 30/04/16.
+//  Created by thorin on 15/06/16.
 //  Copyright © 2016 Michele Noberasco. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
@@ -14,6 +14,7 @@
 @implementation Image (CoreDataProperties)
 
 @dynamic path;
-@dynamic system;
+@dynamic thumbnail;
+@dynamic jump;
 
 @end
