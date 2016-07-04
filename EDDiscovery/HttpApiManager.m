@@ -19,7 +19,7 @@ NSString* locale=nil;
   baseUrl=aBaseUrl;
 }
 
-+(void)callApi:(NSString*)apiName withMethod:(NSString*)aMethod progressCallBack:(ProgressBlock)progressCallback responseCallback:(void(^)(id response, NSError *error))responseCallback parametersCount:(NSInteger)count parameters:(va_list)valist
++(void)callApi:(NSString*)apiName concurrent:(BOOL)concurrent withMethod:(NSString*)aMethod progressCallBack:(ProgressBlock)progressCallback responseCallback:(void(^)(id response, NSError *error))responseCallback parametersCount:(NSInteger)count parameters:(va_list)valist
 {
   NSString* value1;
   NSString* value2;
@@ -59,14 +59,15 @@ NSString* locale=nil;
     request=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:[urlString stringByAppendingFormat:@"?%@",parameter]]];
   }
   
-  [self scheduleConnectionWithRequest:request progressCallback:progressCallback responseCallback:responseCallback];
+  [self scheduleConnectionWithRequest:request concurrent:concurrent progressCallback:progressCallback responseCallback:responseCallback];
 }
 
-+(void)callApi:(NSString*)apiName withMethod:(NSString*)aMethod progressCallBack:(ProgressBlock)progressCallback responseCallback:(void(^)(id response, NSError *error))responseCallback parameters:(NSInteger)count,...
++(void)callApi:(NSString*)apiName concurrent:(BOOL)concurrent withMethod:(NSString*)aMethod progressCallBack:(ProgressBlock)progressCallback responseCallback:(void(^)(id response, NSError *error))responseCallback parameters:(NSInteger)count,...
 {
   va_list args;
   va_start(args, count);
   [HttpApiManager callApi:apiName
+               concurrent:concurrent
                withMethod:aMethod
          progressCallBack:progressCallback
          responseCallback:responseCallback
@@ -74,7 +75,7 @@ NSString* locale=nil;
                parameters:args];
 }
 
-+(void)callApi:(NSString*)apiName progressCallBack:(ProgressBlock)progressCallback responseCallback:(void(^)(id response, NSError *error))responseCallback multipartsCount:(NSInteger)count multiparts:(va_list)valist
++(void)callApi:(NSString*)apiName concurrent:(BOOL)concurrent progressCallBack:(ProgressBlock)progressCallback responseCallback:(void(^)(id response, NSError *error))responseCallback multipartsCount:(NSInteger)count multiparts:(va_list)valist
 {
   NSString* value1=nil;
   NSString* value2=nil;
@@ -136,21 +137,22 @@ NSString* locale=nil;
   [request setValue:[NSString stringWithFormat:@"multipart/form-data; boundary=%@", BOUNDARY_TAG] forHTTPHeaderField:@"Content-Type"];
   [request setHTTPBody:postData];
   
-  [self scheduleConnectionWithRequest:request progressCallback:progressCallback responseCallback:responseCallback];
+  [self scheduleConnectionWithRequest:request concurrent:(BOOL)concurrent progressCallback:progressCallback responseCallback:responseCallback];
 }
 
-+(void)callApi:(NSString*)apiName progressCallBack:(ProgressBlock)progressCallback responseCallback:(void(^)(id response, NSError *error))responseCallback multiparts:(NSInteger)count,...
++(void)callApi:(NSString*)apiName concurrent:(BOOL)concurrent progressCallBack:(ProgressBlock)progressCallback responseCallback:(void(^)(id response, NSError *error))responseCallback multiparts:(NSInteger)count,...
 {
   va_list args;
   va_start(args, count);
   [HttpApiManager callApi:apiName
+               concurrent:concurrent
          progressCallBack:progressCallback
          responseCallback:responseCallback
           multipartsCount:count
                multiparts:args];
 }
 
-+(void)callApi:(NSString*)apiName withBody:(NSData*)aBody progressCallBack:(ProgressBlock)progressCallback responseCallback:(void(^)(id response, NSError *error))responseCallback {
++(void)callApi:(NSString*)apiName concurrent:(BOOL)concurrent withBody:(NSData*)aBody progressCallBack:(ProgressBlock)progressCallback responseCallback:(void(^)(id response, NSError *error))responseCallback {
   NSMutableString* urlString;
   if (apiName!=nil)
   {
@@ -169,14 +171,16 @@ NSString* locale=nil;
   [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
   [request setHTTPBody:aBody];
   
-  [self scheduleConnectionWithRequest:request progressCallback:progressCallback responseCallback:responseCallback];
+  [self scheduleConnectionWithRequest:request concurrent:concurrent progressCallback:progressCallback responseCallback:responseCallback];
 }
 
 +(void)scheduleConnectionWithRequest:(NSURLRequest *)request
+                          concurrent:(BOOL)concurrent
                     progressCallback:(ProgressBlock)progressCallback
                   responseCallback:(void(^)(id response, NSError *error))responseCallback {
 
   [NSURLConnection sendAsynchronousRequest:request
+                                concurrent:concurrent
                            progressHandler:progressCallback
                          completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *error) {
                            

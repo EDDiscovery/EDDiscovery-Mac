@@ -18,8 +18,8 @@
 
 +(void)setBaseUrl:(NSString*)aBaseUrl;
 
-+(void)callApi:(NSString*)apiName withBody:(NSData*)aBody progressCallBack:(ProgressBlock)progressCallback responseCallback:(void(^)(id response, NSError *error))responseCallback;
-+(void)callApi:(NSString*)apiName withMethod:(NSString*)aMethod progressCallBack:(ProgressBlock)progressCallback responseCallback:(void(^)(id response, NSError *error))responseCallback parameters:(NSInteger)count,...;
-+(void)callApi:(NSString*)apiName progressCallBack:(ProgressBlock)progressCallback responseCallback:(void(^)(id response, NSError *error))responseCallback multiparts:(NSInteger)count,...;
++(void)callApi:(NSString*)apiName concurrent:(BOOL)concurrent withBody:(NSData*)aBody progressCallBack:(ProgressBlock)progressCallback responseCallback:(void(^)(id response, NSError *error))responseCallback;
++(void)callApi:(NSString*)apiName concurrent:(BOOL)concurrent withMethod:(NSString*)aMethod progressCallBack:(ProgressBlock)progressCallback responseCallback:(void(^)(id response, NSError *error))responseCallback parameters:(NSInteger)count,...;
++(void)callApi:(NSString*)apiName concurrent:(BOOL)concurrent progressCallBack:(ProgressBlock)progressCallback responseCallback:(void(^)(id response, NSError *error))responseCallback multiparts:(NSInteger)count,...;
 
 @end

@@ -15,6 +15,7 @@ typedef void (^ProgressBlock)(long long downloaded, long long total);
 typedef void (^CompletionBlock)(NSHTTPURLResponse *response, NSData *data, NSError *error);
 
 + (void)sendAsynchronousRequest:(NSURLRequest *)request
+                     concurrent:(BOOL)concurrent
                 progressHandler:(ProgressBlock)progressHandler
               completionHandler:(CompletionBlock)completionHandler;
 

@@ -213,7 +213,7 @@
       }];
     }
     else if (error != nil) {
-      NSLog(@"%s: ERROR: %@", __FUNCTION__, error.localizedDescription);
+      [EventLogger addError:[NSString stringWithFormat:@"%@: %ld - %@", ([error.domain isEqualToString:@"EDDiscovery"]) ? @"ERROR from EDSM" : @"NETWORK ERROR", (long)error.code, error.localizedDescription]];
       
       resultBlock();
     }

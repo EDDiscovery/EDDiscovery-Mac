@@ -30,6 +30,7 @@
   [self setup];
   
   [self callApi:@"api-v1/system"
+     concurrent:YES
      withMethod:@"POST"
 progressCallBack:nil
 responseCallback:^(id data, NSError *error) {
@@ -93,6 +94,7 @@ responseCallback:^(id data, NSError *error) {
   NSData *data = [NSJSONSerialization dataWithJSONObject:dict options:0 error:nil];
   
   [self callApi:@"api-v1/submit-distances"
+     concurrent:YES
        withBody:data
 progressCallBack:nil
 responseCallback:^(id output, NSError *error) {
@@ -159,14 +161,15 @@ responseCallback:^(id output, NSError *error) {
   [self setup];
   
   [self callApi:@"dump/systemsWithCoordinates.json"
+     concurrent:NO
      withMethod:@"GET"
 progressCallBack:^(long long downloaded, long long total) {
   if (progress != nil) {
 #warning FIXME: making assumptions on nightly dump file size!
     //EDSM does not return expected content size of nightly dumps
-    //assume a size of 23 MB
+    //assume a size of 100 MB
     
-    total = 1024 * 1024 * 23;
+    total = 1024 * 1024 * 100;
   
     progress(downloaded, MAX(downloaded,total));
   }
@@ -194,23 +197,9 @@ responseCallback:^(id output, NSError *error) {
 }
 
 + (void)getSystemsInfoWithProgress:(ProgressBlock)progress response:(void(^)(NSArray *response, NSError *error))response {
-  NSDate           *lastSyncDate = [NSUserDefaults.standardUserDefaults objectForKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
-  NSDateComponents *dayComponent = [[NSDateComponents alloc] init];
+  NSDate *lastSyncDate = [NSUserDefaults.standardUserDefaults objectForKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
   
-  //don't keep systems up to date, just perform initial download when app is first launched
-  
-  if (lastSyncDate != nil) {
-    response(@[], nil);
-    
-    return;
-  }
-  
-  dayComponent.day = -6;
-  
-  NSCalendar *calendar = [NSCalendar currentCalendar];
-  NSDate     *minDate  = [calendar dateByAddingComponents:dayComponent toDate:NSDate.date options:0];
-  
-  if (lastSyncDate.timeIntervalSinceReferenceDate <= minDate.timeIntervalSinceReferenceDate) {
+  if (lastSyncDate == nil) {
     NSLog(@"Fetching nightly systems dump!");
     
     [self getNightlyDumpWithProgress:progress response:^(NSArray *output, NSError *error) {
@@ -228,7 +217,7 @@ responseCallback:^(id output, NSError *error) {
         
         [self getSystemsInfoWithProgress:nil response:^(NSArray *output2, NSError *error2) {
           NSMutableArray *array = [NSMutableArray arrayWithArray:output];
-
+          
           if ([output2 isKindOfClass:NSArray.class]) {
             [array addObjectsFromArray:output2];
           }
@@ -239,54 +228,129 @@ responseCallback:^(id output, NSError *error) {
     }];
   }
   else {
-    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    //perform delta queries in batches of 1 days
     
-    formatter.timeZone   = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
-    formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
+    NSDateComponents *dayComponent = [[NSDateComponents alloc] init];
     
-    NSString *from = [formatter stringFromDate:lastSyncDate];
+    dayComponent.day = 1;
     
-    lastSyncDate = NSDate.date;
+    NSCalendar         *calendar    = [NSCalendar currentCalendar];
+    NSDate             *fromDate    = lastSyncDate;
+    NSDate             *toDate      = [calendar dateByAddingComponents:dayComponent toDate:fromDate options:0];
+    NSDate             *currDate    = NSDate.date;
+    NSMutableArray     *systems     = [NSMutableArray array];
+    __block NSUInteger  numRequests = 1;
+    __block NSUInteger  numDone     = 0;
+    __block NSError    *error       = nil;
     
-    [self setup];
+    ProgressBlock progressBlock = ^void(long long downloaded, long long total) {
+      if (progress != nil) {
+        @synchronized (self.class) {
+          long long myTotal      = numRequests + numDone;
+          long long currProgress = numDone;
+          
+          progress(currProgress, myTotal);
+        }
+      }
+    };
     
-    [self callApi:@"api-v1/systems"
-       withMethod:@"GET"
- progressCallBack:progress
+    void (^responseBlock)(NSArray *, NSError *) = ^void(NSArray *output, NSError *err) {
+      @synchronized (self.class) {
+        if (err != nil) {
+          error = err;
+        }
+        else if ([output isKindOfClass:NSArray.class]) {
+          [systems addObjectsFromArray:output];
+        }
+        
+        numRequests--;
+        numDone++;
+        
+        if (numRequests == 0) {
+          if (error == nil) {
+            response(systems, nil);
+            
+            [NSUserDefaults.standardUserDefaults setObject:currDate forKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
+          }
+          else {
+            response(nil, error);
+          }
+        }
+      }
+    };
+    
+    while (toDate.timeIntervalSinceReferenceDate < currDate.timeIntervalSinceReferenceDate) {
+      @synchronized (self.class) {
+        numRequests++;
+      }
+      
+      [self getSystemsInfoFrom:fromDate
+                            to:toDate
+                      progress:progressBlock
+                      response:responseBlock];
+      
+      fromDate = toDate;
+      toDate   = [calendar dateByAddingComponents:dayComponent toDate:fromDate options:0];
+    }
+    
+    if (toDate.timeIntervalSinceReferenceDate > currDate.timeIntervalSinceReferenceDate) {
+      toDate = currDate;
+    }
+    
+    [self getSystemsInfoFrom:fromDate
+                          to:toDate
+                    progress:progressBlock
+                    response:responseBlock];
+  }
+}
+
++ (void)getSystemsInfoFrom:(NSDate *)fromDate to:(NSDate *)toDate progress:(ProgressBlock)progress response:(void(^)(NSArray *response, NSError *error))response {
+  NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+  
+  formatter.timeZone   = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
+  formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
+  
+  NSString *from = [formatter stringFromDate:fromDate];
+  NSString *to   = [formatter stringFromDate:toDate];
+  
+  NSLog(@"Fetching delta systems from %@ to %@!", from, to);
+  
+  [self setup];
+  
+  [self callApi:@"api-v1/systems"
+     concurrent:NO
+     withMethod:@"GET"
+progressCallBack:progress
 responseCallback:^(id output, NSError *error) {
+  
+  [Answers logCustomEventWithName:@"EDSM API call" customAttributes:@{@"API":@"api-v1/systems"}];
+  
+  //  NSLog(@"ERR: %@", error);
+  //  NSLog(@"RES: %@", response);
+  
+  if (error == nil) {
+    NSError *error   = nil;
+    NSArray *systems = [NSJSONSerialization JSONObjectWithData:output options:0 error:&error];
     
-    [Answers logCustomEventWithName:@"EDSM API call" customAttributes:@{@"API":@"api-v1/systems"}];
-    
-    //  NSLog(@"ERR: %@", error);
-    //  NSLog(@"RES: %@", response);
-    
-    if (error == nil) {
-      NSError *error   = nil;
-      NSArray *systems = [NSJSONSerialization JSONObjectWithData:output options:0 error:&error];
-      
-      if (![systems isKindOfClass:NSArray.class]) {
-        systems = nil;
-      }
-      
-      response(systems, error);
-      
-      if ([systems isKindOfClass:NSArray.class]) {
-        [NSUserDefaults.standardUserDefaults setObject:lastSyncDate forKey:EDSM_SYSTEM_UPDATE_TIMESTAMP];
-      }
+    if (![systems isKindOfClass:NSArray.class]) {
+      systems = nil;
     }
-    else {
-      response(nil, error);
-    }
+    
+    response(systems, error);
   }
-     parameters:4,
-   @"startdatetime", from, // <-- return only systems updated after this date
-   @"known",         @"1", // <-- return only systems with known coordinates
-   @"coords",        @"1", // <-- include system coordinates
- //@"distances",     @"1", // <-- include distances from other susyems
-   @"problems",      @"1"  // <-- include information about known errors
- //@"includeHidden", @"1"  // <-- include systems with wrong names or wrong distances
+  else {
+    response(nil, error);
+  }
+}
+     parameters:5,
+   @"startdatetime", from,   // <-- return only systems updated after this date
+   @"endDateTime",   to,     // <-- return only systems updated before this date
+   @"known",         @"1",   // <-- return only systems with known coordinates
+   @"coords",        @"1",   // <-- include system coordinates
+   //@"distances",     @"1", // <-- include distances from other susyems
+   @"problems",      @"1"    // <-- include information about known errors
+   //@"includeHidden", @"1"  // <-- include systems with wrong names or wrong distances
    ];
-  }
 }
 
 + (void)getJumpsForCommander:(Commander *)commander response:(void(^)(NSArray *jumps, NSError *error))response {
@@ -306,6 +370,7 @@ responseCallback:^(id output, NSError *error) {
   [self setup];
   
   [self callApi:@"api-logs-v1/get-logs"
+     concurrent:YES
      withMethod:@"POST"
 progressCallBack:nil
 responseCallback:^(id output, NSError *error) {
@@ -409,6 +474,7 @@ responseCallback:^(id output, NSError *error) {
   
   if (sendCoords == YES) {
     [self callApi:@"api-logs-v1/set-log"
+       concurrent:YES
        withMethod:@"POST"
  progressCallBack:nil
  responseCallback:responseBlock
@@ -426,6 +492,7 @@ responseCallback:^(id output, NSError *error) {
   }
   else {
     [self callApi:@"api-logs-v1/set-log"
+       concurrent:YES
        withMethod:@"POST"
  progressCallBack:nil
  responseCallback:responseBlock
@@ -457,6 +524,7 @@ responseCallback:^(id output, NSError *error) {
   [self setup];
   
   [self callApi:@"api-logs-v1/delete-log"
+     concurrent:YES
      withMethod:@"POST"
 progressCallBack:nil
 responseCallback:^(id output, NSError *error) {
@@ -514,6 +582,7 @@ responseCallback:^(id output, NSError *error) {
   [self setup];
   
   [self callApi:@"api-logs-v1/get-comments"
+     concurrent:YES
      withMethod:@"POST"
 progressCallBack:nil
 responseCallback:^(id output, NSError *error) {
@@ -570,6 +639,7 @@ responseCallback:^(id output, NSError *error) {
   [self setup];
   
   [self callApi:@"api-logs-v1/set-comment"
+     concurrent:YES
      withMethod:@"POST"
 progressCallBack:nil
 responseCallback:^(id output, NSError *error) {

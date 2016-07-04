@@ -18,7 +18,8 @@
 
 @implementation NSURLConnection (Progress)
 
-static NSOperationQueue *queue;
+static NSOperationQueue *concurrentQueue;
+static NSOperationQueue *serialQueue;
 static dispatch_once_t   onceToken;
 
 
@@ -29,15 +30,20 @@ static char responseKey;
 static char finishedKey;
 
 + (void)sendAsynchronousRequest:(NSURLRequest *)request
+                     concurrent:(BOOL)concurrent
                 progressHandler:(ProgressBlock)progressHandler
               completionHandler:(CompletionBlock)completionHandler {
   
   dispatch_once(&onceToken, ^{
-    queue = [[NSOperationQueue alloc] init];
+    concurrentQueue = [[NSOperationQueue alloc] init];
+    serialQueue     = [[NSOperationQueue alloc] init];
     
-    queue.maxConcurrentOperationCount = MAX_CONCURRENT_CONNECTIONS;
+    concurrentQueue.maxConcurrentOperationCount = MAX_CONCURRENT_CONNECTIONS;
+    serialQueue.maxConcurrentOperationCount     = 1;
   });
 
+  NSOperationQueue *queue = (concurrent) ? concurrentQueue : serialQueue;
+  
   [queue addOperationWithBlock:^{
     NSRunLoop       *runLoop  = [NSRunLoop currentRunLoop];
     NSMutableData   *data     = [NSMutableData data];
