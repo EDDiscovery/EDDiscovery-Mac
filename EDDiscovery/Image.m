@@ -57,14 +57,6 @@
     
     NSAssert1(error == nil, @"could not execute fetch request: %@", error);
     NSAssert2(array.count <= 1, @"this query should return at maximum 1 element: got %lu instead (path %@)", (unsigned long)array.count, path);
-    
-//    if (array.count > 1) {
-//      for (Image *image in array) {
-//        [context deleteObject:image];
-//      }
-//      
-//      array = nil;
-//    }
   }];
   
   return array.lastObject;
