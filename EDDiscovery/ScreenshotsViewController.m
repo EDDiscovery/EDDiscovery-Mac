@@ -45,7 +45,15 @@
   
   [self showScreenshots];
   
+  [NSWorkspace.sharedWorkspace.notificationCenter addObserver:self selector:@selector(reloadScreenshots) name:SCREENSHOTS_CHANGED_NOTIFICATION object:nil];
+  
   [Answers logCustomEventWithName:@"Screen view" customAttributes:@{@"screen":NSStringFromClass(self.class)}];
+}
+
+- (void)viewDidDisappear {
+  [super viewDidDisappear];
+  
+  [NSWorkspace.sharedWorkspace.notificationCenter removeObserver:self name:SCREENSHOTS_CHANGED_NOTIFICATION object:nil];
 }
 
 #pragma mark -
@@ -66,11 +74,7 @@
 - (NSCollectionViewItem *)collectionView:(NSCollectionView *)collectionView itemForRepresentedObjectAtIndexPath:(NSIndexPath *)indexPath {
   NSCollectionViewItem *item = [collectionView makeItemWithIdentifier:@"ImaceCell" forIndexPath:indexPath];
   
-  NSLog(@"%s: %@", __FUNCTION__, (item != nil) ? @"YES" : @"NO");
-  
   item.representedObject = screenshotsArrayController.arrangedObjects[indexPath.item];
-  
-  NSLog(@"%s: %@", __FUNCTION__, ((Image *)screenshotsArrayController.arrangedObjects[indexPath.item]).path);
   
   return item;
 }
@@ -178,7 +182,7 @@
   if (name.length > 0) {
     screenshotsDirTextField.stringValue = commander.screenshotsDir;
     
-    screenshotsArrayController.fetchPredicate = IMG_CMDR_PREDICATE;
+    screenshotsArrayController.fetchPredicate = IMG_CMDR_PREDICATE_THUMB;
     
     [screenshotsArrayController fetchWithRequest:nil merge:NO error:nil];
     
@@ -190,6 +194,17 @@
   screenshotsArrayController.fetchPredicate = IMG_VOID_PREDICATE;
   
   [screenshotsCollectionView reloadData];
+}
+
+- (void)reloadScreenshots {
+  Commander *commander = Commander.activeCommander;
+  NSString  *name      = commander.name;
+  
+  if (name.length > 0) {
+    [screenshotsArrayController fetchWithRequest:nil merge:NO error:nil];
+  
+    [screenshotsCollectionView reloadData];
+  }
 }
 
 @end

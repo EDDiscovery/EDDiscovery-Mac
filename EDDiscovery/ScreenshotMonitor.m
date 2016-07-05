@@ -85,7 +85,7 @@ static ScreenshotMonitor *instance = nil;
   return nil;
 }
 
-- (void)startInstance:(void(^__nonnull)(void))completionBlock {
+- (void)startInstance:(void(^__nullable)(void))completionBlock {
   if (running == NO) {
     LoadingViewController.textField.stringValue = NSLocalizedString(@"Parsing screenshots dir", @"");
     
@@ -98,12 +98,14 @@ static ScreenshotMonitor *instance = nil;
     [WORK_CONTEXT performBlock:^{
       [self scanScreenshotsDir];
       
-      [MAIN_CONTEXT performBlock:^{
-        completionBlock();
-      }];
+      if (completionBlock != nil) {
+        [MAIN_CONTEXT performBlock:^{
+          completionBlock();
+        }];
+      }
     }];
   }
-  else {
+  else if (completionBlock != nil) {
     completionBlock();
   }
 }
@@ -139,30 +141,28 @@ static ScreenshotMonitor *instance = nil;
 #pragma mark VDKQueueDelegate delegate
 
 - (void)VDKQueue:(VDKQueue *)aQueue receivedNotification:(NSString *)nm forPath:(NSString *)path {
-  [WORK_CONTEXT performBlock:^{
-    if ([path isEqualToString:screenshotsDir]) {
-      [self scanScreenshotsDir];
-    }
-  }];
+  if ([path isEqualToString:screenshotsDir]) {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(startScanScreenshotsDir) object:nil];
+    
+    [self performSelector:@selector(startScanScreenshotsDir) withObject:nil afterDelay:5.0];
+  }
 }
 
 #pragma mark -
 #pragma mark screenshots directory scanning
 
+- (void)startScanScreenshotsDir {
+  [WORK_CONTEXT performBlock:^{
+    [self scanScreenshotsDir];
+  }];
+}
+
 - (void)scanScreenshotsDir {
 #define FILE_KEY @"file"
 #define ATTR_KEY @"attr"
   
-  NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:screenshotsDir error:nil];
-  
-  NSMutableArray *screenshotFiles = [NSMutableArray array];
-  
-  for (NSString *file in files) {
-    if ([file rangeOfString:@"Screenshot_"].location == 0 || [file rangeOfString:@"HighResScreenShot_"].location == 0) {
-      [screenshotFiles addObject:file];
-    }
-  }
-  
+  Commander      *commander            = [WORK_CONTEXT existingObjectWithID:commanderID error:nil];
+  NSArray        *screenshotFiles      = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:screenshotsDir error:nil];
   NSMutableArray *screenshotFilesAttrs = [NSMutableArray arrayWithCapacity:screenshotFiles.count];
   
   for (NSString *file in screenshotFiles) {
@@ -177,12 +177,11 @@ static ScreenshotMonitor *instance = nil;
   // sort
   [screenshotFilesAttrs sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:[NSString stringWithFormat:@"%@.%@", ATTR_KEY, NSFileModificationDate] ascending:YES]]];
   
-  //parse all netlog files
+  //parse all screenshot files
   if (screenshotFilesAttrs.count > 0) {
-    Commander      *commander  = [WORK_CONTEXT existingObjectWithID:commanderID error:nil];
-    NSTimeInterval  ti         = [NSDate timeIntervalSinceReferenceDate];
-    NSMutableArray *jumps      = [[Jump allJumpsOfCommander:commander] mutableCopy];
-    NSUInteger      numParsed  = 0;
+    NSTimeInterval  ti        = [NSDate timeIntervalSinceReferenceDate];
+    NSMutableArray *jumps     = [[Jump allJumpsOfCommander:commander] mutableCopy];
+    NSUInteger      numParsed = 0;
     
     double progressValue = 0;
     
@@ -197,10 +196,10 @@ static ScreenshotMonitor *instance = nil;
       NSString *currFilePath = [screenshotsDir stringByAppendingPathComponent:screenshot];
       Image    *image        = [Image imageWithPath:currFilePath inContext:WORK_CONTEXT];
       
-      NSLog(@"%@: %@", screenshot, date);
-      
       if (image == nil) {
         NSString *className = NSStringFromClass(Image.class);
+        
+        NSLog(@"%@: %@", date, screenshot);
         
         image = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:WORK_CONTEXT];
         
@@ -226,10 +225,24 @@ static ScreenshotMonitor *instance = nil;
       }];
     }
     
-    [EventLogger addLog:[NSString stringWithFormat:@"Parsed %ld screenshots in %.1f seconds", (long)numParsed, ti]];
+    [EventLogger addLog:[NSString stringWithFormat:@"Parsed %ld screenshots in %.1f seconds", (long)numParsed, ([NSDate timeIntervalSinceReferenceDate] - ti)]];
+  }
+  
+  //purge no-longer existing screenshots
+  
+  NSArray *screenshots = [Image screenshotsForCommander:commander];
+  
+  for (Image *screenshot in screenshots) {
+    if ([NSFileManager.defaultManager fileExistsAtPath:screenshot.path] == NO) {
+      [WORK_CONTEXT deleteObject:screenshot];
+    }
   }
   
   [WORK_CONTEXT save];
+  
+  [MAIN_CONTEXT performBlock:^{
+    [NSWorkspace.sharedWorkspace.notificationCenter postNotificationName:SCREENSHOTS_CHANGED_NOTIFICATION object:self];
+  }];
 }
 
 - (Jump *)jumpForDate:(NSTimeInterval)date jumps:(NSMutableArray <Jump *> *)jumps {
@@ -265,16 +278,16 @@ static ScreenshotMonitor *instance = nil;
     formatter.dateFormat = @"yyyyMMdd-HHmmss";
   });
   
-  NSString *fileName = [NSString stringWithFormat:@"%@ - %@.png", [formatter stringFromDate:date], image.jump.system.name];
+  NSImage *img = [[NSImage alloc] initWithContentsOfFile:image.path];
   
-  if (![image.path.lastPathComponent isEqualToString:fileName]) {
-    NSImage *img = [[NSImage alloc] initWithContentsOfFile:image.path];
+  if (img != nil) {
+    NSString *fileName = [NSString stringWithFormat:@"%@ - %@.png", [formatter stringFromDate:date], image.jump.system.name];
     
-    NSLog(@"%@: renaming %@ to %@", (img != nil) ? @"YES" : @"NO", image.path.lastPathComponent, fileName);
-    
-    if (img != nil) {
+    if (![image.path.lastPathComponent isEqualToString:fileName]) {
       CGImageRef        cgRef  = [img CGImageForProposedRect:NULL context:nil hints:nil];
       NSBitmapImageRep *newRep = [[NSBitmapImageRep alloc] initWithCGImage:cgRef];
+      
+      NSLog(@"renaming %@ to %@", image.path.lastPathComponent, fileName);
       
       newRep.size = img.size;
       
@@ -285,28 +298,35 @@ static ScreenshotMonitor *instance = nil;
       [[NSFileManager defaultManager] removeItemAtPath:image.path error:nil];
       
       image.path = newPath;
-      
-      CGFloat  w     = img.size.width;
-      CGFloat  h     = img.size.height;
-      CGFloat *major = (w >= h) ? &w : &h;
-      CGFloat *minor = (w  < h) ? &w : &h;
-      CGFloat  ratio = *major / *minor;
-      
-      *major = 300.0;
-      *minor = *major / ratio;
-      
-      NSImage *thumbnail = [self imageResize:img newSize:NSMakeSize(w, h)];
-      
-      cgRef  = [thumbnail CGImageForProposedRect:NULL context:nil hints:nil];
-      newRep = [[NSBitmapImageRep alloc] initWithCGImage:cgRef];
-      
-      newRep.size = thumbnail.size;
-      
-      pngData = [newRep representationUsingType:NSPNGFileType properties:@{}];
-      
-      image.thumbnail = pngData;
     }
+
+    image.thumbnail = [self thumbnailForImage:img];
   }
+}
+
+- (NSData *)thumbnailForImage:(NSImage *)image {
+  NSData *thumbnail = nil;
+  
+  if (image != nil) {
+    CGFloat  w     = image.size.width;
+    CGFloat  h     = image.size.height;
+    CGFloat *major = (w >= h) ? &w : &h;
+    CGFloat *minor = (w  < h) ? &w : &h;
+    CGFloat  ratio = *major / *minor;
+    
+    *major = 300.0;
+    *minor = *major / ratio;
+    
+    NSImage          *thumb  = [self imageResize:image newSize:NSMakeSize(w, h)];
+    CGImageRef        cgRef  = [thumb CGImageForProposedRect:NULL context:nil hints:nil];
+    NSBitmapImageRep *newRep = [[NSBitmapImageRep alloc] initWithCGImage:cgRef];
+    
+    newRep.size = thumb.size;
+    
+    thumbnail = [newRep representationUsingType:NSPNGFileType properties:@{}];
+  }
+  
+  return thumbnail;
 }
 
 - (NSImage *)imageResize:(NSImage*)anImage newSize:(NSSize)newSize {

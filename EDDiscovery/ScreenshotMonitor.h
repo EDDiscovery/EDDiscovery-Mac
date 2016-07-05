@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 #define DEFAULT_SCREENSHOTS_DIR [NSSearchPathForDirectoriesInDomains(NSPicturesDirectory, NSUserDomainMask, YES).firstObject stringByAppendingPathComponent:@"Frontier Developments/Elite Dangerous"]
+#define SCREENSHOTS_CHANGED_NOTIFICATION @"screenshotsChangedNotification"
 
 @class Commander;
 
@@ -17,7 +18,7 @@
 + (nullable ScreenshotMonitor *)instanceOrNil:(Commander * __nonnull)commander;
 + (nullable ScreenshotMonitor *)createInstanceForCommander:(Commander * __nonnull)commander;
 
-- (void)startInstance:(void(^__nonnull)(void))completionBlock;
+- (void)startInstance:(void(^__nullable)(void))completionBlock;
 - (void)stopInstance;
 
 @end

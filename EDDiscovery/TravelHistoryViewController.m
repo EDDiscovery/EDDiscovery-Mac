@@ -16,6 +16,7 @@
 #import "Distance.h"
 #import "Commander.h"
 #import "LoadingViewController.h"
+#import "ScreenshotMonitor.h"
 
 @interface TravelHistoryViewController() <NSTableViewDataSource, NSTabViewDelegate>
 @end
@@ -526,7 +527,10 @@
       [self showJumps];
     }
     else {
-      NetLogParser *netLogParser = [NetLogParser createInstanceForCommander:commander];
+      NetLogParser      *netLogParser      = [NetLogParser createInstanceForCommander:commander];
+      ScreenshotMonitor *screenshotMonitor = [ScreenshotMonitor createInstanceForCommander:commander];
+      
+      [screenshotMonitor startInstance:nil];
       
       if (netLogParser == nil) {
         [self ESDMAccountChanged:nil];
