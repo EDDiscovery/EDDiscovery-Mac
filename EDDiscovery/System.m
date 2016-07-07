@@ -131,20 +131,10 @@
       [EventLogger addLog:[NSString stringWithFormat:@"Received %@ new systems from EDSM", [numberFormatter stringFromNumber:@(response.count)]]];
       
       [WORK_CONTEXT performBlock:^{
-        NSMutableArray *systems    = (response.count < 1000) ? nil : [[System allSystemsInContext:WORK_CONTEXT] mutableCopy];
-        NSMutableArray *names      = (response.count < 1000) ? nil : [NSMutableArray arrayWithCapacity:systems.count];
         NSUInteger      numAdded   = 0;
         NSUInteger      numUpdated = 0;
         NSTimeInterval  ti         = [NSDate timeIntervalSinceReferenceDate];
         NSString       *prevName   = 0;
-        
-        if (systems != nil) {
-          NSLog(@"Have %ld systems in local DB", (long)systems.count);
-          
-          for (System *aSystem in systems) {
-            [names addObject:aSystem.name];
-          }
-        }
         
         NSArray *responseSystems = [response sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
         
@@ -158,21 +148,7 @@
           NSString *name = systemData[@"name"];
           
           if (name.length > 0 && ![prevName isEqualToString:name]) {
-            System *system = nil;
-            
-            if (systems == nil) {
-              system = [System systemWithName:name inContext:WORK_CONTEXT];
-            }
-            else {
-              NSUInteger idx = [names indexOfObject:name];
-              
-              if (idx != NSNotFound) {
-                system = systems[idx];
-                
-                [systems removeObjectAtIndex:idx];
-                [names removeObjectAtIndex:idx];
-              }
-            }
+            System *system = [System systemWithName:name inContext:WORK_CONTEXT];
             
             if (system == nil) {
               NSString *className = NSStringFromClass(System.class);
