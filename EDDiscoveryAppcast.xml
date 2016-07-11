@@ -7,6 +7,26 @@
     <language>en</language>
 
       <item>
+        <title>Version 1.8</title>
+        <description>
+          <![CDATA[
+            <ul>
+              <li>Added screenshots management with auto-conversion to PNG and auto-renaming to timestamp and system name.</li>
+              <li>Added ability to see distance from current system to any selected system with known coordinates.</li>
+              <li>Added ability to hide / unhide jumps from the 2D map (by right-clicking on them from the travel history and selecting the relevant action).</li>
+              <li>Improved systems update mechanism.</li>
+            </ul>
+          ]]>
+        </description>
+        <pubDate>Mon, 11 Jul 2016 12:30:00 +0000</pubDate>
+        <enclosure url="https://github.com/EDDiscovery/EDDiscovery-Mac/releases/download/Release-1.8/EDDiscovery-1.8.dmg"
+                   sparkle:version="1.8"
+                   length="4261831"
+                   type="application/x-apple-diskimage"
+                   sparkle:dsaSignature="MCwCFDBPZZ466Uf6vWwLleQR4h8U5Oy5AhRqKEd0Zvo27CeTS+x2oOW2icHnug==" />
+      </item>
+
+      <item>
         <title>Version 1.7</title>
         <description>
           <![CDATA[
