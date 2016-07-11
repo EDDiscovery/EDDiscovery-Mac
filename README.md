@@ -1,8 +1,6 @@
 # EDDiscovery-Mac
 Mac version of EDDiscovery
 
-This is a work in progress.
-
 Needless to say, you need to enable verbose logging on your ED installation.
 
 At first launch, you should set:
@@ -43,7 +41,12 @@ UI side, at present you can:
 - trilaterate systems by adding distances to system with known coordinates
 - submit distances to EDSM
 - see a 2D map of your travel history, with markers for systems with user notes
+- see a 2D map of your travel history, with markers for systems with user notes
+- configure the screenshots dir for your ED installation
 
-TODO:
-- screenshots management
-- ...
+If you choose to configure the screenshots dir, EDDiscovery will:
+- parse the contents and the directory
+- match them against your travel history
+- rename the files in PNG format, using timestamp and system name as file names
+- monitor the directory for changes and manage newly added files accordingly
+- display miniatures of the screenshots from within EDDiscovery
