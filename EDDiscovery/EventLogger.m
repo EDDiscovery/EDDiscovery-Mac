@@ -65,6 +65,20 @@
   }
 }
 
++ (NSNumberFormatter *)loggingNumberFormatter {
+  static NSNumberFormatter *numberFormatter = nil;
+  static dispatch_once_t    onceToken;
+  
+  dispatch_once(&onceToken, ^{
+    numberFormatter = [[NSNumberFormatter alloc] init];
+    
+    numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
+    numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
+  });
+  
+  return numberFormatter;
+}
+
 #pragma mark -
 #pragma mark user-visible debug logging
 

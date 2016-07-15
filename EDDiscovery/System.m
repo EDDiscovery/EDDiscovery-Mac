@@ -52,12 +52,7 @@
     
     NSAssert1(error == nil, @"could not execute fetch request: %@", error);
     
-    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
-    
-    numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
-    numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
-    
-    NSString *msg = [NSString stringWithFormat:@"DB contains %@ systems (%@ with known coords)", [numberFormatter stringFromNumber:@(countTot)], [numberFormatter stringFromNumber:@(countCoords)]];
+    NSString *msg = [NSString stringWithFormat:@"DB contains %@ systems (%@ with known coords)", FORMAT(countTot), FORMAT(countCoords)];
     
     [EventLogger addLog:msg];
   }];
@@ -123,12 +118,7 @@
   }
                                     response:^(NSArray *response, NSError *error) {
     if (response != nil) {
-      NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
-      
-      numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
-      numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
-
-      [EventLogger addLog:[NSString stringWithFormat:@"Received %@ new systems from EDSM", [numberFormatter stringFromNumber:@(response.count)]]];
+      [EventLogger addLog:[NSString stringWithFormat:@"Received %@ new systems from EDSM", FORMAT(response.count)]];
       
       [WORK_CONTEXT performBlock:^{
         NSUInteger      numAdded   = 0;
@@ -166,7 +156,7 @@
             [system parseEDSMData:systemData parseDistances:NO save:NO];
             
             if (((numAdded % 1000) == 0 && numAdded != 0) || ((numUpdated % 1000) == 0 && numUpdated != 0)) {
-              [EventLogger addLog:[NSString stringWithFormat:@"Added %ld, updated %ld systems", (long)numAdded, (long)numUpdated]];
+              [EventLogger addLog:[NSString stringWithFormat:@"Added %@, updated %@ systems", FORMAT(numAdded), FORMAT(numUpdated)]];
             }
             
             [MAIN_CONTEXT performBlock:^{
@@ -179,7 +169,7 @@
         
         [WORK_CONTEXT save];
         
-        [EventLogger addLog:[NSString stringWithFormat:@"Added %ld, updated %ld systems in %.1f seconds", (long)numAdded, (long)numUpdated, ([NSDate timeIntervalSinceReferenceDate] - ti)]];
+        [EventLogger addLog:[NSString stringWithFormat:@"Added %@, updated %@ systems in %.1f seconds", FORMAT(numAdded), FORMAT(numUpdated), ([NSDate timeIntervalSinceReferenceDate] - ti)]];
         
         [System printSystemStatsInContext:WORK_CONTEXT];
         

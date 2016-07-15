@@ -68,12 +68,7 @@
                                   return;
                                 }
     
-                                NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
-                                
-                                numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
-                                numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
-                                
-                                [EventLogger addLog:[NSString stringWithFormat:@"Received %@ jumps from EDSM", [numberFormatter stringFromNumber:@(travelLogs.count)]]];
+                                [EventLogger addLog:[NSString stringWithFormat:@"Received %@ jumps from EDSM", FORMAT(travelLogs.count)]];
                                 
                                 NSManagedObjectID *edsmID = self.objectID;
                                 
@@ -173,7 +168,7 @@
 - (void)parseJumpsFromEDSM:(NSArray *)jumps {
   NSAssert([self.managedObjectContext isEqual:WORK_CONTEXT], @"Wrong context!");
   
-  NSLog(@"Received %ld new jumps from EDSM", (long)jumps.count);
+  NSLog(@"Received %@ new jumps from EDSM", FORMAT(jumps.count));
   
   if (jumps.count > 0) {
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
@@ -232,12 +227,7 @@
     
     [WORK_CONTEXT save];
     
-    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
-    
-    numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
-    numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
-    
-    [EventLogger addLog:[NSString stringWithFormat:@"Parsed %@ new jumps from EDSM", [numberFormatter stringFromNumber:@(jumps.count)]]];
+    [EventLogger addLog:[NSString stringWithFormat:@"Parsed %@ new jumps from EDSM", FORMAT(jumps.count)]];
   }
 }
 

@@ -59,14 +59,9 @@
     
     dateTimeFormatter.dateFormat = @"yyyy-MM-dd";
     
-    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
-    
-    numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
-    numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
-    
     NSString *from = [dateTimeFormatter stringFromDate:[NSDate dateWithTimeIntervalSinceReferenceDate:start]];
     NSString *to   = [dateTimeFormatter stringFromDate:[NSDate dateWithTimeIntervalSinceReferenceDate:end]];
-    NSString *msg  = [NSString stringWithFormat:@"DB contains %@ jumps from %@ to %@", [numberFormatter stringFromNumber:@(count)], from, to];
+    NSString *msg  = [NSString stringWithFormat:@"DB contains %@ jumps from %@ to %@", FORMAT(count), from, to];
     
     [EventLogger addLog:msg];
   }];

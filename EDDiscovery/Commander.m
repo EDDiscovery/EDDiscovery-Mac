@@ -171,12 +171,7 @@ static Commander *activeCommander = nil;
     
     [MAIN_CONTEXT save];
     
-    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
-    
-    numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
-    numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
-
-    [EventLogger addLog:[NSString stringWithFormat:@"Deleted %@ jumps from travel history", [numberFormatter stringFromNumber:@(numJumps)]]];
+    [EventLogger addLog:[NSString stringWithFormat:@"Deleted %@ jumps from travel history", FORMAT(numJumps)]];
     
     NSLog(@"Deleted %ld netlog file records", (long)netLogFiles.count);
   }
@@ -244,7 +239,7 @@ static Commander *activeCommander = nil;
     [jump.managedObjectContext deleteObject:jump];
   }
 
-  NSLog(@"Deleted %ld jumps from travel history", (long)jumps.count);
+  NSLog(@"Deleted %@ jumps from travel history", FORMAT(jumps.count));
   
   self.edsmAccount.apiKey = nil;
   

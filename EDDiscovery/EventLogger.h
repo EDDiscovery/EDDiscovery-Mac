@@ -19,6 +19,8 @@
 + (void)addLog:(NSString *)msg;
 + (void)addLog:(NSString *)msg timestamp:(BOOL)timestamp newline:(BOOL)newline;
 
++ (NSNumberFormatter *)loggingNumberFormatter;
+
 @property(nonatomic, strong)   NSTextView *textView;
 @property(nonatomic, readonly) NSString   *currLine;
 

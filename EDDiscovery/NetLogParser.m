@@ -175,12 +175,7 @@ static NetLogParser *instance = nil;
   NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:netLogFilesDir error:nil];
   
   if (firstRun) {
-    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
-    
-    numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
-    numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
-    
-    [EventLogger addLog:[NSString stringWithFormat:@"Have %@ files in log directory", [numberFormatter stringFromNumber:@(files.count)]]];
+    [EventLogger addLog:[NSString stringWithFormat:@"Have %@ files in log directory", FORMAT(files.count)]];
   }
   
   NSMutableArray *netLogFiles = [NSMutableArray array];
@@ -192,12 +187,7 @@ static NetLogParser *instance = nil;
   }
   
   if (firstRun) {
-    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
-    
-    numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
-    numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
-    
-    [EventLogger addLog:[NSString stringWithFormat:@"Have %@ netLog files in log directory", [numberFormatter stringFromNumber:@(netLogFiles.count)]]];
+    [EventLogger addLog:[NSString stringWithFormat:@"Have %@ netLog files in log directory", FORMAT(netLogFiles.count)]];
   }
   
   NSMutableArray *netLogsFilesAttrs = [NSMutableArray arrayWithCapacity:netLogFiles.count];
@@ -289,12 +279,7 @@ static NetLogParser *instance = nil;
       if (numParsed > 1) {
         ti = [NSDate timeIntervalSinceReferenceDate] - ti;
         
-        NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
-        
-        numberFormatter.formatterBehavior = NSNumberFormatterBehavior10_4;
-        numberFormatter.numberStyle       = NSNumberFormatterDecimalStyle;
-        
-        [EventLogger addLog:[NSString stringWithFormat:@"Parsed %@ jumps from %@ netLog files in %.1f seconds", [numberFormatter stringFromNumber:@(numJumps)], [numberFormatter stringFromNumber:@(numParsed)], ti]];
+        [EventLogger addLog:[NSString stringWithFormat:@"Parsed %@ jumps from %@ netLog files in %.1f seconds", FORMAT(numJumps), FORMAT(numParsed), ti]];
         
         [Answers logCustomEventWithName:@"NETLOG parse" customAttributes:@{@"jumps":@(numJumps),@"files":@(numParsed)}];
       }

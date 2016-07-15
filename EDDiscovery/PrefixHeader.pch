@@ -23,4 +23,7 @@
 #define ARE_EQUAL(A, B) (BOOL)((A == nil && B == nil) || ([A isEqual:B] == YES))
 #define NEW_JUMP_NOTIFICATION @"newJumpNotification"
 
+#define NUMBER_FORMATTER EventLogger.loggingNumberFormatter
+#define FORMAT(x) [NUMBER_FORMATTER stringFromNumber:@(x)]
+
 #endif /* PrefixHeader_pch */
