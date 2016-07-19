@@ -266,6 +266,13 @@ responseCallback:^(id output, NSError *error) {
         numRequests--;
         numDone++;
         
+        if (progress != nil) {
+          long long myTotal      = numRequests + numDone;
+          long long currProgress = numDone;
+          
+          progress(currProgress, myTotal);
+        }
+        
         if (numRequests == 0) {
           if (error == nil) {
             response(systems, nil);

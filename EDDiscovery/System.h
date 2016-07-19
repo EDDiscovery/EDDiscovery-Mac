@@ -18,6 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface System : NSManagedObject
 
++ (NSArray *)systemsWithNames:(NSOrderedSet *)names inContext:(NSManagedObjectContext *)context;
 + (NSArray *)allSystemsInContext:(NSManagedObjectContext *)context;
 + (System *)systemWithName:(NSString *)name inContext:(NSManagedObjectContext *)context;
 + (void)updateSystemsFromEDSM:(void(^)(void))response;

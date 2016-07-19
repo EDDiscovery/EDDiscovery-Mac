@@ -78,6 +78,27 @@
   return array;
 }
 
++ (NSArray *)systemsWithNames:(NSOrderedSet *)names inContext:(NSManagedObjectContext *)context {
+  __block NSArray *array = nil;
+  
+  [context performBlockAndWait:^{
+    NSString            *className = NSStringFromClass([System class]);
+    NSFetchRequest      *request   = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
+    NSError             *error     = nil;
+    
+    request.entity                 = entity;
+    request.returnsObjectsAsFaults = NO;
+    request.predicate              = [NSPredicate predicateWithFormat:@"name IN %@", names];
+    request.sortDescriptors        = @[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]];
+    request.includesPendingChanges = YES;
+    
+    array = [context executeFetchRequest:request error:&error];
+  }];
+  
+  return array;
+}
+
 + (System *)systemWithName:(NSString *)name inContext:(NSManagedObjectContext *)context {
   __block NSArray *array = nil;
   
@@ -121,12 +142,28 @@
       [EventLogger addLog:[NSString stringWithFormat:@"Received %@ new systems from EDSM", FORMAT(response.count)]];
       
       [WORK_CONTEXT performBlock:^{
-        NSUInteger      numAdded   = 0;
-        NSUInteger      numUpdated = 0;
-        NSTimeInterval  ti         = [NSDate timeIntervalSinceReferenceDate];
-        NSString       *prevName   = 0;
+        NSUInteger           numAdded        = 0;
+        NSUInteger           numUpdated      = 0;
+        NSTimeInterval       ti              = [NSDate timeIntervalSinceReferenceDate];
+        NSArray             *responseSystems = [response sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
+        NSMutableOrderedSet *responseNames   = [NSMutableOrderedSet orderedSetWithCapacity:responseSystems.count];
+        NSArray             *localSystems    = nil;
+        NSUInteger           idx             = 0;
+        NSUInteger           progress        = 0;
+        NSUInteger           step            = (responseSystems.count < 100) ? 1 : (responseSystems.count < 1000) ? 10 : 100;
+        NSString            *name            = nil;
+        NSString            *prevName        = nil;
+        NSString            *className       = NSStringFromClass(System.class);
         
-        NSArray *responseSystems = [response sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
+        for (NSDictionary *systemData in responseSystems) {
+          name = systemData[@"name"];
+          
+          if (name.length > 0) {
+            [responseNames addObject:name];
+          }
+        }
+        
+        localSystems = [System systemsWithNames:responseNames inContext:WORK_CONTEXT];
         
         [MAIN_CONTEXT performBlock:^{
           LoadingViewController.progressIndicator.indeterminate = NO;
@@ -135,22 +172,21 @@
         }];
 
         for (NSDictionary *systemData in responseSystems) {
-          NSString *name = systemData[@"name"];
+          name = systemData[@"name"];
           
           if (name.length > 0 && ![prevName isEqualToString:name]) {
-            System *system = [System systemWithName:name inContext:WORK_CONTEXT];
+            System *system = (idx >= localSystems.count) ? nil : localSystems[idx];
             
-            if (system == nil) {
-              NSString *className = NSStringFromClass(System.class);
-              
+            if ([system.name isEqualToString:name]) {
+              idx++;
+              numUpdated++;
+            }
+            else {
               system = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:WORK_CONTEXT];
               
               system.name = name;
               
               numAdded++;
-            }
-            else {
-              numUpdated++;
             }
             
             [system parseEDSMData:systemData parseDistances:NO save:NO];
@@ -159,9 +195,11 @@
               [EventLogger addLog:[NSString stringWithFormat:@"Added %@, updated %@ systems", FORMAT(numAdded), FORMAT(numUpdated)]];
             }
             
-            [MAIN_CONTEXT performBlock:^{
-              LoadingViewController.progressIndicator.doubleValue++;
-            }];
+            if ((progress++ % step) == 0) {
+              [MAIN_CONTEXT performBlock:^{
+                LoadingViewController.progressIndicator.doubleValue = progress;
+              }];
+            }
             
             prevName = name;
           }
