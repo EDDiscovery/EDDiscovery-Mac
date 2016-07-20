@@ -6,6 +6,8 @@
 //  Copyright © 2016 Michele Noberasco. All rights reserved.
 //
 
+#import <objc/runtime.h>
+
 #import "Image.h"
 #import "System.h"
 #import "Commander.h"
@@ -60,6 +62,24 @@
   }];
   
   return array.lastObject;
+}
+
+- (NSURL *)previewItemURL {
+  static char dataKey;
+  
+  NSURL *url = objc_getAssociatedObject(self, &dataKey);
+  
+  if (url == nil) {
+    url = [NSURL fileURLWithPath:self.path];
+    
+    objc_setAssociatedObject(self, &dataKey, url, OBJC_ASSOCIATION_RETAIN);
+  }
+  
+  return url;
+}
+
+- (NSString *)previewItemTitle {
+  return self.path;
 }
 
 @end

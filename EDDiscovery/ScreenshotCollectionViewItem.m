@@ -10,18 +10,37 @@
 #import "Image.h"
 #import "Jump.h"
 #import "System.h"
+#import "NSImage+Tint.h"
 
-@implementation ScreenshotCollectionViewItem
+@implementation ScreenshotCollectionViewItem {
+  __strong NSImage *img;
+}
 
 - (void)setRepresentedObject:(id)representedObject {
   [super setRepresentedObject:representedObject];
   
   if ([representedObject isKindOfClass:Image.class]) {
-    Image   *image = representedObject;
-    NSImage *img   = [[NSImage alloc] initWithData:image.thumbnail];
+    Image *image = representedObject;
+    
+    img = [[NSImage alloc] initWithData:image.thumbnail];
     
     self.imageView.image = img;
     self.textField.stringValue = [[image.path lastPathComponent] stringByDeletingPathExtension];
+  }
+}
+
+- (void)setSelected:(BOOL)selected {
+  [super setSelected:selected];
+  
+  if (selected) {
+    self.view.layer.backgroundColor = NSColor.blueColor.CGColor;
+    
+    self.imageView.image = [img imageTintedWithColor:NSColor.blueColor];
+  }
+  else {
+    self.view.layer.backgroundColor = NSColor.clearColor.CGColor;
+    
+    self.imageView.image = img;
   }
 }
 

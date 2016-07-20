@@ -1925,7 +1925,7 @@
                                             <rect key="frame" x="1" y="1" width="1022" height="522"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
-                                                <collectionView id="fg8-iw-KyA">
+                                                <collectionView selectable="YES" allowsMultipleSelection="YES" id="fg8-iw-KyA">
                                                     <rect key="frame" x="0.0" y="0.0" width="1038" height="522"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <collectionViewFlowLayout key="collectionViewLayout" minimumInteritemSpacing="10" minimumLineSpacing="10" id="LHR-sP-HRD">
@@ -1936,6 +1936,7 @@
                                                     <connections>
                                                         <outlet property="dataSource" destination="oDw-MN-Iu4" id="9uL-mA-v1z"/>
                                                         <outlet property="delegate" destination="oDw-MN-Iu4" id="TD4-8m-htW"/>
+                                                        <outlet property="menu" destination="87t-je-7TM" id="kTd-Lq-2b9"/>
                                                     </connections>
                                                 </collectionView>
                                             </subviews>
@@ -1977,10 +1978,36 @@
                     <connections>
                         <outlet property="screenshotsArrayController" destination="KXa-TO-iyP" id="TNI-Xv-z7n"/>
                         <outlet property="screenshotsCollectionView" destination="fg8-iw-KyA" id="Ujc-Lk-Nfk"/>
+                        <outlet property="screenshotsCollectionViewMenu" destination="87t-je-7TM" id="h79-dG-p5V"/>
                         <outlet property="screenshotsDirTextField" destination="HOy-Ar-8j0" id="klk-Zc-PH6"/>
                     </connections>
                 </viewController>
                 <customObject id="Yzz-pu-j2y" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+                <menu autoenablesItems="NO" id="87t-je-7TM">
+                    <items>
+                        <menuItem title="Delete screenshot(s)" enabled="NO" id="icC-VX-ho7">
+                            <string key="keyEquivalent" base64-UTF8="YES">
+CA
+</string>
+                            <modifierMask key="keyEquivalentModifierMask"/>
+                            <connections>
+                                <action selector="deleteMenuItemSelected:" target="oDw-MN-Iu4" id="ZLL-ym-sto"/>
+                            </connections>
+                        </menuItem>
+                        <menuItem title="Reveal in Finder" enabled="NO" id="H90-Qz-UiN">
+                            <modifierMask key="keyEquivalentModifierMask"/>
+                            <connections>
+                                <action selector="revealMenuItemSelected:" target="oDw-MN-Iu4" id="diK-Ku-P3P"/>
+                            </connections>
+                        </menuItem>
+                        <menuItem title="Preview" enabled="NO" keyEquivalent=" " id="qSw-A2-wLt">
+                            <modifierMask key="keyEquivalentModifierMask"/>
+                            <connections>
+                                <action selector="togglePreviewPanel:" target="oDw-MN-Iu4" id="vB3-bY-oGh"/>
+                            </connections>
+                        </menuItem>
+                    </items>
+                </menu>
                 <arrayController mode="entity" entityName="Image" preservesSelection="NO" automaticallyRearrangesObjects="YES" id="KXa-TO-iyP"/>
             </objects>
             <point key="canvasLocation" x="2261" y="1852"/>

@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
+#import <Quartz/Quartz.h>
 
 @class Commander;
 @class System;
@@ -19,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 #define IMG_CMDR_PREDICATE       [NSPredicate predicateWithFormat:@"jump.edsm.commander.name == %@ OR jump.netLogFile.commander.name == %@", commander.name, commander.name]
 #define IMG_CMDR_PREDICATE_THUMB [NSPredicate predicateWithFormat:@"thumbnail != nil AND (jump.edsm.commander.name == %@ OR jump.netLogFile.commander.name == %@)", commander.name, commander.name]
 
-@interface Image : NSManagedObject
+@interface Image : NSManagedObject <QLPreviewItem>
 
 + (NSArray *)screenshotsForCommander:(Commander *)commander;
 + (Image *)imageWithPath:(NSString *)path inContext:(NSManagedObjectContext *)context;
