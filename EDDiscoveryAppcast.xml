@@ -7,6 +7,24 @@
     <language>en</language>
 
       <item>
+        <title>Version 1.9</title>
+        <description>
+          <![CDATA[
+            <ul>
+              <li>Thousand-fold increase in performance when parsing systems from EDSM.</li>
+              <li>Added contextual menus to screenshots screen, with ability to preview, delete and open Finder window on selected screenshot(s).</li>
+            </ul>
+          ]]>
+        </description>
+        <pubDate>Wed, 20 Jul 2016 13:00:00 +0000</pubDate>
+        <enclosure url="https://github.com/EDDiscovery/EDDiscovery-Mac/releases/download/Release-1.9/EDDiscovery-1.9.dmg"
+                   sparkle:version="1.9"
+                   length="4271284"
+                   type="application/x-apple-diskimage"
+                   sparkle:dsaSignature="MC4CFQDjRW0n6uBcSul/lGjB/aoysmd1LwIVAJTvgMqpQeTk9/JQTaFXx7QgZX7V" />
+      </item>
+
+      <item>
         <title>Version 1.8</title>
         <description>
           <![CDATA[
