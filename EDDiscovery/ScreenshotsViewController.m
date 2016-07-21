@@ -260,13 +260,17 @@
   NSString  *name      = commander.name;
   
   if (name.length > 0) {
-    screenshotsDirTextField.stringValue = commander.screenshotsDir;
+    NSString *path = commander.screenshotsDir;
     
-    screenshotsArrayController.fetchPredicate = IMG_CMDR_PREDICATE_THUMB;
+    if (path.length > 0) {
+      screenshotsDirTextField.stringValue = path;
+      
+      screenshotsArrayController.fetchPredicate = IMG_CMDR_PREDICATE_THUMB;
     
-    [screenshotsArrayController fetchWithRequest:nil merge:NO error:nil];
+      [screenshotsArrayController fetchWithRequest:nil merge:NO error:nil];
     
-    [screenshotsCollectionView reloadData];
+      [screenshotsCollectionView reloadData];
+    }
   }
 }
 
