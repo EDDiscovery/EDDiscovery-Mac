@@ -355,7 +355,7 @@ static NetLogParser *instance = nil;
         NSLog(@"Parsed %ld jumps.", (long)newJumps.count);
         
         if ((newJumps.count % 1000) == 0 && newJumps.count != 0) {
-          [EventLogger addLog:[NSString stringWithFormat:@"%ld jumps parsed...", newJumps.count]];
+          [EventLogger addLog:[NSString stringWithFormat:@"%@ jumps parsed...", FORMAT(newJumps.count)]];
         }
       }
       else {

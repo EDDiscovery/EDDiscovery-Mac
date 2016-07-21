@@ -201,7 +201,7 @@
         LoadingViewController.progressIndicator.doubleValue++;
         
         if (((long)LoadingViewController.progressIndicator.doubleValue % 1000) == 0 && LoadingViewController.progressIndicator.doubleValue != 0) {
-          [EventLogger addLog:[NSString stringWithFormat:@"%.0f jumps parsed...", LoadingViewController.progressIndicator.doubleValue]];
+          [EventLogger addLog:[NSString stringWithFormat:@"%@ jumps parsed...", FORMAT(LoadingViewController.progressIndicator.doubleValue)]];
         }
       }];
       
