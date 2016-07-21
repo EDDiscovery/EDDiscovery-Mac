@@ -7,6 +7,23 @@
     <language>en</language>
 
       <item>
+        <title>Version 1.10</title>
+        <description>
+          <![CDATA[
+            <ul>
+              <li>Fixed bug that could cause the application to crash when entering the screenshots screen.</li>
+            </ul>
+          ]]>
+        </description>
+        <pubDate>Thu, 21 Jul 2016 11:30:00 +0000</pubDate>
+        <enclosure url="https://github.com/EDDiscovery/EDDiscovery-Mac/releases/download/Release-1.10/EDDiscovery-1.10.dmg"
+                   sparkle:version="1.10"
+                   length="4269482"
+                   type="application/x-apple-diskimage"
+                   sparkle:dsaSignature="MCwCFAyPJvF0VdyU2YyDz8dnGXy8/RYnAhRI74NV3u4wurLRJ5RKemJ2wztHew==" />
+      </item>
+
+      <item>
         <title>Version 1.9</title>
         <description>
           <![CDATA[
