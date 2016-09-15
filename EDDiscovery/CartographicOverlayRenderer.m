@@ -13,13 +13,9 @@
 #define RAD_TO_DEG	57.29577951308232
 #define DEG_TO_RAD	.0174532925199432958
 
-@interface CartographicOverlayRenderer ()
-
-@property (nonatomic, strong) NSImage *image;
-
-@end
-
-@implementation CartographicOverlayRenderer
+@implementation CartographicOverlayRenderer {
+  CGImageRef imageRef;
+}
 
 #pragma mark -
 #pragma mark memory management
@@ -28,10 +24,17 @@
   self = [super initWithOverlay:overlay];
   
   if (self != nil) {
-    self.image = ((CartographicOverlay *)self.overlay).image;
+    NSImage    *image  = ((CartographicOverlay *)self.overlay).image;
+    CGImageRef  imgRef = [image CGImageForProposedRect:nil context:nil hints:nil];
+    
+    imageRef = CGImageCreateCopy(imgRef);
   }
   
   return self;
+}
+
+- (void)dealloc {
+  CGImageRelease(imageRef);
 }
 
 #pragma mark -
@@ -56,8 +59,6 @@
   
   // Translate back after the rotation.
   CGContextTranslateCTM(context, -theRect.size.width / 2, -theRect.size.height / 2);
-  
-  CGImageRef imageRef = [self.image CGImageForProposedRect:nil context:nil hints:nil];
   
   CGContextDrawImage(context, theRect, imageRef);
   
