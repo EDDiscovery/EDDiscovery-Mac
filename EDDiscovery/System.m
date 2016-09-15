@@ -168,7 +168,9 @@
     if (response != nil) {
       [EventLogger addLog:[NSString stringWithFormat:@"Received %@ new systems from EDSM", FORMAT(response.count)]];
       
-      [WORK_CONTEXT performBlock:^{
+      //block calling thread until parsing is completed, otherwise the new sync date will be saved *before* parsing completes,
+      //which means that if soething bad happens during parsing there will be missing information on the local data base
+      [WORK_CONTEXT performBlockAndWait:^{
         NSUInteger           numAdded        = 0;
         NSUInteger           numUpdated      = 0;
         NSTimeInterval       ti              = [NSDate timeIntervalSinceReferenceDate];
