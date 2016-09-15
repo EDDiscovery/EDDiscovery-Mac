@@ -79,24 +79,51 @@
 }
 
 + (NSArray *)systemsWithNames:(NSOrderedSet *)names inContext:(NSManagedObjectContext *)context {
-  __block NSArray *array = nil;
+  NSMutableArray *systems = [NSMutableArray arrayWithCapacity:names.count];
   
-  [context performBlockAndWait:^{
-    NSString            *className = NSStringFromClass([System class]);
-    NSFetchRequest      *request   = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
-    NSError             *error     = nil;
-    
-    request.entity                 = entity;
-    request.returnsObjectsAsFaults = NO;
-    request.predicate              = [NSPredicate predicateWithFormat:@"name IN %@", names];
-    request.sortDescriptors        = @[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]];
-    request.includesPendingChanges = YES;
-    
-    array = [context executeFetchRequest:request error:&error];
-  }];
+  //divide requests in blocks of 100k records maximum to avoid incurring in sqlite query limits
   
-  return array;
+#define MAX_ITEMS 100000
+  NSArray        *namesArray = names.array;
+  NSMutableArray *nameChunks = [NSMutableArray arrayWithCapacity:(namesArray.count / MAX_ITEMS)];
+  NSUInteger      remaining  = namesArray.count;
+  NSUInteger      pos        = 0;
+  
+  while (remaining > 0) {
+    NSRange  range     = NSMakeRange(pos, MIN(MAX_ITEMS, remaining));
+    NSArray *nameChunk = [namesArray subarrayWithRange:range];
+    
+    [nameChunks addObject:nameChunk];
+    
+    remaining -= range.length;
+    pos       += range.length;
+  }
+  
+  for (NSArray *nameChunk in nameChunks) {
+    [context performBlockAndWait:^{
+      NSString            *className = NSStringFromClass([System class]);
+      NSFetchRequest      *request   = [[NSFetchRequest alloc] init];
+      NSEntityDescription *entity    = [NSEntityDescription entityForName:className inManagedObjectContext:context];
+      NSArray             *array     = nil;
+      NSError             *error     = nil;
+      
+      request.entity                 = entity;
+      request.returnsObjectsAsFaults = NO;
+      request.predicate              = [NSPredicate predicateWithFormat:@"name IN %@", nameChunk];
+      request.sortDescriptors        = @[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]];
+      request.includesPendingChanges = YES;
+      
+      array = [context executeFetchRequest:request error:&error];
+      
+      if (array.count > 0) {
+        [systems addObjectsFromArray:array];
+      }
+    }];
+  }
+  
+  [systems sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
+  
+  return systems;
 }
 
 + (System *)systemWithName:(NSString *)name inContext:(NSManagedObjectContext *)context {
