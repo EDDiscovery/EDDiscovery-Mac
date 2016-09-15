@@ -242,16 +242,17 @@ static NetLogParser *instance = nil;
       
       if (netLogFile.complete == NO) {
         NSLog(@"Parsing netLog file: %@", netLog);
-        
-        if ([netLog isEqualToString:netLogsFilesAttrs.lastObject[FILE_KEY]] == NO && allSystems == nil) {
-          allSystems = [[System allSystemsInContext:WORK_CONTEXT] mutableCopy];
-          allNames   = [NSMutableArray arrayWithCapacity:allSystems.count];
-          allJumps   = [[Jump allJumpsOfCommander:commander] mutableCopy];
-          
-          for (System *system in allSystems) {
-            [allNames addObject:system.name];
-          }
-        }
+
+// with the explosion in the number of systems, this is slowing things down too much!
+//        if ([netLog isEqualToString:netLogsFilesAttrs.lastObject[FILE_KEY]] == NO && allSystems == nil) {
+//          allSystems = [[System allSystemsInContext:WORK_CONTEXT] mutableCopy];
+//          allNames   = [NSMutableArray arrayWithCapacity:allSystems.count];
+//          allJumps   = [[Jump allJumpsOfCommander:commander] mutableCopy];
+//          
+//          for (System *system in allSystems) {
+//            [allNames addObject:system.name];
+//          }
+//        }
         
         netLogFile.complete = YES;
         
