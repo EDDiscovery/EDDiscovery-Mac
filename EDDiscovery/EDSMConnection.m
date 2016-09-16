@@ -167,9 +167,9 @@ progressCallBack:^(long long downloaded, long long total) {
   if (progress != nil) {
 #warning FIXME: making assumptions on nightly dump file size!
     //EDSM does not return expected content size of nightly dumps
-    //assume a size of 100 MB
+    //assume a size of 350 MB
     
-    total = 1024 * 1024 * 100;
+    total = 1024 * 1024 * 350;
   
     progress(downloaded, MAX(downloaded,total));
   }
