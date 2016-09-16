@@ -210,8 +210,6 @@ static NetLogParser *instance = nil;
     NSTimeInterval  ti         = [NSDate timeIntervalSinceReferenceDate];
     NSUInteger      numParsed  = 0;
     NSUInteger      numJumps   = 0;
-    NSMutableArray *allSystems = nil;
-    NSMutableArray *allNames   = nil;
     NSMutableArray *allJumps   = nil;
     Jump           *lastJump   = nil;
     
@@ -243,20 +241,13 @@ static NetLogParser *instance = nil;
       if (netLogFile.complete == NO) {
         NSLog(@"Parsing netLog file: %@", netLog);
 
-// with the explosion in the number of systems, this is slowing things down too much!
-//        if ([netLog isEqualToString:netLogsFilesAttrs.lastObject[FILE_KEY]] == NO && allSystems == nil) {
-//          allSystems = [[System allSystemsInContext:WORK_CONTEXT] mutableCopy];
-//          allNames   = [NSMutableArray arrayWithCapacity:allSystems.count];
-//          allJumps   = [[Jump allJumpsOfCommander:commander] mutableCopy];
-//          
-//          for (System *system in allSystems) {
-//            [allNames addObject:system.name];
-//          }
-//        }
+        if ([netLog isEqualToString:netLogsFilesAttrs.lastObject[FILE_KEY]] == NO && allJumps == nil) {
+          allJumps = [[Jump allJumpsOfCommander:commander] mutableCopy];
+        }
         
         netLogFile.complete = YES;
         
-        numJumps += [self parseNetLogFile:netLogFile systems:allSystems names:allNames jumps:allJumps lastJump:&lastJump];
+        numJumps += [self parseNetLogFile:netLogFile jumps:allJumps lastJump:&lastJump];
         
         numParsed++;
         
@@ -301,10 +292,10 @@ static NetLogParser *instance = nil;
   NetLogFile *currNetLogFile = [NetLogFile netLogFileWithPath:currFilePath inContext:WORK_CONTEXT];
   Jump       *lastJump       = nil;
   
-  return [self parseNetLogFile:currNetLogFile systems:nil names:nil jumps:nil lastJump:&lastJump];
+  return [self parseNetLogFile:currNetLogFile jumps:nil lastJump:&lastJump];
 }
 
-- (NSUInteger)parseNetLogFile:(NetLogFile *)netLogFile systems:(NSMutableArray *)allSystems names:(NSMutableArray *)allNames jumps:(NSMutableArray *)allJumps lastJump:(Jump **)lastJump {
+- (NSUInteger)parseNetLogFile:(NetLogFile *)netLogFile jumps:(NSMutableArray *)allJumps lastJump:(Jump **)lastJump {
   NSAssert([netLogFile.managedObjectContext isEqual:WORK_CONTEXT], @"Wrong context!");
   
   NSMutableArray *newJumps = [NSMutableArray array];
@@ -338,7 +329,7 @@ static NetLogParser *instance = nil;
     for (NSString *record in records) {
       NSString *entry = [[NSString stringWithFormat:@"{%@", record] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
       
-      [self parseNetLogRecord:entry inFile:netLogFile systems:allSystems names:allNames jumps:allJumps lastJump:lastJump];
+      [self parseNetLogRecord:entry inFile:netLogFile jumps:allJumps lastJump:lastJump];
     }
     
     netLogFile.fileOffset = currFileHandle.offsetInFile;
@@ -396,7 +387,7 @@ static NetLogParser *instance = nil;
   return newJumps.count;
 }
 
-- (void)parseNetLogRecord:(NSString *)record inFile:(NetLogFile *)netLogFile systems:(NSMutableArray *)allSystems names:(NSMutableArray *)allNames jumps:(NSMutableArray *)allJumps lastJump:(Jump **)lastJump {
+- (void)parseNetLogRecord:(NSString *)record inFile:(NetLogFile *)netLogFile jumps:(NSMutableArray *)allJumps lastJump:(Jump **)lastJump {
   NSAssert(netLogFile != nil, @"netLogFile MUST have a value");
   NSAssert([netLogFile.managedObjectContext isEqual:WORK_CONTEXT], @"Wrong context!");
   
@@ -469,11 +460,11 @@ static NetLogParser *instance = nil;
   }
   
   if (parseRecord) {
-    [self parseNetLogSystemRecord:record inFile:netLogFile systems:allSystems names:allNames jumps:allJumps lastJump:lastJump];
+    [self parseNetLogSystemRecord:record inFile:netLogFile jumps:allJumps lastJump:lastJump];
   }
 }
 
-- (void)parseNetLogSystemRecord:(NSString *)record inFile:(NetLogFile *)netLogFile systems:(NSMutableArray *)allSystems names:(NSMutableArray *)allNames jumps:(NSMutableArray *)allJumps lastJump:(Jump **)lastJump {
+- (void)parseNetLogSystemRecord:(NSString *)record inFile:(NetLogFile *)netLogFile jumps:(NSMutableArray *)allJumps lastJump:(Jump **)lastJump {
   NSAssert(netLogFile != nil, @"netLogFile MUST have a value");
   NSAssert([netLogFile.managedObjectContext isEqual:WORK_CONTEXT], @"Wrong context!");
   
@@ -489,37 +480,14 @@ static NetLogParser *instance = nil;
     }
 
     if ([(*lastJump).system.name isEqualToString:name] == NO) {
-      System *system  = nil;
+      System *system  = [System systemWithName:name inContext:WORK_CONTEXT];
       
-      if (allSystems == nil || allNames == nil) {
-        system = [System systemWithName:name inContext:WORK_CONTEXT];
-      }
-      else {
-        NSUInteger idx = [allNames indexOfObject:name];
-        
-        if (idx != NSNotFound) {
-          system = allSystems[idx];
-        }
-      }
-    
       if (system == nil) {
         NSString *className = NSStringFromClass(System.class);
         
         system = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:WORK_CONTEXT];
         
         system.name = name;
-        
-        if (allSystems != nil && allNames != nil) {
-          NSUInteger idx = [allNames indexOfObject:name
-                                     inSortedRange:(NSRange){0, allNames.count}
-                                           options:NSBinarySearchingInsertionIndex
-                                   usingComparator:^NSComparisonResult(NSString *str1, NSString *str2) {
-                                     return [str1 compare:str2];
-                                   }];
-          
-          [allNames   insertObject:name   atIndex:idx];
-          [allSystems insertObject:system atIndex:idx];
-        }
       }
       
       Jump *jump = [allJumps filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"timestamp == %@", date]].lastObject;
