@@ -185,7 +185,11 @@ NSString* locale=nil;
                          completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *error) {
                            
 #ifdef HTTP_API_MANAGER_DEBUG
-                           NSString *string=[[NSString alloc] initWithBytes: [data bytes] length:[data length] encoding: NSUTF8StringEncoding];
+                           NSString *string = [NSString stringWithFormat:@"length: %ld", (long)data.length];
+                           
+                           if (data.length < 51200) {
+                             string = [[NSString alloc] initWithBytes:data.bytes length:data.length encoding: NSUTF8StringEncoding];
+                           }
                            
                            NSLog(@"---------- Request ----------");
                            NSLog(@"%@ %@",request.HTTPMethod,request.URL);
