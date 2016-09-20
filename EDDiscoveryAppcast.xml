@@ -7,6 +7,26 @@
     <language>en</language>
 
       <item>
+        <title>Version 1.11</title>
+        <description>
+          <![CDATA[
+            <ul>
+              <li>Greatly improved wait times while parsing new systems.</li>
+              <li>Fixed bug that sometimes caused duplicate systems to be created while updating systems from EDSM.</li>
+              <li>Fixed bug that caused some systems to be lost if an update got interrupted.</li>
+              <li>Yet another attempt at fixing the map screen crashing issues.</li>
+            </ul>
+          ]]>
+        </description>
+        <pubDate>Thu, 20 Sep 2016 11:30:00 +0000</pubDate>
+        <enclosure url="https://github.com/EDDiscovery/EDDiscovery-Mac/releases/download/Release-1.11/EDDiscovery-1.11.dmg"
+                   sparkle:version="1.11"
+                   length="4291782"
+                   type="application/x-apple-diskimage"
+                   sparkle:dsaSignature="MC4CFQDjgzEKYNkeyAYuWipASo2zc3lv2QIVAKNxVpihWRJIQRcn1IHt/zab+u19" />
+      </item>
+
+      <item>
         <title>Version 1.10</title>
         <description>
           <![CDATA[
