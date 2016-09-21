@@ -7,6 +7,23 @@
     <language>en</language>
 
       <item>
+        <title>Version 1.12</title>
+        <description>
+          <![CDATA[
+            <ul>
+              <li>Re-released after fixing code signing issues.</li>
+            </ul>
+          ]]>
+        </description>
+        <pubDate>Thu, 21 Sep 2016 15:05:00 +0000</pubDate>
+        <enclosure url="https://github.com/EDDiscovery/EDDiscovery-Mac/releases/download/Release-1.12/EDDiscovery-1.12.dmg"
+                   sparkle:version="1.12"
+                   length="4253882"
+                   type="application/x-apple-diskimage"
+                   sparkle:dsaSignature="MC0CFFCqiqmGZ6bCWAcibXghmU0hUg/oAhUAsbmhrUA7EpQM1W7CiJz4+hQ62D0=" />
+      </item>
+
+      <item>
         <title>Version 1.11</title>
         <description>
           <![CDATA[
