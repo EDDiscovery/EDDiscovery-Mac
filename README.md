@@ -1,4 +1,9 @@
 # EDDiscovery-Mac
+
+Is dead as a dodo.
+
+-------
+
 Mac version of EDDiscovery
 
 Needless to say, you need to enable verbose logging on your ED installation.
